@@ -7,6 +7,7 @@
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <meta name="apple-mobile-web-app-title" content="Metiabruz Stock">
     <title>Metiabruz Stock Tracker</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         :root {
             --color-bg-primary: #f8fafc;
@@ -380,7 +381,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>ðŸ“¦ Metiabruz Stock</h1>
+        <h1>📦 Metiabruz Stock</h1>
         <div class="summary">
             <div class="summary-card">
                 <label>Total Stock</label>
@@ -402,7 +403,7 @@
     </div>
 
     <div class="search-box">
-        <input type="search" id="searchInput" placeholder="ðŸ” Search by Design No...">
+        <input type="search" id="searchInput" placeholder="🔍 Search by Design No...">
     </div>
 
     <div class="legend">
@@ -416,17 +417,17 @@
     <div id="printArea"></div>
 
     <div class="action-buttons">
-        <button class="btn btn-secondary" onclick="openAddModal()">âž• Add</button>
-        <button class="btn btn-secondary" onclick="printInventory()">ðŸ–¨ï¸ Print</button>
-        <button class="btn btn-secondary" onclick="openExportModal()">ðŸ“¤ Export</button>
-        <button class="btn btn-primary" onclick="saveToDevice()">ðŸ’¾ Save</button>
+        <button class="btn btn-secondary" onclick="openAddModal()">➕ Add</button>
+        <button class="btn btn-secondary" onclick="printInventory()">🖨️ Print</button>
+        <button class="btn btn-secondary" onclick="openExportModal()">📤 Export</button>
+        <button class="btn btn-primary" onclick="saveToDevice()">💾 Save</button>
     </div>
 
     <div class="modal" id="addEditModal">
         <div class="modal-content">
             <div class="modal-header">
                 <span id="modalTitle">Add New Design</span>
-                <button class="close-btn" onclick="closeModal('addEditModal')">âœ•</button>
+                <button class="close-btn" onclick="closeModal('addEditModal')">✕</button>
             </div>
             <div class="form-group">
                 <label>Design Number</label>
@@ -450,21 +451,59 @@
         <div class="modal-content">
             <div class="modal-header">
                 <span>Export Data</span>
-                <button class="close-btn" onclick="closeModal('exportModal')">âœ•</button>
+                <button class="close-btn" onclick="closeModal('exportModal')">✕</button>
             </div>
             <div class="export-options">
-                <button class="export-btn" onclick="exportAsCSV()">ðŸ“„ Export as CSV</button>
-                <button class="export-btn" onclick="exportAsJSON()">ðŸ“‹ Export as JSON</button>
-                <button class="export-btn" onclick="copyToClipboard()">ðŸ“‘ Copy to Clipboard</button>
+                <button class="export-btn" onclick="exportAsCSV()">📄 Export as CSV</button>
+                <button class="export-btn" onclick="exportAsJSON()">📋 Export as JSON</button>
+                <button class="export-btn" onclick="copyToClipboard()">📑 Copy to Clipboard</button>
             </div>
         </div>
     </div>
 
     <script>
-        const inventory = []; // start blank
+        // Supabase connection
+        const SUPABASE_URL = 'https://yhlfqpiwevsehlgbhxtk.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlobGZxcGl3ZXZzZWhsZ2JoeHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MzgzNTk4NTgsImV4cCI6MjA1MzkzNTg1OH0.z0BJ8RXvXwYp6XsMbF9jgBaoDNI4XOXJg2kK1vZGGpI';
+        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        let inventory = [];
         const sizes = ["22x32","34x36","16x18","26x30"];
         let editingIndex = -1;
 
+        // Load from Supabase
+        async function loadFromSupabase() {
+            const { data, error } = await supabase
+                .from('designs')
+                .select('*')
+                .order('id', { ascending: true });
+            
+            if (error) {
+                console.error('Supabase load error:', error);
+                loadFromDevice(); // fallback
+                return;
+            }
+            
+            inventory.length = 0;
+            if (data && data.length > 0) {
+                data.forEach(row => {
+                    inventory.push({
+                        id: row.id,
+                        design: row.design,
+                        stock: [row.stock_22x32 || 0, row.stock_34x36 || 0, row.stock_16x18 || 0, row.stock_26x30 || 0],
+                        sold: [row.sold_22x32 || 0, row.sold_34x36 || 0, row.sold_16x18 || 0, row.sold_26x30 || 0]
+                    });
+                });
+            }
+            renderInventory();
+        }
+
+        // Realtime sync
+        supabase.channel('designs')
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'designs' }, loadFromSupabase)
+            .subscribe();
+
+        // Device storage fallback
         function loadFromDevice() {
             try {
                 const saved = localStorage.getItem('metiabruzInventory');
@@ -480,10 +519,28 @@
             }
         }
 
-        function saveToDevice() {
+        async function saveToDevice() {
             try {
                 localStorage.setItem('metiabruzInventory', JSON.stringify(inventory));
-                alert('Saved on this device');
+                
+                // Sync to Supabase
+                for (const item of inventory) {
+                    if (item.id) {
+                        await supabase.from('designs').update({
+                            design: item.design,
+                            stock_22x32: item.stock[0],
+                            stock_34x36: item.stock[1],
+                            stock_16x18: item.stock[2],
+                            stock_26x30: item.stock[3],
+                            sold_22x32: item.sold[0],
+                            sold_34x36: item.sold[1],
+                            sold_16x18: item.sold[2],
+                            sold_26x30: item.sold[3]
+                        }).eq('id', item.id);
+                    }
+                }
+                
+                alert('✓ Saved & synced to all devices');
             } catch(e) {
                 alert('Could not save');
             }
@@ -498,7 +555,7 @@
                 : inventory;
 
             if (!filtered.length) {
-                container.innerHTML = '<div class="no-results">No designs yet. Tap âž• Add to start.</div>';
+                container.innerHTML = '<div class="no-results">No designs yet. Tap ➕ Add to start.</div>';
                 document.getElementById('designCount').textContent = inventory.length;
                 updateTotals();
                 return;
@@ -517,8 +574,8 @@
                         <span>${item.design}</span>
                     </div>
                     <div class="edit-delete-buttons">
-                        <button class="edit-btn" onclick="openEditModal(${index})">âœï¸ Edit</button>
-                        <button class="item-delete-btn" onclick="deleteDesign(${index})">ðŸ—‘ï¸ Delete</button>
+                        <button class="edit-btn" onclick="openEditModal(${index})">✏️ Edit</button>
+                        <button class="item-delete-btn" onclick="deleteDesign(${index})">🗑️ Delete</button>
                     </div>
                     <div class="size-grid">
                         ${sizes.map((size,i)=>`
@@ -566,13 +623,18 @@
             updateTotals();
         }
 
-        function updateStock(itemIndex,sizeIndex,value){
+        async function updateStock(itemIndex,sizeIndex,value){
             const v = parseInt(value)||0;
             inventory[itemIndex].stock[sizeIndex] = v;
             renderInventory(document.getElementById('searchInput').value);
+            
+            if (inventory[itemIndex].id) {
+                const col = ['stock_22x32', 'stock_34x36', 'stock_16x18', 'stock_26x30'][sizeIndex];
+                await supabase.from('designs').update({ [col]: v }).eq('id', inventory[itemIndex].id);
+            }
         }
 
-        function updateSold(itemIndex,sizeIndex,value){
+        async function updateSold(itemIndex,sizeIndex,value){
             const sold = parseInt(value)||0;
             const stock = inventory[itemIndex].stock[sizeIndex];
             if (sold>stock){
@@ -582,6 +644,11 @@
                 inventory[itemIndex].sold[sizeIndex]=sold;
             }
             renderInventory(document.getElementById('searchInput').value);
+            
+            if (inventory[itemIndex].id) {
+                const col = ['sold_22x32', 'sold_34x36', 'sold_16x18', 'sold_26x30'][sizeIndex];
+                await supabase.from('designs').update({ [col]: inventory[itemIndex].sold[sizeIndex] }).eq('id', inventory[itemIndex].id);
+            }
         }
 
         function updateTotals(){
@@ -625,7 +692,7 @@
             document.getElementById(id).classList.remove('active');
         }
 
-        function saveDesign(){
+        async function saveDesign(){
             const design=document.getElementById('designInput').value.trim();
             if(!design){alert('Enter design number');return;}
             const stock=[
@@ -634,19 +701,53 @@
                 parseInt(document.getElementById('stock2').value)||0,
                 parseInt(document.getElementById('stock3').value)||0
             ];
+            
             if(editingIndex>=0){
                 inventory[editingIndex].design=design;
                 inventory[editingIndex].stock=stock;
+                
+                if (inventory[editingIndex].id) {
+                    await supabase.from('designs').update({
+                        design,
+                        stock_22x32: stock[0],
+                        stock_34x36: stock[1],
+                        stock_16x18: stock[2],
+                        stock_26x30: stock[3]
+                    }).eq('id', inventory[editingIndex].id);
+                }
             } else {
-                inventory.push({design,stock,sold:[0,0,0,0]});
+                const { data, error } = await supabase.from('designs').insert([{
+                    design,
+                    stock_22x32: stock[0],
+                    stock_34x36: stock[1],
+                    stock_16x18: stock[2],
+                    stock_26x30: stock[3],
+                    sold_22x32: 0,
+                    sold_34x36: 0,
+                    sold_16x18: 0,
+                    sold_26x30: 0
+                }]).select();
+                
+                if (data && data[0]) {
+                    inventory.push({
+                        id: data[0].id,
+                        design,
+                        stock,
+                        sold: [0,0,0,0]
+                    });
+                }
             }
+            
             closeModal('addEditModal');
             renderInventory();
             saveToDevice();
         }
 
-        function deleteDesign(index){
+        async function deleteDesign(index){
             if(confirm(`Delete design ${inventory[index].design}?`)){
+                if (inventory[index].id) {
+                    await supabase.from('designs').delete().eq('id', inventory[index].id);
+                }
                 inventory.splice(index,1);
                 renderInventory();
                 saveToDevice();
@@ -744,8 +845,7 @@
             m.addEventListener('click',e=>{ if(e.target===m) closeModal(m.id); });
         });
 
-        loadFromDevice();
-        renderInventory();
+        loadFromSupabase();
     </script>
 </body>
 </html>
