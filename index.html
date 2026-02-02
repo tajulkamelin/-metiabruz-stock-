@@ -118,7 +118,13 @@ input{
 }
 .btn-primary{background:var(--color-primary);color:#fff}
 .btn-secondary{background:var(--color-bg-primary);color:#fff}
-.btn-danger{background:var(--color-danger);color:#fff;font-size:12px;padding:6px 10px}
+.btn-danger{
+  background:var(--color-danger);
+  color:#fff;
+  font-size:12px;
+  padding:6px 10px;
+  border-radius:8px;
+}
 
 .modal{
   display:none;
@@ -241,6 +247,7 @@ async function loadFromSupabase(){
 function renderInventory(filter=''){
   inventoryList.innerHTML='';
   let ts=0,td=0;
+
   inventory.forEach(item=>{
     ts+=item.stock.reduce((a,b)=>a+b,0);
     td+=item.sold.reduce((a,b)=>a+b,0);
@@ -285,8 +292,19 @@ async function updateSold(id,i,v){
 
 async function deleteDesign(id){
   if(!confirm("Delete this design?")) return;
+
+  // instant UI update
+  const index = inventory.findIndex(i => i.id === id);
+  if(index !== -1){
+    inventory.splice(index,1);
+    renderInventory();
+  }
+
   const {error}=await supabaseClient.from('inventory').delete().eq('id',id);
-  if(error) alert(error.message);
+  if(error){
+    alert(error.message);
+    loadFromSupabase();
+  }
 }
 
 function exportData(){
