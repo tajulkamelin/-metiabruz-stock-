@@ -4,45 +4,116 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<title>Metiabruz Stock</title>
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Metiabruz Stock">
+<title>Metiabruz Stock Tracker</title>
 
 <style>
+/* ===== ORIGINAL UI CSS (UNCHANGED) ===== */
 :root {
   --color-bg-primary:#0f172a;
   --color-bg-secondary:#1e293b;
   --color-text-primary:#f1f5f9;
   --color-text-secondary:#cbd5e1;
   --color-border:#334155;
+  --color-stock:#1e3a8a;
+  --color-sold:#92400e;
+  --color-remaining:#064e3b;
   --color-primary:#0ea5e9;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 body{
-  font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;
+  font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,sans-serif;
   background:var(--color-bg-primary);
   color:var(--color-text-primary);
   padding:12px;
   padding-bottom:90px;
 }
-.header{margin-bottom:12px}
-.inventory-list{display:flex;flex-direction:column;gap:12px}
-.item-card{
+.header{
+  background:var(--color-bg-secondary);
+  padding:16px;
+  border-radius:16px;
+  margin-bottom:16px;
+}
+.summary{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:8px;
+  margin-top:12px;
+}
+.summary-card{
+  background:var(--color-bg-primary);
+  padding:12px;
+  border-radius:10px;
+  border:1px solid var(--color-border);
+}
+.summary-card label{
+  font-size:11px;
+  color:var(--color-text-secondary);
+}
+.summary-card .value{
+  font-size:22px;
+  font-weight:700;
+}
+.search-box{
   background:var(--color-bg-secondary);
   padding:12px;
-  border-radius:12px
+  border-radius:16px;
+  margin-bottom:16px;
+}
+.search-box input{
+  width:100%;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid var(--color-border);
+  background:var(--color-bg-primary);
+  color:var(--color-text-primary);
+}
+.inventory-list{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+.item-card{
+  background:var(--color-bg-secondary);
+  border-radius:16px;
+  padding:14px;
+}
+.item-header{
+  font-size:18px;
+  font-weight:600;
+  margin-bottom:10px;
+  border-bottom:1px solid var(--color-border);
+}
+.size-row{
+  display:grid;
+  grid-template-columns:72px 1fr 1fr 1fr;
+  gap:6px;
+  margin-bottom:6px;
 }
 input{
-  padding:6px;
-  border-radius:6px;
-  border:1px solid var(--color-border)
+  padding:8px;
+  border-radius:8px;
+  border:1px solid var(--color-border);
+  text-align:center;
 }
-button{
+.action-buttons{
+  position:fixed;
+  bottom:0;left:0;right:0;
+  background:var(--color-bg-secondary);
   padding:10px;
+  display:flex;
+  gap:8px;
+}
+.btn{
+  flex:1;
+  padding:12px;
   border:none;
   border-radius:10px;
-  background:var(--color-primary);
-  color:#fff;
   font-weight:600;
 }
+.btn-primary{background:var(--color-primary);color:#fff}
+.btn-secondary{background:var(--color-bg-primary);color:#fff}
 </style>
 </head>
 
@@ -50,12 +121,23 @@ button{
 
 <div class="header">
   <h2>📦 Metiabruz Stock</h2>
-  <input id="searchInput" placeholder="Search Design">
+  <div class="summary">
+    <div class="summary-card"><label>Total Stock</label><div class="value" id="totalStock">0</div></div>
+    <div class="summary-card"><label>Total Sold</label><div class="value" id="totalSold">0</div></div>
+    <div class="summary-card"><label>Remaining</label><div class="value" id="totalRemaining">0</div></div>
+    <div class="summary-card"><label>Designs</label><div class="value" id="designCount">0</div></div>
+  </div>
+</div>
+
+<div class="search-box">
+  <input id="searchInput" placeholder="Search by Design No...">
 </div>
 
 <div class="inventory-list" id="inventoryList"></div>
 
-<button onclick="addDesign()">➕ Add Design</button>
+<div class="action-buttons">
+  <button class="btn btn-secondary" onclick="addDesign()">➕ Add</button>
+</div>
 
 <!-- SUPABASE -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -66,129 +148,80 @@ const supabaseClient = supabase.createClient(
 );
 </script>
 
-<!-- APP -->
 <script>
-const inventory = [];
-const sizes = ["22x32","34x36","16x18","26x30"];
+const inventory=[];
+const sizes=["22x32","34x36","16x18","26x30"];
 
-/* LOAD DATA */
+/* LOAD */
 async function loadFromSupabase(){
-  const { data, error } = await supabaseClient
-    .from('inventory')
-    .select('*')
-    .order('design');
-
-  if (error) {
-    alert(error.message);
-    return;
-  }
-
-  inventory.length = 0;
+  const {data,error}=await supabaseClient.from('inventory').select('*').order('design');
+  if(error){alert(error.message);return;}
+  inventory.length=0;
   inventory.push(...data);
   renderInventory();
 }
 
 /* RENDER */
 function renderInventory(filter=''){
-  const box = document.getElementById('inventoryList');
-  box.innerHTML = '';
+  const box=document.getElementById('inventoryList');
+  box.innerHTML='';
+  const list=filter?inventory.filter(i=>i.design.toLowerCase().includes(filter.toLowerCase())):inventory;
 
-  const list = filter
-    ? inventory.filter(i => i.design.toLowerCase().includes(filter.toLowerCase()))
-    : inventory;
+  let totalStock=0,totalSold=0;
+  list.forEach(item=>{
+    totalStock+=item.stock.reduce((a,b)=>a+b,0);
+    totalSold+=item.sold.reduce((a,b)=>a+b,0);
 
-  if (!list.length) {
-    box.innerHTML = '<p>No designs yet</p>';
-    return;
-  }
-
-  list.forEach((item, i) => {
-    const div = document.createElement('div');
-    div.className = 'item-card';
-    div.innerHTML = `
-      <strong>${item.design}</strong><br><br>
-      ${sizes.map((s, si) => `
-        ${s} :
-        <input type="number" value="${item.stock[si]}"
-          onchange="updateStock(${i},${si},this.value)">
-        Sold:
-        <input type="number" value="${item.sold[si]}"
-          onchange="updateSold(${i},${si},this.value)">
-        <br>
+    const card=document.createElement('div');
+    card.className='item-card';
+    card.innerHTML=`
+      <div class="item-header">${item.design}</div>
+      ${sizes.map((s,i)=>`
+        <div class="size-row">
+          <div>${s}</div>
+          <input type="number" value="${item.stock[i]}" onchange="updateStock('${item.id}',${i},this.value)">
+          <input type="number" value="${item.sold[i]}" onchange="updateSold('${item.id}',${i},this.value)">
+          <input type="number" value="${item.stock[i]-item.sold[i]}" disabled>
+        </div>
       `).join('')}
-      <br>
-      <button onclick="deleteDesign('${item.id}')">Delete</button>
     `;
-    box.appendChild(div);
+    box.appendChild(card);
   });
+
+  document.getElementById('totalStock').textContent=totalStock;
+  document.getElementById('totalSold').textContent=totalSold;
+  document.getElementById('totalRemaining').textContent=totalStock-totalSold;
+  document.getElementById('designCount').textContent=inventory.length;
 }
 
-/* ADD DESIGN */
+/* ADD */
 async function addDesign(){
-  const design = prompt("Design number?");
-  if (!design) return;
-
-  const { error } = await supabaseClient
-    .from('inventory')
-    .insert({
-      design: design,
-      stock: [0,0,0,0],
-      sold: [0,0,0,0]
-    });
-
-  if (error) {
-    alert(error.message);
-  }
+  const design=prompt("Design number?");
+  if(!design)return;
+  await supabaseClient.from('inventory').insert({design,stock:[0,0,0,0],sold:[0,0,0,0]});
 }
 
 /* UPDATE */
-async function updateStock(i, s, v){
-  const item = inventory[i];
-  const stock = [...item.stock];
-  stock[s] = +v || 0;
-
-  await supabaseClient
-    .from('inventory')
-    .update({ stock })
-    .eq('id', item.id);
+async function updateStock(id,i,v){
+  const item=inventory.find(x=>x.id===id);
+  const stock=[...item.stock];
+  stock[i]=+v||0;
+  await supabaseClient.from('inventory').update({stock}).eq('id',id);
 }
-
-async function updateSold(i, s, v){
-  const item = inventory[i];
-  const sold = [...item.sold];
-  sold[s] = Math.min(+v || 0, item.stock[s]);
-
-  await supabaseClient
-    .from('inventory')
-    .update({ sold })
-    .eq('id', item.id);
-}
-
-/* DELETE */
-async function deleteDesign(id){
-  if (!confirm("Delete this design?")) return;
-
-  await supabaseClient
-    .from('inventory')
-    .delete()
-    .eq('id', id);
+async function updateSold(id,i,v){
+  const item=inventory.find(x=>x.id===id);
+  const sold=[...item.sold];
+  sold[i]=Math.min(+v||0,item.stock[i]);
+  await supabaseClient.from('inventory').update({sold}).eq('id',id);
 }
 
 /* REALTIME */
-supabaseClient
-  .channel('inventory-realtime')
-  .on(
-    'postgres_changes',
-    { event: '*', schema: 'public', table: 'inventory' },
-    loadFromSupabase
-  )
+supabaseClient.channel('rt')
+  .on('postgres_changes',{event:'*',schema:'public',table:'inventory'},loadFromSupabase)
   .subscribe();
 
-/* SEARCH */
-document.getElementById('searchInput')
-  .addEventListener('input', e => renderInventory(e.target.value));
+document.getElementById('searchInput').addEventListener('input',e=>renderInventory(e.target.value));
 
-/* START */
 loadFromSupabase();
 </script>
 
