@@ -4,12 +4,10 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Metiabruz Stock">
 <title>Metiabruz Stock Tracker</title>
 
 <style>
-/* ===== ORIGINAL UI CSS (UNCHANGED) ===== */
 :root {
   --color-bg-primary:#0f172a;
   --color-bg-secondary:#1e293b;
@@ -97,6 +95,7 @@ input{
   border:1px solid var(--color-border);
   text-align:center;
 }
+.input-remaining{background:var(--color-remaining)}
 .action-buttons{
   position:fixed;
   bottom:0;left:0;right:0;
@@ -114,6 +113,26 @@ input{
 }
 .btn-primary{background:var(--color-primary);color:#fff}
 .btn-secondary{background:var(--color-bg-primary);color:#fff}
+.modal{
+  display:none;
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.5);
+  align-items:center;
+  justify-content:center;
+}
+.modal.active{display:flex}
+.modal-content{
+  background:var(--color-bg-secondary);
+  padding:16px;
+  border-radius:16px;
+  width:100%;
+  max-width:420px;
+}
+.form-group{margin-bottom:12px}
+.form-group label{font-size:13px;color:var(--color-text-secondary)}
+.form-group input{width:100%}
+.size-inputs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 </style>
 </head>
 
@@ -136,7 +155,27 @@ input{
 <div class="inventory-list" id="inventoryList"></div>
 
 <div class="action-buttons">
-  <button class="btn btn-secondary" onclick="addDesign()">➕ Add</button>
+  <button class="btn btn-secondary" onclick="openAddModal()">➕ Add</button>
+</div>
+
+<!-- ADD / EDIT MODAL -->
+<div class="modal" id="addModal">
+  <div class="modal-content">
+    <div class="form-group">
+      <label>Design Number</label>
+      <input id="designInput">
+    </div>
+    <div class="form-group">
+      <label>Stock Quantities</label>
+      <div class="size-inputs">
+        <input id="s0" placeholder="22x32" type="number">
+        <input id="s1" placeholder="34x36" type="number">
+        <input id="s2" placeholder="16x18" type="number">
+        <input id="s3" placeholder="26x30" type="number">
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="saveDesign()">Save</button>
+  </div>
 </div>
 
 <!-- SUPABASE -->
@@ -152,25 +191,48 @@ const supabaseClient = supabase.createClient(
 const inventory=[];
 const sizes=["22x32","34x36","16x18","26x30"];
 
-/* LOAD */
+function openAddModal(){
+  document.getElementById('addModal').classList.add('active');
+}
+function closeModal(){
+  document.getElementById('addModal').classList.remove('active');
+}
+
+async function saveDesign(){
+  const design=document.getElementById('designInput').value.trim();
+  if(!design)return alert("Enter design number");
+
+  const stock=[
+    +s0.value||0,
+    +s1.value||0,
+    +s2.value||0,
+    +s3.value||0
+  ];
+
+  const {error}=await supabaseClient.from('inventory').insert({
+    design,stock,sold:[0,0,0,0]
+  });
+
+  if(error) return alert(error.message);
+  closeModal();
+}
+
 async function loadFromSupabase(){
   const {data,error}=await supabaseClient.from('inventory').select('*').order('design');
-  if(error){alert(error.message);return;}
+  if(error)return alert(error.message);
   inventory.length=0;
   inventory.push(...data);
   renderInventory();
 }
 
-/* RENDER */
 function renderInventory(filter=''){
   const box=document.getElementById('inventoryList');
   box.innerHTML='';
-  const list=filter?inventory.filter(i=>i.design.toLowerCase().includes(filter.toLowerCase())):inventory;
+  let ts=0,td=0;
 
-  let totalStock=0,totalSold=0;
-  list.forEach(item=>{
-    totalStock+=item.stock.reduce((a,b)=>a+b,0);
-    totalSold+=item.sold.reduce((a,b)=>a+b,0);
+  inventory.forEach(item=>{
+    ts+=item.stock.reduce((a,b)=>a+b,0);
+    td+=item.sold.reduce((a,b)=>a+b,0);
 
     const card=document.createElement('div');
     card.className='item-card';
@@ -181,27 +243,19 @@ function renderInventory(filter=''){
           <div>${s}</div>
           <input type="number" value="${item.stock[i]}" onchange="updateStock('${item.id}',${i},this.value)">
           <input type="number" value="${item.sold[i]}" onchange="updateSold('${item.id}',${i},this.value)">
-          <input type="number" value="${item.stock[i]-item.sold[i]}" disabled>
+          <input class="input-remaining" value="${item.stock[i]-item.sold[i]}" disabled>
         </div>
       `).join('')}
     `;
     box.appendChild(card);
   });
 
-  document.getElementById('totalStock').textContent=totalStock;
-  document.getElementById('totalSold').textContent=totalSold;
-  document.getElementById('totalRemaining').textContent=totalStock-totalSold;
-  document.getElementById('designCount').textContent=inventory.length;
+  totalStock.textContent=ts;
+  totalSold.textContent=td;
+  totalRemaining.textContent=ts-td;
+  designCount.textContent=inventory.length;
 }
 
-/* ADD */
-async function addDesign(){
-  const design=prompt("Design number?");
-  if(!design)return;
-  await supabaseClient.from('inventory').insert({design,stock:[0,0,0,0],sold:[0,0,0,0]});
-}
-
-/* UPDATE */
 async function updateStock(id,i,v){
   const item=inventory.find(x=>x.id===id);
   const stock=[...item.stock];
@@ -215,13 +269,11 @@ async function updateSold(id,i,v){
   await supabaseClient.from('inventory').update({sold}).eq('id',id);
 }
 
-/* REALTIME */
 supabaseClient.channel('rt')
   .on('postgres_changes',{event:'*',schema:'public',table:'inventory'},loadFromSupabase)
   .subscribe();
 
-document.getElementById('searchInput').addEventListener('input',e=>renderInventory(e.target.value));
-
+searchInput.addEventListener('input',e=>renderInventory(e.target.value));
 loadFromSupabase();
 </script>
 
