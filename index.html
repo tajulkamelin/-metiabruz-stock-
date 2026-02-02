@@ -8,7 +8,7 @@
 <title>Metiabruz Stock Tracker</title>
 
 <style>
-:root {
+:root{
   --color-bg-primary:#0f172a;
   --color-bg-secondary:#1e293b;
   --color-text-primary:#f1f5f9;
@@ -25,7 +25,7 @@ body{
   background:var(--color-bg-primary);
   color:var(--color-text-primary);
   padding:12px;
-  padding-bottom:90px;
+  padding-bottom:100px;
 }
 .header{
   background:var(--color-bg-secondary);
@@ -95,7 +95,9 @@ input{
   border:1px solid var(--color-border);
   text-align:center;
 }
-.input-remaining{background:var(--color-remaining)}
+.input-remaining{
+  background:var(--color-remaining);
+}
 .action-buttons{
   position:fixed;
   bottom:0;left:0;right:0;
@@ -113,6 +115,7 @@ input{
 }
 .btn-primary{background:var(--color-primary);color:#fff}
 .btn-secondary{background:var(--color-bg-primary);color:#fff}
+
 .modal{
   display:none;
   position:fixed;
@@ -120,6 +123,7 @@ input{
   background:rgba(0,0,0,.5);
   align-items:center;
   justify-content:center;
+  z-index:200;
 }
 .modal.active{display:flex}
 .modal-content{
@@ -128,6 +132,18 @@ input{
   border-radius:16px;
   width:100%;
   max-width:420px;
+}
+.modal-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+.close-btn{
+  background:none;
+  border:none;
+  color:#fff;
+  font-size:20px;
 }
 .form-group{margin-bottom:12px}
 .form-group label{font-size:13px;color:var(--color-text-secondary)}
@@ -156,15 +172,24 @@ input{
 
 <div class="action-buttons">
   <button class="btn btn-secondary" onclick="openAddModal()">➕ Add</button>
+  <button class="btn btn-secondary" onclick="window.print()">🖨 Print</button>
+  <button class="btn btn-secondary" onclick="exportData()">📤 Export</button>
+  <button class="btn btn-primary" onclick="loadFromSupabase()">💾 Save</button>
 </div>
 
-<!-- ADD / EDIT MODAL -->
-<div class="modal" id="addModal">
+<!-- ADD MODAL -->
+<div class="modal" id="addModal" onclick="if(event.target===this)closeModal()">
   <div class="modal-content">
+    <div class="modal-header">
+      <strong>Add Design</strong>
+      <button class="close-btn" onclick="closeModal()">✕</button>
+    </div>
+
     <div class="form-group">
       <label>Design Number</label>
       <input id="designInput">
     </div>
+
     <div class="form-group">
       <label>Stock Quantities</label>
       <div class="size-inputs">
@@ -174,46 +199,30 @@ input{
         <input id="s3" placeholder="26x30" type="number">
       </div>
     </div>
+
     <button class="btn btn-primary" onclick="saveDesign()">Save</button>
   </div>
 </div>
 
-<!-- SUPABASE -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
 const supabaseClient = supabase.createClient(
   'https://yhlfqpiwevsehlgbhxtk.supabase.co',
   'sb_publishable_CkKk1cjkoS1XvBv8zldlcw_1gjt6Y2S'
 );
-</script>
 
-<script>
 const inventory=[];
 const sizes=["22x32","34x36","16x18","26x30"];
 
-function openAddModal(){
-  document.getElementById('addModal').classList.add('active');
-}
-function closeModal(){
-  document.getElementById('addModal').classList.remove('active');
-}
+function openAddModal(){addModal.classList.add('active')}
+function closeModal(){addModal.classList.remove('active')}
 
 async function saveDesign(){
-  const design=document.getElementById('designInput').value.trim();
+  const design=designInput.value.trim();
   if(!design)return alert("Enter design number");
-
-  const stock=[
-    +s0.value||0,
-    +s1.value||0,
-    +s2.value||0,
-    +s3.value||0
-  ];
-
-  const {error}=await supabaseClient.from('inventory').insert({
-    design,stock,sold:[0,0,0,0]
-  });
-
-  if(error) return alert(error.message);
+  const stock=[+s0.value||0,+s1.value||0,+s2.value||0,+s3.value||0];
+  const {error}=await supabaseClient.from('inventory').insert({design,stock,sold:[0,0,0,0]});
+  if(error)return alert(error.message);
   closeModal();
 }
 
@@ -226,14 +235,11 @@ async function loadFromSupabase(){
 }
 
 function renderInventory(filter=''){
-  const box=document.getElementById('inventoryList');
-  box.innerHTML='';
+  inventoryList.innerHTML='';
   let ts=0,td=0;
-
   inventory.forEach(item=>{
     ts+=item.stock.reduce((a,b)=>a+b,0);
     td+=item.sold.reduce((a,b)=>a+b,0);
-
     const card=document.createElement('div');
     card.className='item-card';
     card.innerHTML=`
@@ -241,15 +247,13 @@ function renderInventory(filter=''){
       ${sizes.map((s,i)=>`
         <div class="size-row">
           <div>${s}</div>
-          <input type="number" value="${item.stock[i]}" onchange="updateStock('${item.id}',${i},this.value)">
-          <input type="number" value="${item.sold[i]}" onchange="updateSold('${item.id}',${i},this.value)">
+          <input value="${item.stock[i]}" type="number" onchange="updateStock('${item.id}',${i},this.value)">
+          <input value="${item.sold[i]}" type="number" onchange="updateSold('${item.id}',${i},this.value)">
           <input class="input-remaining" value="${item.stock[i]-item.sold[i]}" disabled>
-        </div>
-      `).join('')}
+        </div>`).join('')}
     `;
-    box.appendChild(card);
+    inventoryList.appendChild(card);
   });
-
   totalStock.textContent=ts;
   totalSold.textContent=td;
   totalRemaining.textContent=ts-td;
@@ -267,6 +271,10 @@ async function updateSold(id,i,v){
   const sold=[...item.sold];
   sold[i]=Math.min(+v||0,item.stock[i]);
   await supabaseClient.from('inventory').update({sold}).eq('id',id);
+}
+
+function exportData(){
+  alert("Export feature can be added next (CSV / Excel)");
 }
 
 supabaseClient.channel('rt')
