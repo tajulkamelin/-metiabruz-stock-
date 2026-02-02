@@ -49,7 +49,7 @@ button{padding:8px;border:none;border-radius:8px;background:var(--color-primary)
 <!-- ================= SUPABASE ================= -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-const supabase = supabaseJs.createClient(
+const supabase = window.supabase.createClient(
   'https://yhlfqpiwevsehlgbhxtk.supabase.co',
   'sb_publishable_CkKk1cjkoS1XvBv8zldlcw_1gjt6Y2S'
 );
