@@ -380,7 +380,7 @@
 </head>
 <body>
     <div class="header">
-        <h1>đŚ Metiabruz Stock</h1>
+        <h1>📦 Metiabruz Stock</h1>
         <div class="summary">
             <div class="summary-card">
                 <label>Total Stock</label>
@@ -402,7 +402,7 @@
     </div>
 
     <div class="search-box">
-        <input type="search" id="searchInput" placeholder="đ Search by Design No...">
+        <input type="search" id="searchInput" placeholder="🔍 Search by Design No...">
     </div>
 
     <div class="legend">
@@ -416,17 +416,17 @@
     <div id="printArea"></div>
 
     <div class="action-buttons">
-        <button class="btn btn-secondary" onclick="openAddModal()">â Add</button>
-        <button class="btn btn-secondary" onclick="printInventory()">đ¨ď¸ Print</button>
-        <button class="btn btn-secondary" onclick="openExportModal()">đ¤ Export</button>
-        <button class="btn btn-primary" onclick="saveToDevice()">đž Save</button>
+        <button class="btn btn-secondary" onclick="openAddModal()">➕ Add</button>
+        <button class="btn btn-secondary" onclick="printInventory()">🖨️ Print</button>
+        <button class="btn btn-secondary" onclick="openExportModal()">📤 Export</button>
+        <button class="btn btn-primary" onclick="saveToDevice()">💾 Save</button>
     </div>
 
     <div class="modal" id="addEditModal">
         <div class="modal-content">
             <div class="modal-header">
                 <span id="modalTitle">Add New Design</span>
-                <button class="close-btn" onclick="closeModal('addEditModal')">â</button>
+                <button class="close-btn" onclick="closeModal('addEditModal')">✕</button>
             </div>
             <div class="form-group">
                 <label>Design Number</label>
@@ -450,12 +450,12 @@
         <div class="modal-content">
             <div class="modal-header">
                 <span>Export Data</span>
-                <button class="close-btn" onclick="closeModal('exportModal')">â</button>
+                <button class="close-btn" onclick="closeModal('exportModal')">✕</button>
             </div>
             <div class="export-options">
-                <button class="export-btn" onclick="exportAsCSV()">đ Export as CSV</button>
-                <button class="export-btn" onclick="exportAsJSON()">đ Export as JSON</button>
-                <button class="export-btn" onclick="copyToClipboard()">đ Copy to Clipboard</button>
+                <button class="export-btn" onclick="exportAsCSV()">📄 Export as CSV</button>
+                <button class="export-btn" onclick="exportAsJSON()">📋 Export as JSON</button>
+                <button class="export-btn" onclick="copyToClipboard()">📑 Copy to Clipboard</button>
             </div>
         </div>
     </div>
@@ -498,7 +498,7 @@
                 : inventory;
 
             if (!filtered.length) {
-                container.innerHTML = '<div class="no-results">No designs yet. Tap â Add to start.</div>';
+                container.innerHTML = '<div class="no-results">No designs yet. Tap ➕ Add to start.</div>';
                 document.getElementById('designCount').textContent = inventory.length;
                 updateTotals();
                 return;
@@ -517,8 +517,8 @@
                         <span>${item.design}</span>
                     </div>
                     <div class="edit-delete-buttons">
-                        <button class="edit-btn" onclick="openEditModal(${index})">âď¸ Edit</button>
-                        <button class="item-delete-btn" onclick="deleteDesign(${index})">đď¸ Delete</button>
+                        <button class="edit-btn" onclick="openEditModal(${index})">✏️ Edit</button>
+                        <button class="item-delete-btn" onclick="deleteDesign(${index})">🗑️ Delete</button>
                     </div>
                     <div class="size-grid">
                         ${sizes.map((size,i)=>`
