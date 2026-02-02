@@ -7,16 +7,12 @@
 <title>Metiabruz Stock</title>
 
 <style>
-/* ===== YOUR ORIGINAL CSS (UNCHANGED) ===== */
 :root {
   --color-bg-primary:#0f172a;
   --color-bg-secondary:#1e293b;
   --color-text-primary:#f1f5f9;
   --color-text-secondary:#cbd5e1;
   --color-border:#334155;
-  --color-stock:#1e3a8a;
-  --color-sold:#92400e;
-  --color-remaining:#064e3b;
   --color-primary:#0ea5e9;
 }
 *{margin:0;padding:0;box-sizing:border-box}
@@ -29,9 +25,24 @@ body{
 }
 .header{margin-bottom:12px}
 .inventory-list{display:flex;flex-direction:column;gap:12px}
-.item-card{background:var(--color-bg-secondary);padding:12px;border-radius:12px}
-input{padding:6px;border-radius:6px;border:1px solid var(--color-border)}
-button{padding:8px;border:none;border-radius:8px;background:var(--color-primary);color:#fff}
+.item-card{
+  background:var(--color-bg-secondary);
+  padding:12px;
+  border-radius:12px
+}
+input{
+  padding:6px;
+  border-radius:6px;
+  border:1px solid var(--color-border)
+}
+button{
+  padding:10px;
+  border:none;
+  border-radius:10px;
+  background:var(--color-primary);
+  color:#fff;
+  font-weight:600;
+}
 </style>
 </head>
 
@@ -44,73 +55,80 @@ button{padding:8px;border:none;border-radius:8px;background:var(--color-primary)
 
 <div class="inventory-list" id="inventoryList"></div>
 
-<button onclick="openAdd()">➕ Add Design</button>
+<button onclick="addDesign()">➕ Add Design</button>
 
-<!-- ================= SUPABASE ================= -->
+<!-- SUPABASE -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-const supabase = window.supabase.createClient(
+const supabaseClient = supabase.createClient(
   'https://yhlfqpiwevsehlgbhxtk.supabase.co',
   'sb_publishable_CkKk1cjkoS1XvBv8zldlcw_1gjt6Y2S'
 );
 </script>
 
-<!-- ================= APP LOGIC ================= -->
+<!-- APP -->
 <script>
-const inventory=[];
-const sizes=["22x32","34x36","16x18","26x30"];
+const inventory = [];
+const sizes = ["22x32","34x36","16x18","26x30"];
 
-/* LOAD */
+/* LOAD DATA */
 async function loadFromSupabase(){
-  const {data,error}=await supabase
+  const { data, error } = await supabaseClient
     .from('inventory')
     .select('*')
     .order('design');
-  if(error){console.error(error);return;}
-  inventory.length=0;
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  inventory.length = 0;
   inventory.push(...data);
   renderInventory();
 }
 
 /* RENDER */
 function renderInventory(filter=''){
-  const box=document.getElementById('inventoryList');
-  box.innerHTML='';
-  const list=filter
-    ? inventory.filter(i=>i.design.toLowerCase().includes(filter.toLowerCase()))
+  const box = document.getElementById('inventoryList');
+  box.innerHTML = '';
+
+  const list = filter
+    ? inventory.filter(i => i.design.toLowerCase().includes(filter.toLowerCase()))
     : inventory;
 
-  if(!list.length){
-    box.innerHTML='<p>No designs yet</p>';
+  if (!list.length) {
+    box.innerHTML = '<p>No designs yet</p>';
     return;
   }
 
-  list.forEach((item,i)=>{
-    const div=document.createElement('div');
-    div.className='item-card';
-    div.innerHTML=`
-      <strong>${item.design}</strong><br>
-      ${sizes.map((s,si)=>`
-        ${s}
+  list.forEach((item, i) => {
+    const div = document.createElement('div');
+    div.className = 'item-card';
+    div.innerHTML = `
+      <strong>${item.design}</strong><br><br>
+      ${sizes.map((s, si) => `
+        ${s} :
         <input type="number" value="${item.stock[si]}"
           onchange="updateStock(${i},${si},this.value)">
-        Sold
+        Sold:
         <input type="number" value="${item.sold[si]}"
           onchange="updateSold(${i},${si},this.value)">
         <br>
       `).join('')}
+      <br>
       <button onclick="deleteDesign('${item.id}')">Delete</button>
     `;
     box.appendChild(div);
   });
 }
 
-/* ADD */
-async function openAdd(){
+/* ADD DESIGN */
+async function addDesign(){
   const design = prompt("Design number?");
-  if(!design) return;
+  if (!design) return;
 
-  const { data, error } = await supabase
+  const { error } = await supabaseClient
     .from('inventory')
     .insert({
       design: design,
@@ -119,45 +137,56 @@ async function openAdd(){
     });
 
   if (error) {
-    alert("ERROR:\n" + error.message);
-  } else {
-    alert("Saved successfully");
+    alert(error.message);
   }
 }
+
 /* UPDATE */
-async function updateStock(i,s,v){
-  const item=inventory[i];
-  const stock=[...item.stock];
-  stock[s]=+v||0;
-  await supabase.from('inventory').update({stock}).eq('id',item.id);
+async function updateStock(i, s, v){
+  const item = inventory[i];
+  const stock = [...item.stock];
+  stock[s] = +v || 0;
+
+  await supabaseClient
+    .from('inventory')
+    .update({ stock })
+    .eq('id', item.id);
 }
-async function updateSold(i,s,v){
-  const item=inventory[i];
-  const sold=[...item.sold];
-  sold[s]=Math.min(+v||0,item.stock[s]);
-  await supabase.from('inventory').update({sold}).eq('id',item.id);
+
+async function updateSold(i, s, v){
+  const item = inventory[i];
+  const sold = [...item.sold];
+  sold[s] = Math.min(+v || 0, item.stock[s]);
+
+  await supabaseClient
+    .from('inventory')
+    .update({ sold })
+    .eq('id', item.id);
 }
 
 /* DELETE */
 async function deleteDesign(id){
-  if(confirm("Delete?")){
-    await supabase.from('inventory').delete().eq('id',id);
-  }
+  if (!confirm("Delete this design?")) return;
+
+  await supabaseClient
+    .from('inventory')
+    .delete()
+    .eq('id', id);
 }
 
 /* REALTIME */
-supabase
-  .channel('inventory-live')
+supabaseClient
+  .channel('inventory-realtime')
   .on(
     'postgres_changes',
-    {event:'*',schema:'public',table:'inventory'},
+    { event: '*', schema: 'public', table: 'inventory' },
     loadFromSupabase
   )
   .subscribe();
 
 /* SEARCH */
 document.getElementById('searchInput')
-  .addEventListener('input',e=>renderInventory(e.target.value));
+  .addEventListener('input', e => renderInventory(e.target.value));
 
 /* START */
 loadFromSupabase();
