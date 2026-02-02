@@ -4,160 +4,45 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-title" content="Metiabruz Stock">
-<title>Metiabruz Stock Tracker</title>
+<title>Metiabruz Stock</title>
 
 <style>
 :root{
-  --color-bg-primary:#0f172a;
-  --color-bg-secondary:#1e293b;
-  --color-text-primary:#f1f5f9;
-  --color-text-secondary:#cbd5e1;
-  --color-border:#334155;
-  --color-stock:#1e3a8a;
-  --color-sold:#92400e;
-  --color-remaining:#064e3b;
-  --color-primary:#0ea5e9;
-  --color-danger:#ef4444;
+  --bg:#0f172a;--card:#1e293b;--text:#f1f5f9;--muted:#cbd5e1;
+  --border:#334155;--primary:#0ea5e9;--danger:#ef4444;--remain:#064e3b
 }
-*{margin:0;padding:0;box-sizing:border-box}
+*{box-sizing:border-box;margin:0;padding:0}
 body{
   font-family:-apple-system,BlinkMacSystemFont,'SF Pro Display','Segoe UI',Roboto,sans-serif;
-  background:var(--color-bg-primary);
-  color:var(--color-text-primary);
-  padding:12px;
-  padding-bottom:110px;
+  background:var(--bg);color:var(--text);padding:12px;padding-bottom:110px
 }
-.header{
-  background:var(--color-bg-secondary);
-  padding:16px;
-  border-radius:16px;
-  margin-bottom:16px;
+.header,.search-box,.item-card,.modal-content{
+  background:var(--card);border-radius:16px;padding:16px
 }
-.summary{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:8px;
-  margin-top:12px;
+.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
+.summary-card{background:var(--bg);padding:12px;border-radius:10px;border:1px solid var(--border)}
+.summary-card label{font-size:11px;color:var(--muted)}
+.summary-card .value{font-size:22px;font-weight:700}
+.search-box{margin:16px 0}
+.search-box input,input{
+  width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);
+  background:var(--bg);color:var(--text);text-align:center
 }
-.summary-card{
-  background:var(--color-bg-primary);
-  padding:12px;
-  border-radius:10px;
-  border:1px solid var(--color-border);
-}
-.summary-card label{
-  font-size:11px;
-  color:var(--color-text-secondary);
-}
-.summary-card .value{
-  font-size:22px;
-  font-weight:700;
-}
-.search-box{
-  background:var(--color-bg-secondary);
-  padding:12px;
-  border-radius:16px;
-  margin-bottom:16px;
-}
-.search-box input{
-  width:100%;
-  padding:12px;
-  border-radius:10px;
-  border:1px solid var(--color-border);
-  background:var(--color-bg-primary);
-  color:var(--color-text-primary);
-}
-.inventory-list{
-  display:flex;
-  flex-direction:column;
-  gap:12px;
-}
-.item-card{
-  background:var(--color-bg-secondary);
-  border-radius:16px;
-  padding:14px;
-}
-.item-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  font-size:18px;
-  font-weight:600;
-  margin-bottom:10px;
-  border-bottom:1px solid var(--color-border);
-  padding-bottom:6px;
-}
-.size-row{
-  display:grid;
-  grid-template-columns:72px 1fr 1fr 1fr;
-  gap:6px;
-  margin-bottom:6px;
-}
-input{
-  padding:8px;
-  border-radius:8px;
-  border:1px solid var(--color-border);
-  text-align:center;
-}
-.input-remaining{background:var(--color-remaining)}
+.inventory-list{display:flex;flex-direction:column;gap:12px}
+.item-header{display:flex;justify-content:space-between;font-weight:600;margin-bottom:6px}
+.size-row{display:grid;grid-template-columns:72px 1fr 1fr 1fr;gap:6px;margin-bottom:6px}
+.input-remaining{background:var(--remain)}
 .action-buttons{
-  position:fixed;
-  bottom:0;left:0;right:0;
-  background:var(--color-bg-secondary);
-  padding:10px;
-  display:flex;
-  gap:8px;
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--card);padding:10px;display:flex;gap:8px
 }
-.btn{
-  flex:1;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  font-weight:600;
-}
-.btn-primary{background:var(--color-primary);color:#fff}
-.btn-secondary{background:var(--color-bg-primary);color:#fff}
-.btn-danger{
-  background:var(--color-danger);
-  color:#fff;
-  font-size:12px;
-  padding:6px 10px;
-  border-radius:8px;
-}
-
-.modal{
-  display:none;
-  position:fixed;
-  inset:0;
-  background:rgba(0,0,0,.5);
-  align-items:center;
-  justify-content:center;
-  z-index:200;
-}
+.btn{flex:1;padding:12px;border:none;border-radius:10px;font-weight:600}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-secondary{background:var(--bg);color:#fff}
+.btn-danger{background:var(--danger);color:#fff;font-size:12px;padding:6px 10px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
+  align-items:center;justify-content:center;z-index:99}
 .modal.active{display:flex}
-.modal-content{
-  background:var(--color-bg-secondary);
-  padding:16px;
-  border-radius:16px;
-  width:100%;
-  max-width:420px;
-}
-.modal-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:10px;
-}
-.close-btn{
-  background:none;
-  border:none;
-  color:#fff;
-  font-size:20px;
-}
-.form-group{margin-bottom:12px}
-.form-group label{font-size:13px;color:var(--color-text-secondary)}
-.form-group input{width:100%}
 .size-inputs{display:grid;grid-template-columns:repeat(2,1fr);gap:8px}
 </style>
 </head>
@@ -175,42 +60,27 @@ input{
 </div>
 
 <div class="search-box">
-  <input id="searchInput" placeholder="Search by Design No...">
+  <input id="searchInput" placeholder="Search by Design No">
 </div>
 
 <div class="inventory-list" id="inventoryList"></div>
 
 <div class="action-buttons">
-  <button class="btn btn-secondary" onclick="openAddModal()">➕ Add</button>
-  <button class="btn btn-secondary" onclick="window.print()">🖨 Print</button>
-  <button class="btn btn-secondary" onclick="exportData()">📤 Export</button>
-  <button class="btn btn-primary" onclick="loadFromSupabase()">💾 Save</button>
+  <button class="btn btn-secondary" onclick="openAdd()">➕ Add</button>
+  <button class="btn btn-primary" onclick="syncNow()">🔄 Sync</button>
 </div>
 
-<!-- ADD MODAL -->
-<div class="modal" id="addModal" onclick="if(event.target===this)closeModal()">
+<div class="modal" id="addModal" onclick="if(event.target===this)closeAdd()">
   <div class="modal-content">
-    <div class="modal-header">
-      <strong>Add Design</strong>
-      <button class="close-btn" onclick="closeModal()">✕</button>
-    </div>
-
-    <div class="form-group">
-      <label>Design Number</label>
-      <input id="designInput">
-    </div>
-
-    <div class="form-group">
-      <label>Stock Quantities</label>
-      <div class="size-inputs">
-        <input id="s0" placeholder="22x32" type="number">
-        <input id="s1" placeholder="34x36" type="number">
-        <input id="s2" placeholder="16x18" type="number">
-        <input id="s3" placeholder="26x30" type="number">
-      </div>
-    </div>
-
-    <button class="btn btn-primary" onclick="saveDesign()">Save</button>
+    <h3>Add Design</h3><br>
+    <input id="designInput" placeholder="Design No"><br><br>
+    <div class="size-inputs">
+      <input id="s0" placeholder="22x32" type="number">
+      <input id="s1" placeholder="34x36" type="number">
+      <input id="s2" placeholder="16x18" type="number">
+      <input id="s3" placeholder="26x30" type="number">
+    </div><br>
+    <button class="btn btn-primary" onclick="addDesign()">Save</button>
   </div>
 </div>
 
@@ -221,119 +91,100 @@ const supabaseClient = supabase.createClient(
   'sb_publishable_CkKk1cjkoS1XvBv8zldlcw_1gjt6Y2S'
 );
 
-const inventory=[];
+let inventory = JSON.parse(localStorage.getItem('inventoryCache')||'[]');
+let syncQueue = JSON.parse(localStorage.getItem('syncQueue')||'[]');
 const sizes=["22x32","34x36","16x18","26x30"];
 
-function openAddModal(){addModal.classList.add('active')}
-function closeModal(){addModal.classList.remove('active')}
-
-/* 🔥 FIXED: INSTANT ADD */
-async function saveDesign(){
-  const design = designInput.value.trim();
-  if(!design) return alert("Enter design number");
-
-  const stock=[+s0.value||0,+s1.value||0,+s2.value||0,+s3.value||0];
-
-  const { data, error } = await supabaseClient
-    .from('inventory')
-    .insert({ design, stock, sold:[0,0,0,0] })
-    .select()
-    .single();
-
-  if(error) return alert(error.message);
-
-  // instant UI update
-  inventory.push(data);
-  renderInventory();
-  closeModal();
+function saveCache(){
+  localStorage.setItem('inventoryCache',JSON.stringify(inventory));
+  localStorage.setItem('syncQueue',JSON.stringify(syncQueue));
 }
 
-async function loadFromSupabase(){
-  const {data,error}=await supabaseClient.from('inventory').select('*').order('design');
-  if(error)return alert(error.message);
-  inventory.length=0;
-  inventory.push(...data);
-  renderInventory();
-}
-
-function renderInventory(){
+function render(){
   inventoryList.innerHTML='';
   let ts=0,td=0;
-
   inventory.forEach(item=>{
     ts+=item.stock.reduce((a,b)=>a+b,0);
     td+=item.sold.reduce((a,b)=>a+b,0);
-
-    const card=document.createElement('div');
-    card.className='item-card';
-    card.innerHTML=`
-      <div class="item-header">
-        <span>${item.design}</span>
-        <button class="btn-danger" onclick="deleteDesign('${item.id}')">🗑 Delete</button>
-      </div>
-      ${sizes.map((s,i)=>`
-        <div class="size-row">
-          <div>${s}</div>
-          <input type="number" value="${item.stock[i]}" onchange="updateStock('${item.id}',${i},this.value)">
-          <input type="number" value="${item.sold[i]}" onchange="updateSold('${item.id}',${i},this.value)">
-          <input class="input-remaining" value="${item.stock[i]-item.sold[i]}" disabled>
+    inventoryList.innerHTML+=`
+      <div class="item-card">
+        <div class="item-header">
+          ${item.design}
+          <button class="btn-danger" onclick="del('${item.id}')">🗑</button>
         </div>
-      `).join('')}
-    `;
-    inventoryList.appendChild(card);
+        ${sizes.map((s,i)=>`
+          <div class="size-row">
+            <div>${s}</div>
+            <input value="${item.stock[i]}" onchange="upd('${item.id}',${i},this.value,'stock')">
+            <input value="${item.sold[i]}" onchange="upd('${item.id}',${i},this.value,'sold')">
+            <input class="input-remaining" value="${item.stock[i]-item.sold[i]}" disabled>
+          </div>`).join('')}
+      </div>`;
   });
-
   totalStock.textContent=ts;
   totalSold.textContent=td;
   totalRemaining.textContent=ts-td;
   designCount.textContent=inventory.length;
+  saveCache();
 }
 
-async function updateStock(id,i,v){
+function openAdd(){addModal.classList.add('active')}
+function closeAdd(){addModal.classList.remove('active')}
+
+function addDesign(){
+  const item={
+    id:crypto.randomUUID(),
+    design:designInput.value,
+    stock:[+s0.value||0,+s1.value||0,+s2.value||0,+s3.value||0],
+    sold:[0,0,0,0],
+    offline:true
+  };
+  inventory.push(item);
+  syncQueue.push({type:'add',item});
+  closeAdd();render();
+}
+
+function upd(id,i,v,type){
   const item=inventory.find(x=>x.id===id);
-  const stock=[...item.stock];
-  stock[i]=+v||0;
-  await supabaseClient.from('inventory').update({stock}).eq('id',id);
-}
-async function updateSold(id,i,v){
-  const item=inventory.find(x=>x.id===id);
-  const sold=[...item.sold];
-  sold[i]=Math.min(+v||0,item.stock[i]);
-  await supabaseClient.from('inventory').update({sold}).eq('id',id);
+  item[type][i]=+v||0;
+  syncQueue.push({type:'update',id,data:item});
+  render();
 }
 
-/* instant delete already fixed */
-async function deleteDesign(id){
-  if(!confirm("Delete this design?")) return;
+function del(id){
+  inventory=inventory.filter(i=>i.id!==id);
+  syncQueue.push({type:'delete',id});
+  render();
+}
 
-  const index = inventory.findIndex(i => i.id === id);
-  if(index !== -1){
-    inventory.splice(index,1);
-    renderInventory();
+async function syncNow(){
+  if(!navigator.onLine) return alert("No internet");
+  for(const job of syncQueue){
+    if(job.type==='add'){
+      await supabaseClient.from('inventory').insert({
+        design:job.item.design,
+        stock:job.item.stock,
+        sold:job.item.sold
+      });
+    }
+    if(job.type==='update'){
+      await supabaseClient.from('inventory').update({
+        stock:job.data.stock,
+        sold:job.data.sold
+      }).eq('design',job.data.design);
+    }
+    if(job.type==='delete'){
+      await supabaseClient.from('inventory').delete().eq('id',job.id);
+    }
   }
-
-  const {error}=await supabaseClient.from('inventory').delete().eq('id',id);
-  if(error){
-    alert(error.message);
-    loadFromSupabase();
-  }
+  syncQueue=[];
+  const {data}=await supabaseClient.from('inventory').select('*');
+  inventory=data||[];
+  saveCache();render();
 }
 
-function exportData(){
-  alert("CSV / Excel export can be added next");
-}
-
-supabaseClient.channel('rt')
-  .on('postgres_changes',{event:'*',schema:'public',table:'inventory'},loadFromSupabase)
-  .subscribe();
-
-searchInput.addEventListener('input',e=>{
-  const v=e.target.value.toLowerCase();
-  const filtered=inventory.filter(i=>i.design.toLowerCase().includes(v));
-  renderInventory(filtered);
-});
-
-loadFromSupabase();
+window.addEventListener('online',syncNow);
+render();
 </script>
 
 </body>
