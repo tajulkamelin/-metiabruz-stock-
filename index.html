@@ -107,15 +107,23 @@ function renderInventory(filter=''){
 
 /* ADD */
 async function openAdd(){
-  const design=prompt("Design number?");
-  if(!design)return;
-  await supabase.from('inventory').insert({
-    design,
-    stock:[0,0,0,0],
-    sold:[0,0,0,0]
-  });
-}
+  const design = prompt("Design number?");
+  if(!design) return;
 
+  const { data, error } = await supabase
+    .from('inventory')
+    .insert({
+      design: design,
+      stock: [0,0,0,0],
+      sold: [0,0,0,0]
+    });
+
+  if (error) {
+    alert("ERROR:\n" + error.message);
+  } else {
+    alert("Saved successfully");
+  }
+}
 /* UPDATE */
 async function updateStock(i,s,v){
   const item=inventory[i];
