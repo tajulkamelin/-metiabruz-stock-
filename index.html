@@ -89,119 +89,138 @@ body{
     <button class="btn btn-primary" onclick="addDesign()">Save</button>
   </div>
 </div>
-
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
+/* ================== SUPABASE ================== */
 const supabaseClient = supabase.createClient(
   'https://yhlfqpiwevsehlgbhxtk.supabase.co',
   'sb_publishable_CkKk1cjkoS1XvBv8zldlcw_1gjt6Y2S'
 );
 
-let inventory = JSON.parse(localStorage.getItem('inventoryCache')||'[]');
-let syncQueue = JSON.parse(localStorage.getItem('syncQueue')||'[]');
-const sizes=["22x32","34x36","16x18","26x30"];
+/* ================== STATE ================== */
+const sizes = ["22x32","34x36","16x18","26x30"];
+let inventory = [];
+let syncQueue = JSON.parse(localStorage.getItem('metiabruzSyncQueue') || '[]');
 
-function saveCache(){
-  localStorage.setItem('inventoryCache',JSON.stringify(inventory));
-  localStorage.setItem('syncQueue',JSON.stringify(syncQueue));
+/* ================== LOCAL CACHE ================== */
+function loadFromDevice(){
+  const saved = localStorage.getItem('metiabruzInventory');
+  if(saved){
+    inventory = JSON.parse(saved);
+  }
 }
 
-function render(){
-  inventoryList.innerHTML='';
-  let ts=0,td=0;
-  inventory.forEach(item=>{
-    ts+=item.stock.reduce((a,b)=>a+b,0);
-    td+=item.sold.reduce((a,b)=>a+b,0);
-    inventoryList.innerHTML+=`
-      <div class="item-card">
-        <div class="item-header">
-          ${item.design}
-          <button class="btn-danger" onclick="del('${item.id}')">🗑</button>
-        </div>
-        ${sizes.map((s,i)=>`
-          <div class="size-row">
-            <div>${s}</div>
-            <input value="${item.stock[i]}" onchange="upd('${item.id}',${i},this.value,'stock')">
-            <input value="${item.sold[i]}" onchange="upd('${item.id}',${i},this.value,'sold')">
-            <input class="input-remaining" value="${item.stock[i]-item.sold[i]}" disabled>
-          </div>`).join('')}
-      </div>`;
-  });
-  totalStock.textContent=ts;
-  totalSold.textContent=td;
-  totalRemaining.textContent=ts-td;
-  designCount.textContent=inventory.length;
-  saveCache();
+function saveToDevice(){
+  localStorage.setItem('metiabruzInventory', JSON.stringify(inventory));
+  localStorage.setItem('metiabruzSyncQueue', JSON.stringify(syncQueue));
 }
 
-function openAdd(){addModal.classList.add('active')}
-function closeAdd(){addModal.classList.remove('active')}
+/* ================== RENDER ================== */
+/* Uses your existing renderInventory(), updateTotals(), UI exactly same */
 
-function addDesign(){
-  if(!designInput.value) return;
+/* ================== CRUD OVERRIDES ================== */
+function saveDesign(){
+  const design=document.getElementById('designInput').value.trim();
+  if(!design){alert('Enter design number');return;}
+
+  const stock=[
+    +stock0.value||0,
+    +stock1.value||0,
+    +stock2.value||0,
+    +stock3.value||0
+  ];
+
   const item={
     id:crypto.randomUUID(),
-    design:designInput.value,
-    stock:[+s0.value||0,+s1.value||0,+s2.value||0,+s3.value||0],
+    design,
+    stock,
     sold:[0,0,0,0]
   };
+
   inventory.push(item);
   syncQueue.push({type:'add',item});
-  closeAdd();render();
+  closeModal('addEditModal');
+  saveToDevice();
+  renderInventory();
 }
 
-function upd(id,i,v,type){
-  const item=inventory.find(x=>x.id===id);
-  item[type][i]=+v||0;
-  syncQueue.push({type:'update',data:item});
-  render();
+function updateStock(itemIndex,sizeIndex,value){
+  inventory[itemIndex].stock[sizeIndex]=+value||0;
+  syncQueue.push({type:'update',item:inventory[itemIndex]});
+  saveToDevice();
+  renderInventory(searchInput.value);
 }
 
-function del(id){
-  inventory=inventory.filter(i=>i.id!==id);
+function updateSold(itemIndex,sizeIndex,value){
+  const item=inventory[itemIndex];
+  item.sold[sizeIndex]=Math.min(+value||0,item.stock[sizeIndex]);
+  syncQueue.push({type:'update',item});
+  saveToDevice();
+  renderInventory(searchInput.value);
+}
+
+function deleteDesign(index){
+  if(!confirm('Delete design?')) return;
+  const id=inventory[index].id;
+  inventory.splice(index,1);
   syncQueue.push({type:'delete',id});
-  render();
+  saveToDevice();
+  renderInventory();
 }
 
+/* ================== SYNC ================== */
 async function syncNow(){
-  if(!navigator.onLine) return;
+  if(!navigator.onLine || !syncQueue.length) return;
+
   for(const job of syncQueue){
     if(job.type==='add'){
       await supabaseClient.from('inventory').insert(job.item);
     }
     if(job.type==='update'){
       await supabaseClient.from('inventory')
-        .update({stock:job.data.stock,sold:job.data.sold})
-        .eq('design',job.data.design);
+        .update({stock:job.item.stock,sold:job.item.sold})
+        .eq('design',job.item.design);
     }
     if(job.type==='delete'){
       await supabaseClient.from('inventory').delete().eq('id',job.id);
     }
   }
+
   syncQueue=[];
   const {data}=await supabaseClient.from('inventory').select('*');
   inventory=data||[];
-  saveCache();render();
+  saveToDevice();
+  renderInventory();
 }
 
+/* ================== REALTIME ================== */
+supabaseClient
+  .channel('inventory-live')
+  .on(
+    'postgres_changes',
+    {event:'*',schema:'public',table:'inventory'},
+    payload=>{
+      if(payload.eventType!=='DELETE'){
+        const i=inventory.findIndex(x=>x.design===payload.new.design);
+        if(i>-1) inventory[i]=payload.new;
+        else inventory.push(payload.new);
+      }
+      if(payload.eventType==='DELETE'){
+        inventory=inventory.filter(i=>i.id!==payload.old.id);
+      }
+      saveToDevice();
+      renderInventory();
+    }
+  )
+  .subscribe();
+
+/* ================== AUTO SYNC ================== */
 window.addEventListener('online',syncNow);
 
-function printInventory(){window.print()}
-function exportData(){
-  navigator.clipboard.writeText(JSON.stringify(inventory,null,2));
-  alert("Export copied");
-}
-
-render();
+/* ================== START ================== */
+loadFromDevice();
+renderInventory();
+syncNow();
 </script>
-
-<script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("service-worker.js");
-  });
-}
-</script>
-
 </body>
 </html>
