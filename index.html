@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-<head> <link rel="manifest" href="manifest.json">
-<meta name="theme-color" content="#0ea5e9">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<title>Metiabruz Stock</title>
+<head>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0ea5e9">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <title>Metiabruz Stock</title>
 
 <style>
 :root{
@@ -66,11 +67,15 @@ body{
 
 <div class="inventory-list" id="inventoryList"></div>
 
+<!-- ✅ RESTORED OLD BUTTON BAR -->
 <div class="action-buttons">
   <button class="btn btn-secondary" onclick="openAdd()">➕ Add</button>
-  <button class="btn btn-primary" onclick="syncNow()">🔄 Sync</button>
+  <button class="btn btn-secondary" onclick="printInventory()">🖨 Print</button>
+  <button class="btn btn-secondary" onclick="exportData()">📤 Export</button>
+  <button class="btn btn-primary" onclick="saveCache()">💾 Save</button>
 </div>
 
+<!-- ADD MODAL -->
 <div class="modal" id="addModal" onclick="if(event.target===this)closeAdd()">
   <div class="modal-content">
     <h3>Add Design</h3><br>
@@ -133,12 +138,12 @@ function openAdd(){addModal.classList.add('active')}
 function closeAdd(){addModal.classList.remove('active')}
 
 function addDesign(){
+  if(!designInput.value) return;
   const item={
     id:crypto.randomUUID(),
     design:designInput.value,
     stock:[+s0.value||0,+s1.value||0,+s2.value||0,+s3.value||0],
-    sold:[0,0,0,0],
-    offline:true
+    sold:[0,0,0,0]
   };
   inventory.push(item);
   syncQueue.push({type:'add',item});
@@ -148,7 +153,7 @@ function addDesign(){
 function upd(id,i,v,type){
   const item=inventory.find(x=>x.id===id);
   item[type][i]=+v||0;
-  syncQueue.push({type:'update',id,data:item});
+  syncQueue.push({type:'update',data:item});
   render();
 }
 
@@ -159,20 +164,15 @@ function del(id){
 }
 
 async function syncNow(){
-  if(!navigator.onLine) return alert("No internet");
+  if(!navigator.onLine) return;
   for(const job of syncQueue){
     if(job.type==='add'){
-      await supabaseClient.from('inventory').insert({
-        design:job.item.design,
-        stock:job.item.stock,
-        sold:job.item.sold
-      });
+      await supabaseClient.from('inventory').insert(job.item);
     }
     if(job.type==='update'){
-      await supabaseClient.from('inventory').update({
-        stock:job.data.stock,
-        sold:job.data.sold
-      }).eq('design',job.data.design);
+      await supabaseClient.from('inventory')
+        .update({stock:job.data.stock,sold:job.data.sold})
+        .eq('design',job.data.design);
     }
     if(job.type==='delete'){
       await supabaseClient.from('inventory').delete().eq('id',job.id);
@@ -185,9 +185,17 @@ async function syncNow(){
 }
 
 window.addEventListener('online',syncNow);
+
+function printInventory(){window.print()}
+function exportData(){
+  navigator.clipboard.writeText(JSON.stringify(inventory,null,2));
+  alert("Export copied");
+}
+
 render();
 </script>
-  <script>
+
+<script>
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
     navigator.serviceWorker.register("service-worker.js");
