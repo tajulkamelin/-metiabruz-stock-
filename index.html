@@ -14,61 +14,51 @@
   --border:#334155;--primary:#0ea5e9;--danger:#ef4444;--remain:#10b981;
   --input-bg:#020617;
 }
-*{box-sizing:border-box;margin:0;padding:0; -webkit-tap-highlight-color: transparent;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{
   font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
   background:var(--bg);color:var(--text);padding:12px;padding-bottom:120px;
 }
 .header,.search-box,.item-card,.modal-content{
-  background:var(--card);border-radius:12px;padding:16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  background:var(--card);border-radius:12px;padding:16px
 }
 .summary{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
-.summary-card{background:var(--input-bg);padding:10px;border-radius:8px;border:1px solid var(--border); text-align: center;}
-.summary-card label{font-size:10px;color:var(--muted);text-transform: uppercase;letter-spacing: 0.5px;}
+.summary-card{background:var(--input-bg);padding:10px;border-radius:8px;border:1px solid var(--border);text-align:center}
+.summary-card label{font-size:10px;color:var(--muted)}
 .summary-card .value{font-size:20px;font-weight:700;color:var(--primary)}
 .summary-card.green .value{color:var(--remain)}
-.search-box{margin:16px 0; display:flex; gap:10px; align-items: center;}
-.search-box input, input{
+.search-box{margin:16px 0}
+.search-box input,input{
   width:100%;padding:12px;border-radius:8px;border:1px solid var(--border);
-  background:var(--input-bg);color:var(--text);font-size: 16px; outline: none;
+  background:var(--input-bg);color:var(--text)
 }
-.search-box input:focus, input:focus{border-color: var(--primary);}
 .inventory-list{display:flex;flex-direction:column;gap:16px}
-.item-header{display:flex;justify-content:space-between;align-items:center; margin-bottom:10px; padding-bottom: 8px; border-bottom: 1px solid var(--border);}
-.design-name {font-size: 18px; font-weight: 800; color: var(--primary);}
-.col-headers {display: grid; grid-template-columns: 60px 1fr 1fr 1fr; gap: 8px; margin-bottom: 5px; text-align: center; font-size: 10px; color: var(--muted);}
-.size-row{display:grid;grid-template-columns:60px 1fr 1fr 1fr;gap:8px;margin-bottom:8px; align-items: center;}
-.size-label {font-size: 13px; font-weight: 600; color: var(--muted);}
-.qty-input { text-align: center; font-weight: 600;}
-.input-remain { background: rgba(16, 185, 129, 0.1); border-color: var(--remain); color: var(--remain); font-weight: 700; text-align: center; border:none; padding: 10px; border-radius: 8px;}
+.item-header{display:flex;justify-content:space-between;margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:6px}
+.design-name{font-size:18px;font-weight:800;color:var(--primary)}
+.size-row{display:grid;grid-template-columns:60px 1fr 1fr 1fr;gap:8px;margin-bottom:6px}
+.input-remain{background:rgba(16,185,129,.15);color:var(--remain);text-align:center;border:none;border-radius:8px;padding:10px}
 .action-buttons{
   position:fixed;bottom:0;left:0;right:0;
-  background:var(--card);padding:12px;display:grid;grid-template-columns: repeat(4, 1fr); gap:8px;
-  border-top: 1px solid var(--border);
-  box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.3);
+  background:var(--card);padding:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px
 }
-.btn{width:100%; padding:10px;border:none;border-radius:8px;font-weight:600; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11px;}
-.btn i {font-size: 18px; font-style: normal;}
+.btn{padding:10px;border:none;border-radius:8px;font-weight:600;font-size:11px}
 .btn-primary{background:var(--primary);color:#fff}
-.btn-secondary{background:var(--bg);color:var(--muted); border: 1px solid var(--border);}
-.btn-danger{background:var(--danger);color:#fff;border:none;border-radius:6px;padding:4px 12px;}
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);
-  align-items:center;justify-content:center;z-index:99; backdrop-filter: blur(2px);}
+.btn-secondary{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.btn-danger{background:var(--danger);color:#fff;border-radius:6px;padding:4px 10px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);align-items:center;justify-content:center}
 .modal.active{display:flex}
-.modal-content{width: 90%; max-width: 400px;}
-.size-inputs{display:grid;grid-template-columns:repeat(2,1fr);gap:12px; margin-top: 12px;}
+.modal-content{width:90%;max-width:400px}
+.size-inputs{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 </style>
 </head>
 
 <body>
 
 <div class="header">
-  <div style="display:flex; justify-content:space-between; align-items:center;">
+  <div style="display:flex;justify-content:space-between">
     <h2>📦 Stock</h2>
-    <div id="statusIndicator" style="font-size:12px; font-weight: bold;">Connecting...</div>
+    <div id="statusIndicator">🔴 Offline</div>
   </div>
-  
   <div class="summary">
     <div class="summary-card"><label>Total Stock</label><div class="value" id="totalStock">0</div></div>
     <div class="summary-card"><label>Total Sold</label><div class="value" id="totalSold">0</div></div>
@@ -78,169 +68,130 @@ body{
 </div>
 
 <div class="search-box">
-  <input id="searchInput" placeholder="🔍 Search Design No..." onkeyup="render()">
+  <input id="searchInput" placeholder="Search Design" oninput="render()">
 </div>
 
 <div class="inventory-list" id="inventoryList"></div>
 
 <div class="action-buttons">
-  <button class="btn btn-primary" onclick="openAdd()"><i>➕</i> Add</button>
-  <button class="btn btn-secondary" onclick="exportCSV()"><i>📤</i> CSV</button>
-  <button class="btn btn-secondary" onclick="fetchData()"><i>🔄</i> Refresh</button>
-  <button class="btn btn-secondary" onclick="saveCache()"><i>💾</i> Save</button>
+  <button class="btn btn-secondary" onclick="openAdd()">➕ Add</button>
+  <button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
+  <button class="btn btn-secondary" onclick="exportCSV()">📤 Export</button>
+  <button class="btn btn-primary" onclick="saveCache()">💾 Save</button>
 </div>
 
 <div class="modal" id="addModal" onclick="if(event.target===this)closeAdd()">
   <div class="modal-content">
-    <h3>Add New Design</h3><br>
-    <input id="designInput" placeholder="Design Number" autofocus><br>
+    <h3>Add Design</h3><br>
+    <input id="designInput" placeholder="Design No"><br><br>
     <div class="size-inputs">
       <input id="s0" placeholder="22x32" type="number">
       <input id="s1" placeholder="34x36" type="number">
       <input id="s2" placeholder="16x18" type="number">
       <input id="s3" placeholder="26x30" type="number">
     </div><br>
-    <button class="btn btn-primary" style="font-size:14px; flex-direction:row;" onclick="addDesign()">Save Design</button>
+    <button class="btn btn-primary" onclick="addDesign()">Save</button>
   </div>
 </div>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-// --- CONFIGURATION ---
-const SUPABASE_URL = 'https://yhlfqpiwevsehlgbhxtk.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_CkKk1cjkoS1XvBv8zldlcw_1gjt6Y2S';
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = supabase.createClient(
+  'https://yhlfqpiwevsehlgbhxtk.supabase.co',
+  'sb_publishable_CkKk1cjkoS1XvBv8zldlcw_1gjt6Y2S'
+);
 
-// --- STATE ---
-let inventory = JSON.parse(localStorage.getItem('inventoryCache')||'[]');
-const sizes = ["22x32", "34x36", "16x18", "26x30"];
+let inventory = [];
+const sizes=["22x32","34x36","16x18","26x30"];
 
 function saveCache(){
   localStorage.setItem('inventoryCache',JSON.stringify(inventory));
 }
 
 function render(){
-  const term = searchInput.value.toLowerCase();
-  inventoryList.innerHTML = '';
-  let ts=0, td=0;
+  const q = searchInput.value.toLowerCase();
+  inventoryList.innerHTML='';
+  let ts=0,td=0;
 
-  const filtered = inventory.filter(item => item.design.toLowerCase().includes(term));
+  inventory.filter(i=>i.design.toLowerCase().includes(q)).forEach(item=>{
+    ts+=item.stock.reduce((a,b)=>a+b,0);
+    td+=item.sold.reduce((a,b)=>a+b,0);
 
-  filtered.forEach(item=>{
-    ts += item.stock.reduce((a,b)=>a+b,0);
-    td += item.sold.reduce((a,b)=>a+b,0);
-    
-    let sizeRows = '';
-    sizes.forEach((s, i) => {
-      let rem = item.stock[i] - item.sold[i];
-      sizeRows += `
-        <div class="size-row">
-          <div class="size-label">${s}</div>
-          <input type="tel" class="qty-input" value="${item.stock[i]}" onchange="upd('${item.id}',${i},this.value,'stock')">
-          <input type="tel" class="qty-input" value="${item.sold[i]}" onchange="upd('${item.id}',${i},this.value,'sold')">
-          <div class="input-remain">${rem}</div>
-        </div>
-      `;
-    });
-
-    inventoryList.innerHTML += `
+    inventoryList.innerHTML+=`
       <div class="item-card">
         <div class="item-header">
-          <span class="design-name"># ${item.design}</span>
+          <span class="design-name">${item.design}</span>
           <button class="btn-danger" onclick="del('${item.id}')">Delete</button>
         </div>
-        <div class="col-headers"><span>SIZE</span><span>STOCK</span><span>SOLD</span><span>REM</span></div>
-        ${sizeRows}
+        ${sizes.map((s,i)=>`
+          <div class="size-row">
+            <div>${s}</div>
+            <input value="${item.stock[i]}" onchange="upd('${item.id}',${i},this.value,'stock')">
+            <input value="${item.sold[i]}" onchange="upd('${item.id}',${i},this.value,'sold')">
+            <div class="input-remain">${item.stock[i]-item.sold[i]}</div>
+          </div>`).join('')}
       </div>`;
   });
 
-  totalStock.textContent = ts;
-  totalSold.textContent = td;
-  totalRemaining.textContent = ts - td;
-  designCount.textContent = inventory.length;
-  saveCache();
+  totalStock.textContent=ts;
+  totalSold.textContent=td;
+  totalRemaining.textContent=ts-td;
+  designCount.textContent=inventory.length;
 }
 
-// --- LOGIC ---
-function openAdd(){ addModal.classList.add('active'); document.getElementById('designInput').focus(); }
-function closeAdd(){ addModal.classList.remove('active'); }
+function openAdd(){addModal.classList.add('active')}
+function closeAdd(){addModal.classList.remove('active')}
 
 async function addDesign(){
-  if(!designInput.value) return alert("Enter Design Number");
-  
-  const newItem = {
-    design: designInput.value,
-    stock: [+s0.value||0, +s1.value||0, +s2.value||0, +s3.value||0],
-    sold: [0,0,0,0]
-    // We removed the 'id' here so Supabase creates it automatically
-  };
-  
-  const { error } = await supabaseClient.from('inventory').insert(newItem);
-  
-  if(error) {
-    alert("Error: " + error.message);
-  } else {
-    designInput.value=''; s0.value=''; s1.value=''; s2.value=''; s3.value='';
-    closeAdd();
-  }
+  if(!designInput.value) return;
+  await supabaseClient.from('inventory').insert({
+    design:designInput.value,
+    stock:[+s0.value||0,+s1.value||0,+s2.value||0,+s3.value||0],
+    sold:[0,0,0,0]
+  });
+  designInput.value=s0.value=s1.value=s2.value=s3.value='';
+  closeAdd();
 }
 
-
-async function upd(id, index, val, type){
-  const item = inventory.find(x => x.id === id);
+async function upd(id,i,v,type){
+  const item=inventory.find(x=>x.id===id);
   if(!item) return;
-  const updatedArray = [...item[type]];
-  updatedArray[index] = Number(val) || 0;
-
-  const { error } = await supabaseClient.from('inventory').update({ [type]: updatedArray }).eq('id', id);
-  if(error) console.error("Update failed", error);
+  const arr=[...item[type]];
+  arr[i]=+v||0;
+  await supabaseClient.from('inventory').update({[type]:arr}).eq('id',id);
 }
 
 async function del(id){
-  if(!confirm("Delete this?")) return;
-  const { error } = await supabaseClient.from('inventory').delete().eq('id', id);
-  if(error) alert("Delete failed");
+  if(confirm('Delete?')){
+    await supabaseClient.from('inventory').delete().eq('id',id);
+  }
 }
 
-// --- REALTIME & SYNC ---
 async function fetchData(){
-  const {data} = await supabaseClient.from('inventory').select('*').order('created_at', {ascending: false});
-  if(data) { inventory = data; render(); }
+  const {data}=await supabaseClient.from('inventory').select('*');
+  inventory=data||[];
+  saveCache();
+  render();
 }
 
-function initRealtime() {
-  supabaseClient.channel('any')
-    .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, payload => {
-      if (payload.eventType === 'INSERT') {
-        if (!inventory.find(i => i.id === payload.new.id)) inventory.unshift(payload.new);
-      } else if (payload.eventType === 'UPDATE') {
-        inventory = inventory.map(i => i.id === payload.new.id ? payload.new : i);
-      } else if (payload.eventType === 'DELETE') {
-        inventory = inventory.filter(i => i.id !== payload.old.id);
-      }
-      render();
-    })
-    .subscribe(status => {
-      const el = document.getElementById('statusIndicator');
-      el.textContent = status === 'SUBSCRIBED' ? "🟢 Live" : "🔴 " + status;
-      el.style.color = status === 'SUBSCRIBED' ? "#10b981" : "#ef4444";
-    });
-}
-
-// --- EXPORT ---
-function exportCSV() {
-  let csv = "Design,Size,Stock,Sold,Remain\n";
-  inventory.forEach(item => {
-    sizes.forEach((s, i) => { csv += `${item.design},${s},${item.stock[i]},${item.sold[i]},${item.stock[i]-item.sold[i]}\n`; });
+supabaseClient
+  .channel('inventory-live')
+  .on('postgres_changes',{event:'*',schema:'public',table:'inventory'},payload=>{
+    if(payload.eventType==='INSERT') inventory.unshift(payload.new);
+    if(payload.eventType==='UPDATE') inventory=inventory.map(i=>i.id===payload.new.id?payload.new:i);
+    if(payload.eventType==='DELETE') inventory=inventory.filter(i=>i.id!==payload.old.id);
+    saveCache();render();
+  })
+  .subscribe(s=>{
+    statusIndicator.textContent=s==='SUBSCRIBED'?'🟢 Live':'🔴 Offline';
   });
-  const link = document.createElement("a");
-  link.href = 'data:text/csv;charset=utf-8,' + encodeURI(csv);
-  link.download = 'stock.csv';
-  link.click();
-}
 
-// --- START ---
-fetchData().then(() => initRealtime());
+if(!navigator.onLine){
+  inventory=JSON.parse(localStorage.getItem('inventoryCache')||'[]');
+  render();
+}else{
+  fetchData();
+}
 </script>
 </body>
 </html>
