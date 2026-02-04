@@ -167,20 +167,24 @@ function closeAdd(){ addModal.classList.remove('active'); }
 
 async function addDesign(){
   if(!designInput.value) return alert("Enter Design Number");
+  
   const newItem = {
-    id: crypto.randomUUID(),
     design: designInput.value,
     stock: [+s0.value||0, +s1.value||0, +s2.value||0, +s3.value||0],
-    sold: [0,0,0,0],
-    created_at: new Date()
+    sold: [0,0,0,0]
+    // We removed the 'id' here so Supabase creates it automatically
   };
   
   const { error } = await supabaseClient.from('inventory').insert(newItem);
-  if(error) alert("Error adding design: " + error.message);
   
-  designInput.value=''; s0.value=''; s1.value=''; s2.value=''; s3.value='';
-  closeAdd();
+  if(error) {
+    alert("Error: " + error.message);
+  } else {
+    designInput.value=''; s0.value=''; s1.value=''; s2.value=''; s3.value='';
+    closeAdd();
+  }
 }
+
 
 async function upd(id, index, val, type){
   const item = inventory.find(x => x.id === id);
