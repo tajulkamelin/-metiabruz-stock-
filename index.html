@@ -14,74 +14,67 @@
   --border:#334155;--primary:#0ea5e9;--danger:#ef4444;--remain:#10b981;
   --input-bg:#020617;
 }
-*{box-sizing:border-box;margin:0;padding:0; -webkit-tap-highlight-color: transparent;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 body{
   font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-  background:var(--bg);color:var(--text);padding:12px;padding-bottom:120px;
+  background:var(--bg);color:var(--text);
+  padding:12px;padding-bottom:120px;
 }
 .header,.search-box,.item-card,.modal-content{
   background:var(--card);border-radius:12px;padding:16px;
-  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  box-shadow:0 4px 6px -1px rgba(0,0,0,.1)
 }
-/* Summary Dashboard */
 .summary{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
-.summary-card{background:var(--input-bg);padding:10px;border-radius:8px;border:1px solid var(--border); text-align: center;}
-.summary-card label{font-size:10px;color:var(--muted);text-transform: uppercase;letter-spacing: 0.5px;}
+.summary-card{background:var(--input-bg);padding:10px;border-radius:8px;border:1px solid var(--border);text-align:center}
+.summary-card label{font-size:10px;color:var(--muted);text-transform:uppercase}
 .summary-card .value{font-size:20px;font-weight:700;color:var(--primary)}
 .summary-card.green .value{color:var(--remain)}
-
-/* Inputs */
-.search-box{margin:16px 0; display:flex; gap:10px; align-items: center;}
-.search-box input, input{
+.search-box{margin:16px 0;display:flex}
+.search-box input,input{
   width:100%;padding:12px;border-radius:8px;border:1px solid var(--border);
-  background:var(--input-bg);color:var(--text);font-size: 16px; outline: none;
+  background:var(--input-bg);color:var(--text);font-size:16px
 }
-.search-box input:focus, input:focus{border-color: var(--primary);}
-
-/* Inventory List */
 .inventory-list{display:flex;flex-direction:column;gap:16px}
-.item-header{display:flex;justify-content:space-between;align-items:center; margin-bottom:10px; padding-bottom: 8px; border-bottom: 1px solid var(--border);}
-.design-name {font-size: 18px; font-weight: 800; color: var(--primary);}
-
-/* Grid Layout for Sizes */
-.col-headers {display: grid; grid-template-columns: 60px 1fr 1fr 1fr; gap: 8px; margin-bottom: 5px; text-align: center; font-size: 10px; color: var(--muted);}
-.size-row{display:grid;grid-template-columns:60px 1fr 1fr 1fr;gap:8px;margin-bottom:8px; align-items: center;}
-.size-label {font-size: 13px; font-weight: 600; color: var(--muted);}
-
-/* Input specific styles */
-.qty-input { text-align: center; font-weight: 600;}
-.input-remain { background: rgba(16, 185, 129, 0.1); border-color: var(--remain); color: var(--remain); font-weight: 700; text-align: center; border:none;}
-
-/* Bottom Bar */
+.item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:8px}
+.design-name{font-size:18px;font-weight:800;color:var(--primary)}
+.col-headers,.size-row{display:grid;grid-template-columns:60px 1fr 1fr 1fr;gap:8px;align-items:center}
+.col-headers{font-size:10px;color:var(--muted);margin-bottom:5px;text-align:center}
+.size-label{font-size:13px;font-weight:600;color:var(--muted)}
+.qty-input{text-align:center;font-weight:600}
+.input-remain{background:rgba(16,185,129,.1);color:var(--remain);font-weight:700;text-align:center;border:none}
 .action-buttons{
   position:fixed;bottom:0;left:0;right:0;
-  background:var(--card);padding:12px;display:grid;grid-template-columns: repeat(4, 1fr); gap:8px;
-  border-top: 1px solid var(--border);
-  box-shadow: 0 -4px 6px -1px rgba(0, 0, 0, 0.3);
+  background:var(--card);padding:12px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
+  border-top:1px solid var(--border)
 }
-.btn{width:100%; padding:10px;border:none;border-radius:8px;font-weight:600; cursor: pointer; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 4px; font-size: 11px;}
-.btn i {font-size: 18px; font-style: normal;}
+.btn{padding:10px;border:none;border-radius:8px;font-weight:600;font-size:11px}
 .btn-primary{background:var(--primary);color:#fff}
-.btn-secondary{background:var(--bg);color:var(--muted); border: 1px solid var(--border);}
-.btn-danger{background:var(--danger);color:#fff;border:none;border-radius:6px;padding:4px 12px;}
-
-/* Modal */
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);
-  align-items:center;justify-content:center;z-index:99; backdrop-filter: blur(2px);}
+.btn-secondary{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
+.btn-danger{background:var(--danger);color:#fff;border-radius:6px;padding:4px 12px}
+.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);align-items:center;justify-content:center;z-index:99}
 .modal.active{display:flex}
-.modal-content{width: 90%; max-width: 400px;}
-.size-inputs{display:grid;grid-template-columns:repeat(2,1fr);gap:12px; margin-top: 12px;}
+.modal-content{width:90%;max-width:400px}
+.size-inputs{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+
+/* ===== PRINT (EXCEL STYLE) ===== */
+@media print{
+  body{background:#fff!important;color:#000!important}
+  .header,.search-box,.action-buttons,.btn-danger{display:none!important}
+  .item-card{page-break-inside:avoid;border:1px solid #000;background:#fff}
+  input{border:none!important;background:transparent!important;color:#000!important;text-align:center}
+  .input-remain{color:#000!important;font-weight:700}
+}
 </style>
 </head>
 
 <body>
 
 <div class="header">
-  <div style="display:flex; justify-content:space-between; align-items:center;">
+  <div style="display:flex;justify-content:space-between">
     <h2>📦 Stock</h2>
-    <div id="statusIndicator" style="font-size:12px; color:var(--muted)">Offline</div>
+    <div id="statusIndicator" style="font-size:12px;color:var(--muted)">Offline</div>
   </div>
-  
   <div class="summary">
     <div class="summary-card"><label>Total Stock</label><div class="value" id="totalStock">0</div></div>
     <div class="summary-card"><label>Total Sold</label><div class="value" id="totalSold">0</div></div>
@@ -97,257 +90,135 @@ body{
 <div class="inventory-list" id="inventoryList"></div>
 
 <div class="action-buttons">
-  <button class="btn btn-primary" onclick="openAdd()"><i>➕</i> Add</button>
-  <button class="btn btn-secondary" onclick="exportCSV()"><i>📤</i> CSV</button>
-  <button class="btn btn-secondary" onclick="fetchData()"><i>🔄</i> Sync</button>
-  <button class="btn btn-secondary" onclick="saveCache()"><i>💾</i> Save</button>
+  <button class="btn btn-primary" onclick="openAdd()">➕ Add</button>
+  <button class="btn btn-secondary" onclick="printInventory()">🖨 Print</button>
+  <button class="btn btn-secondary" onclick="fetchData()">🔄 Sync</button>
+  <button class="btn btn-secondary" onclick="saveCache()">💾 Save</button>
 </div>
 
 <div class="modal" id="addModal" onclick="if(event.target===this)closeAdd()">
   <div class="modal-content">
     <h3>Add New Design</h3><br>
-    <input id="designInput" placeholder="Design Number (e.g. 505)" autofocus><br>
+    <input id="designInput" placeholder="Design Number">
     <div class="size-inputs">
-      <input id="s0" placeholder="Size 22x32" type="number">
-      <input id="s1" placeholder="Size 34x36" type="number">
-      <input id="s2" placeholder="Size 16x18" type="number">
-      <input id="s3" placeholder="Size 26x30" type="number">
+      <input id="s0" placeholder="22x32" type="number">
+      <input id="s1" placeholder="34x36" type="number">
+      <input id="s2" placeholder="16x18" type="number">
+      <input id="s3" placeholder="26x30" type="number">
     </div><br>
-    <button class="btn btn-primary" style="font-size:14px; flex-direction:row;" onclick="addDesign()">Save Design</button>
+    <button class="btn btn-primary" onclick="addDesign()">Save Design</button>
   </div>
 </div>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-// --- CONFIGURATION ---
-const SUPABASE_URL = 'https://yhlfqpiwevsehlgbhxtk.supabase.co';
-const SUPABASE_KEY = 'sb_publishable_CkKk1cjkoS1XvBv8zldlcw_1gjt6Y2S';
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+const supabaseClient = supabase.createClient(
+  'https://yhlfqpiwevsehlgbhxtk.supabase.co',
+  'sb_publishable_CkKk1cjkoS1XvBv8zldlcw_1gjt6Y2S'
+);
 
-// --- STATE MANAGEMENT ---
 let inventory = JSON.parse(localStorage.getItem('inventoryCache')||'[]');
 let syncQueue = JSON.parse(localStorage.getItem('syncQueue')||'[]');
-const sizes = ["22x32", "34x36", "16x18", "26x30"];
-
-// --- CORE FUNCTIONS ---
+const sizes=["22x32","34x36","16x18","26x30"];
 
 function saveCache(){
   localStorage.setItem('inventoryCache',JSON.stringify(inventory));
   localStorage.setItem('syncQueue',JSON.stringify(syncQueue));
-  // Visual feedback
-  const btn = document.querySelector('.btn-primary');
-  // Optional: Add toast notification logic here
 }
 
 function render(){
-  const term = searchInput.value.toLowerCase();
-  inventoryList.innerHTML = '';
-  
-  let ts=0, td=0;
-
-  // Filter based on search
-  const filtered = inventory.filter(item => 
-    item.design.toLowerCase().includes(term)
-  );
-
-  filtered.forEach(item=>{
-    ts += item.stock.reduce((a,b)=>a+b,0);
-    td += item.sold.reduce((a,b)=>a+b,0);
-    
-    // Create rows for each size
-    let sizeRows = '';
-    sizes.forEach((s, i) => {
-      let rem = item.stock[i] - item.sold[i];
-      sizeRows += `
-        <div class="size-row">
-          <div class="size-label">${s}</div>
-          <input type="tel" class="qty-input" value="${item.stock[i]}" 
-            onchange="upd('${item.id}',${i},this.value,'stock')">
-          <input type="tel" class="qty-input" value="${item.sold[i]}" 
-            onchange="upd('${item.id}',${i},this.value,'sold')">
-          <div class="input-remain">${rem}</div>
-        </div>
-      `;
-    });
-
-    inventoryList.innerHTML += `
-      <div class="item-card">
-        <div class="item-header">
-          <span class="design-name"># ${item.design}</span>
-          <button class="btn-danger" onclick="del('${item.id}')">Delete</button>
-        </div>
-        <div class="col-headers">
-          <span>SIZE</span><span>STOCK</span><span>SOLD</span><span>REM</span>
-        </div>
-        ${sizeRows}
+  const term=searchInput.value.toLowerCase();
+  inventoryList.innerHTML='';
+  let ts=0,td=0;
+  inventory.filter(i=>i.design.toLowerCase().includes(term)).forEach(item=>{
+    ts+=item.stock.reduce((a,b)=>a+b,0);
+    td+=item.sold.reduce((a,b)=>a+b,0);
+    let rows='';
+    sizes.forEach((s,i)=>{
+      rows+=`<div class="size-row">
+        <div class="size-label">${s}</div>
+        <input class="qty-input" value="${item.stock[i]}" onchange="upd('${item.id}',${i},this.value,'stock')">
+        <input class="qty-input" value="${item.sold[i]}" onchange="upd('${item.id}',${i},this.value,'sold')">
+        <div class="input-remain">${item.stock[i]-item.sold[i]}</div>
       </div>`;
+    });
+    inventoryList.innerHTML+=`
+    <div class="item-card">
+      <div class="item-header">
+        <span class="design-name"># ${item.design}</span>
+        <button class="btn-danger" onclick="del('${item.id}')">Delete</button>
+      </div>
+      <div class="col-headers"><span>SIZE</span><span>STOCK</span><span>SOLD</span><span>REM</span></div>
+      ${rows}
+    </div>`;
   });
-
-  // Update Summary
-  totalStock.textContent = ts;
-  totalSold.textContent = td;
-  totalRemaining.textContent = ts - td;
-  designCount.textContent = inventory.length;
-  
+  totalStock.textContent=ts;
+  totalSold.textContent=td;
+  totalRemaining.textContent=ts-td;
+  designCount.textContent=inventory.length;
   saveCache();
 }
 
-// --- DATA LOGIC ---
-
-function openAdd(){ addModal.classList.add('active'); document.getElementById('designInput').focus(); }
-function closeAdd(){ addModal.classList.remove('active'); }
+function openAdd(){addModal.classList.add('active')}
+function closeAdd(){addModal.classList.remove('active')}
 
 function addDesign(){
-  if(!designInput.value) return alert("Enter a Design Number");
-  
-  // Check for duplicate
-  if(inventory.find(x => x.design === designInput.value)){
-    return alert("Design already exists!");
-  }
-
-  const item = {
-    id: crypto.randomUUID(),
-    design: designInput.value,
-    stock: [+s0.value||0, +s1.value||0, +s2.value||0, +s3.value||0],
-    sold: [0,0,0,0]
-  };
-  
-  inventory.unshift(item); // Add to top of list
-  syncQueue.push({type:'add', item});
-  
-  // Reset inputs
-  designInput.value=''; s0.value=''; s1.value=''; s2.value=''; s3.value='';
-  
-  closeAdd();
-  render();
-  syncNow(); // Try to sync immediately
+  if(!designInput.value)return;
+  if(inventory.find(x=>x.design===designInput.value))return alert("Exists");
+  const item={id:crypto.randomUUID(),design:designInput.value,stock:[+s0.value||0,+s1.value||0,+s2.value||0,+s3.value||0],sold:[0,0,0,0]};
+  inventory.unshift(item);
+  syncQueue.push({type:'add',item});
+  designInput.value=s0.value=s1.value=s2.value=s3.value='';
+  closeAdd();render();syncNow();
 }
 
-function upd(id, index, val, type){
-  const item = inventory.find(x => x.id === id);
-  if(!item) return;
-  
-  item[type][index] = Number(val) || 0;
-  
-  // Add to queue (upsert logic to prevent queue flooding)
-  syncQueue.push({type:'update', data: item});
-  
+function upd(id,i,val,type){
+  const it=inventory.find(x=>x.id===id);if(!it)return;
+  it[type][i]=+val||0;
+  syncQueue.push({type:'update',data:it});
   render();
-  // We don't syncNow() on every keystroke, wait for manual or interval
 }
 
 function del(id){
-  if(!confirm("Delete this design?")) return;
-  inventory = inventory.filter(i => i.id !== id);
-  syncQueue.push({type:'delete', id});
-  render();
-  syncNow();
+  if(!confirm("Delete?"))return;
+  inventory=inventory.filter(i=>i.id!==id);
+  syncQueue.push({type:'delete',id});
+  render();syncNow();
 }
 
-// --- SUPABASE SYNC ---
-
 async function syncNow(){
-  const statusDiv = document.getElementById('statusIndicator');
-  if(!navigator.onLine) {
-    statusDiv.textContent = "🔴 Offline";
-    return;
+  if(!navigator.onLine){statusIndicator.textContent="🔴 Offline";return;}
+  statusIndicator.textContent="🟡 Syncing";
+  const q=[...syncQueue];syncQueue=[];saveCache();
+  for(const j of q){
+    if(j.type==='add')await supabaseClient.from('inventory').insert(j.item);
+    if(j.type==='update')await supabaseClient.from('inventory').update({stock:j.data.stock,sold:j.data.sold}).eq('id',j.data.id);
+    if(j.type==='delete')await supabaseClient.from('inventory').delete().eq('id',j.id);
   }
-  
-  statusDiv.textContent = "🟡 Syncing...";
-
-  // Process Queue
-  // We copy queue to process it, then clear the main queue
-  let processingQueue = [...syncQueue];
-  syncQueue = []; // Clear main queue immediately so new edits can queue up
-  saveCache();
-
-  for(const job of processingQueue){
-    try {
-      if(job.type==='add'){
-        await supabaseClient.from('inventory').insert(job.item);
-      }
-      if(job.type==='update'){
-        // Using ID for safer updates
-        await supabaseClient.from('inventory')
-          .update({stock:job.data.stock, sold:job.data.sold})
-          .eq('id', job.data.id); 
-      }
-      if(job.type==='delete'){
-        await supabaseClient.from('inventory').delete().eq('id',job.id);
-      }
-    } catch(err) {
-      console.error("Sync error", err);
-      // Ideally push back to queue if error, but simplified for now
-    }
-  }
-
-  statusDiv.textContent = "🟢 Online";
+  statusIndicator.textContent="🟢 Online";
 }
 
 async function fetchData(){
-  const statusDiv = document.getElementById('statusIndicator');
-  if(!navigator.onLine) return;
-  
-  statusDiv.textContent = "⬇️ Fetching...";
-  
-  // First, push any local changes
+  if(!navigator.onLine)return;
   await syncNow();
-
-  // Then pull latest
-  const {data, error} = await supabaseClient.from('inventory').select('*').order('created_at', {ascending: false});
-  
-  if(data) {
-    inventory = data;
-    render();
-    statusDiv.textContent = "🟢 Updated";
-  }
+  const {data}=await supabaseClient.from('inventory').select('*').order('created_at',{ascending:false});
+  if(data){inventory=data;render();}
 }
 
-// --- EXPORT TO CSV ---
-function exportCSV() {
-  let csvContent = "data:text/csv;charset=utf-8,";
-  csvContent += "Design No,Size,Stock,Sold,Remaining\n";
-
-  inventory.forEach(item => {
-    sizes.forEach((size, i) => {
-      const stock = item.stock[i];
-      const sold = item.sold[i];
-      const remaining = stock - sold;
-      // Only export rows that have data
-      if(stock > 0 || sold > 0){
-        csvContent += `${item.design},${size},${stock},${sold},${remaining}\n`;
-      }
-    });
-  });
-
-  const encodedUri = encodeURI(csvContent);
-  const link = document.createElement("a");
-  link.setAttribute("href", encodedUri);
-  link.setAttribute("download", "metiabruz_stock.csv");
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
+function printInventory(){
+  if(!inventory.length)return alert("No data");
+  window.print();
 }
 
-// --- INITIALIZATION ---
-window.addEventListener('online', syncNow);
-window.addEventListener('offline', () => document.getElementById('statusIndicator').textContent = "🔴 Offline");
-
-// Initial Load
-render();
-// Try to fetch latest data on startup
-fetchData();
-
-// Auto-sync every 30 seconds
-setInterval(syncNow, 30000);
-
+window.addEventListener('online',syncNow);
+window.addEventListener('offline',()=>statusIndicator.textContent="🔴 Offline");
+render();fetchData();
+setInterval(syncNow,30000);
 </script>
 
 <script>
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("service-worker.js");
-  });
+if("serviceWorker"in navigator){
+  navigator.serviceWorker.register("service-worker.js");
 }
 </script>
 
