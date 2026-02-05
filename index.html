@@ -204,10 +204,111 @@ async function fetchData(){
   const {data}=await supabaseClient.from('inventory').select('*').order('created_at',{ascending:false});
   if(data){inventory=data;render();}
 }
+function printInventory() {
+  if (!inventory.length) {
+    alert("No data to print");
+    return;
+  }
 
-function printInventory(){
-  if(!inventory.length)return alert("No data");
-  window.print();
+  const now = new Date().toLocaleString();
+
+  let totalStock = 0;
+  let totalSold = 0;
+
+  inventory.forEach(item => {
+    item.stock.forEach(v => totalStock += v);
+    item.sold.forEach(v => totalSold += v);
+  });
+
+  const totalRemaining = totalStock - totalSold;
+
+  let tableRows = "";
+
+  inventory.forEach(item => {
+    const rem = item.stock.map((s, i) => s - item.sold[i]);
+    const totalRem = rem.reduce((a, b) => a + b, 0);
+
+    tableRows += `
+      <tr>
+        <td>${item.design}</td>
+        <td>${item.stock[0]}</td>
+        <td>${item.stock[1]}</td>
+        <td>${item.stock[2]}</td>
+        <td>${item.stock[3]}</td>
+
+        <td>${item.sold[0]}</td>
+        <td>${item.sold[1]}</td>
+        <td>${item.sold[2]}</td>
+        <td>${item.sold[3]}</td>
+
+        <td>${rem[0]}</td>
+        <td>${rem[1]}</td>
+        <td>${rem[2]}</td>
+        <td>${rem[3]}</td>
+
+        <td><strong>${totalRem}</strong></td>
+      </tr>
+    `;
+  });
+
+  const printHTML = `
+  <html>
+  <head>
+    <title>Metiabruz Stock List</title>
+    <style>
+      body { font-family: Arial, sans-serif; padding: 20px; }
+      h2 { text-align: center; margin-bottom: 5px; }
+      .meta { text-align: center; font-size: 12px; margin-bottom: 15px; }
+      .summary { font-size: 13px; margin-bottom: 10px; text-align: center; }
+      table { width: 100%; border-collapse: collapse; font-size: 12px; }
+      th, td { border: 1px solid #333; padding: 6px; text-align: center; }
+      th { background: #f1f1f1; }
+      tfoot td { font-weight: bold; }
+    </style>
+  </head>
+  <body>
+    <h2>Metiabruz Stock List</h2>
+    <div class="meta">Printed on ${now}</div>
+
+    <div class="summary">
+      <strong>Total Stock:</strong> ${totalStock} &nbsp;&nbsp;
+      <strong>Total Sold:</strong> ${totalSold} &nbsp;&nbsp;
+      <strong>Remaining:</strong> ${totalRemaining} &nbsp;&nbsp;
+      <strong>Designs:</strong> ${inventory.length}
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th rowspan="2">Design</th>
+          <th colspan="4">Stock</th>
+          <th colspan="4">Sold</th>
+          <th colspan="4">Remaining</th>
+          <th rowspan="2">Total Rem</th>
+        </tr>
+        <tr>
+          <th>22×32</th><th>34×36</th><th>16×18</th><th>26×30</th>
+          <th>22×32</th><th>34×36</th><th>16×18</th><th>26×30</th>
+          <th>22×32</th><th>34×36</th><th>16×18</th><th>26×30</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${tableRows}
+      </tbody>
+    </table>
+  </body>
+  </html>
+  `;
+
+  const printWindow = window.open("", "", "width=1000,height=700");
+  printWindow.document.write(printHTML);
+  printWindow.document.close();
+
+  printWindow.onload = () => {
+    printWindow.focus();
+    printWindow.print();
+    printWindow.close();
+  };
 }
 
 window.addEventListener('online',syncNow);
