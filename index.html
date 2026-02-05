@@ -9,7 +9,6 @@
   <title>Metiabruz Stock</title>
 
 <style>
-/* === UI UNCHANGED === */
 :root{
   --bg:#0f172a;--card:#1e293b;--text:#f1f5f9;--muted:#94a3b8;
   --border:#334155;--primary:#0ea5e9;--danger:#ef4444;--remain:#10b981;
@@ -30,7 +29,7 @@ body{
 .summary-card label{font-size:10px;color:var(--muted);text-transform:uppercase}
 .summary-card .value{font-size:20px;font-weight:700;color:var(--primary)}
 .summary-card.green .value{color:var(--remain)}
-.search-box{margin:16px 0}
+.search-box{margin:16px 0;display:flex}
 .search-box input,input{
   width:100%;padding:12px;border-radius:8px;border:1px solid var(--border);
   background:var(--input-bg);color:var(--text);font-size:16px
@@ -57,6 +56,15 @@ body{
 .modal.active{display:flex}
 .modal-content{width:90%;max-width:400px}
 .size-inputs{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+
+/* ===== PRINT (EXCEL STYLE) ===== */
+@media print{
+  body{background:#fff!important;color:#000!important}
+  .header,.search-box,.action-buttons,.btn-danger{display:none!important}
+  .item-card{page-break-inside:avoid;border:1px solid #000;background:#fff}
+  input{border:none!important;background:transparent!important;color:#000!important;text-align:center}
+  .input-remain{color:#000!important;font-weight:700}
+}
 </style>
 </head>
 
@@ -104,77 +112,113 @@ body{
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-const supabaseClient=supabase.createClient(
+const supabaseClient = supabase.createClient(
   'https://yhlfqpiwevsehlgbhxtk.supabase.co',
   'sb_publishable_CkKk1cjkoS1XvBv8zldlcw_1gjt6Y2S'
 );
 
-let inventory=JSON.parse(localStorage.getItem('inventoryCache')||'[]');
-let syncQueue=JSON.parse(localStorage.getItem('syncQueue')||'[]');
+let inventory = JSON.parse(localStorage.getItem('inventoryCache')||'[]');
+let syncQueue = JSON.parse(localStorage.getItem('syncQueue')||'[]');
 const sizes=["22x32","34x36","16x18","26x30"];
 
-/* ===== PRINT (EXCEL-STYLE PDF) ===== */
+function saveCache(){
+  localStorage.setItem('inventoryCache',JSON.stringify(inventory));
+  localStorage.setItem('syncQueue',JSON.stringify(syncQueue));
+}
+
+function render(){
+  const term=searchInput.value.toLowerCase();
+  inventoryList.innerHTML='';
+  let ts=0,td=0;
+  inventory.filter(i=>i.design.toLowerCase().includes(term)).forEach(item=>{
+    ts+=item.stock.reduce((a,b)=>a+b,0);
+    td+=item.sold.reduce((a,b)=>a+b,0);
+    let rows='';
+    sizes.forEach((s,i)=>{
+      rows+=`<div class="size-row">
+        <div class="size-label">${s}</div>
+        <input class="qty-input" value="${item.stock[i]}" onchange="upd('${item.id}',${i},this.value,'stock')">
+        <input class="qty-input" value="${item.sold[i]}" onchange="upd('${item.id}',${i},this.value,'sold')">
+        <div class="input-remain">${item.stock[i]-item.sold[i]}</div>
+      </div>`;
+    });
+    inventoryList.innerHTML+=`
+    <div class="item-card">
+      <div class="item-header">
+        <span class="design-name"># ${item.design}</span>
+        <button class="btn-danger" onclick="del('${item.id}')">Delete</button>
+      </div>
+      <div class="col-headers"><span>SIZE</span><span>STOCK</span><span>SOLD</span><span>REM</span></div>
+      ${rows}
+    </div>`;
+  });
+  totalStock.textContent=ts;
+  totalSold.textContent=td;
+  totalRemaining.textContent=ts-td;
+  designCount.textContent=inventory.length;
+  saveCache();
+}
+
+function openAdd(){addModal.classList.add('active')}
+function closeAdd(){addModal.classList.remove('active')}
+
+function addDesign(){
+  if(!designInput.value)return;
+  if(inventory.find(x=>x.design===designInput.value))return alert("Exists");
+  const item={id:crypto.randomUUID(),design:designInput.value,stock:[+s0.value||0,+s1.value||0,+s2.value||0,+s3.value||0],sold:[0,0,0,0]};
+  inventory.unshift(item);
+  syncQueue.push({type:'add',item});
+  designInput.value=s0.value=s1.value=s2.value=s3.value='';
+  closeAdd();render();syncNow();
+}
+
+function upd(id,i,val,type){
+  const it=inventory.find(x=>x.id===id);if(!it)return;
+  it[type][i]=+val||0;
+  syncQueue.push({type:'update',data:it});
+  render();
+}
+
+function del(id){
+  if(!confirm("Delete?"))return;
+  inventory=inventory.filter(i=>i.id!==id);
+  syncQueue.push({type:'delete',id});
+  render();syncNow();
+}
+
+async function syncNow(){
+  if(!navigator.onLine){statusIndicator.textContent="🔴 Offline";return;}
+  statusIndicator.textContent="🟡 Syncing";
+  const q=[...syncQueue];syncQueue=[];saveCache();
+  for(const j of q){
+    if(j.type==='add')await supabaseClient.from('inventory').insert(j.item);
+    if(j.type==='update')await supabaseClient.from('inventory').update({stock:j.data.stock,sold:j.data.sold}).eq('id',j.data.id);
+    if(j.type==='delete')await supabaseClient.from('inventory').delete().eq('id',j.id);
+  }
+  statusIndicator.textContent="🟢 Online";
+}
+
+async function fetchData(){
+  if(!navigator.onLine)return;
+  await syncNow();
+  const {data}=await supabaseClient.from('inventory').select('*').order('created_at',{ascending:false});
+  if(data){inventory=data;render();}
+}
+
 function printInventory(){
   if(!inventory.length)return alert("No data");
+  window.print();
+}
 
-  let ts=0,td=0;
-  inventory.forEach(i=>{
-    i.stock.forEach(v=>ts+=v);
-    i.sold.forEach(v=>td+=v);
-  });
+window.addEventListener('online',syncNow);
+window.addEventListener('offline',()=>statusIndicator.textContent="🔴 Offline");
+render();fetchData();
+setInterval(syncNow,30000);
+</script>
 
-  let rows='';
-  inventory.forEach(i=>{
-    const rem=i.stock.map((s,x)=>s-i.sold[x]);
-    rows+=`
-      <tr>
-        <td>${i.design}</td>
-        ${i.stock.map(v=>`<td>${v}</td>`).join('')}
-        ${i.sold.map(v=>`<td>${v}</td>`).join('')}
-        ${rem.map(v=>`<td>${v}</td>`).join('')}
-        <td><b>${rem.reduce((a,b)=>a+b,0)}</b></td>
-      </tr>`;
-  });
-
-  const w=window.open("","_blank");
-  w.document.write(`
-  <html>
-  <head>
-    <title>Metiabruz Stock List</title>
-    <style>
-      body{font-family:Arial;padding:20px}
-      h2{text-align:center}
-      table{width:100%;border-collapse:collapse;font-size:12px}
-      th,td{border:1px solid #333;padding:6px;text-align:center}
-      th{background:#eee}
-    </style>
-  </head>
-  <body>
-    <h2>Metiabruz Stock List</h2>
-    <p style="text-align:center;font-size:12px">
-      Total Stock: ${ts} | Sold: ${td} | Remaining: ${ts-td} | Designs: ${inventory.length}
-    </p>
-    <table>
-      <thead>
-        <tr>
-          <th rowspan="2">Design</th>
-          <th colspan="4">Stock</th>
-          <th colspan="4">Sold</th>
-          <th colspan="4">Remaining</th>
-          <th rowspan="2">Total</th>
-        </tr>
-        <tr>
-          ${sizes.map(s=>`<th>${s}</th>`).join('')}
-          ${sizes.map(s=>`<th>${s}</th>`).join('')}
-          ${sizes.map(s=>`<th>${s}</th>`).join('')}
-        </tr>
-      </thead>
-      <tbody>${rows}</tbody>
-    </table>
-  </body>
-  </html>`);
-  w.document.close();
-  w.onload=()=>{w.print();w.close();}
+<script>
+if("serviceWorker"in navigator){
+  navigator.serviceWorker.register("service-worker.js");
 }
 </script>
 
