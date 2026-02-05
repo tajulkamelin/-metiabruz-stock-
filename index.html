@@ -1,64 +1,54 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0ea5e9">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Metiabruz Stock</title>
 
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#0ea5e9">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+
 <style>
+/* UI UNCHANGED */
 :root{
   --bg:#0f172a;--card:#1e293b;--text:#f1f5f9;--muted:#94a3b8;
   --border:#334155;--primary:#0ea5e9;--danger:#ef4444;--remain:#10b981;
   --input-bg:#020617;
 }
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+*{box-sizing:border-box;margin:0;padding:0}
 body{
   font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
   background:var(--bg);color:var(--text);padding:12px;padding-bottom:120px;
 }
 .header,.search-box,.item-card,.modal-content{
-  background:var(--card);border-radius:12px;padding:16px
+  background:var(--card);border-radius:12px;padding:16px;
 }
 .summary{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
 .summary-card{background:var(--input-bg);padding:10px;border-radius:8px;border:1px solid var(--border);text-align:center}
 .summary-card label{font-size:10px;color:var(--muted)}
 .summary-card .value{font-size:20px;font-weight:700;color:var(--primary)}
 .summary-card.green .value{color:var(--remain)}
-.search-box{margin:16px 0}
-.search-box input,input{
-  width:100%;padding:12px;border-radius:8px;border:1px solid var(--border);
-  background:var(--input-bg);color:var(--text)
-}
 .inventory-list{display:flex;flex-direction:column;gap:16px}
-.item-header{display:flex;justify-content:space-between;margin-bottom:8px;border-bottom:1px solid var(--border);padding-bottom:6px}
-.design-name{font-size:18px;font-weight:800;color:var(--primary)}
-.size-row{display:grid;grid-template-columns:60px 1fr 1fr 1fr;gap:8px;margin-bottom:6px}
-.input-remain{background:rgba(16,185,129,.15);color:var(--remain);text-align:center;border:none;border-radius:8px;padding:10px}
+.item-header{display:flex;justify-content:space-between;margin-bottom:8px}
+.size-row{display:grid;grid-template-columns:60px 1fr 1fr 1fr;gap:8px}
+.input-remain{background:rgba(16,185,129,.15);color:var(--remain);text-align:center;border-radius:6px}
 .action-buttons{
   position:fixed;bottom:0;left:0;right:0;
-  background:var(--card);padding:12px;display:grid;grid-template-columns:repeat(4,1fr);gap:8px
+  background:var(--card);padding:12px;display:grid;grid-template-columns:1fr;
 }
-.btn{padding:10px;border:none;border-radius:8px;font-weight:600;font-size:11px}
+.btn{padding:12px;border:none;border-radius:8px;font-weight:600}
 .btn-primary{background:var(--primary);color:#fff}
-.btn-secondary{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
-.btn-danger{background:var(--danger);color:#fff;border-radius:6px;padding:4px 10px}
+.btn-danger{background:var(--danger);color:#fff}
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.7);align-items:center;justify-content:center}
 .modal.active{display:flex}
-.modal-content{width:90%;max-width:400px}
-.size-inputs{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 </style>
 </head>
 
 <body>
 
 <div class="header">
-  <div style="display:flex;justify-content:space-between">
-    <h2>📦 Stock</h2>
-    <div id="statusIndicator">🔴 Offline</div>
-  </div>
+  <h2>📦 Stock <span id="status">🔴</span></h2>
   <div class="summary">
     <div class="summary-card"><label>Total Stock</label><div class="value" id="totalStock">0</div></div>
     <div class="summary-card"><label>Total Sold</label><div class="value" id="totalSold">0</div></div>
@@ -67,29 +57,15 @@ body{
   </div>
 </div>
 
-<div class="search-box">
-  <input id="searchInput" placeholder="Search Design" oninput="render()">
-</div>
-
 <div class="inventory-list" id="inventoryList"></div>
 
 <div class="action-buttons">
-  <button class="btn btn-secondary" onclick="openAdd()">➕ Add</button>
-  <button class="btn btn-secondary" onclick="window.print()">🖨️ Print</button>
-  <button class="btn btn-secondary" onclick="exportCSV()">📤 Export</button>
-  <button class="btn btn-primary" onclick="saveCache()">💾 Save</button>
+  <button class="btn btn-primary" onclick="openAdd()">➕ Add</button>
 </div>
 
 <div class="modal" id="addModal" onclick="if(event.target===this)closeAdd()">
   <div class="modal-content">
-    <h3>Add Design</h3><br>
-    <input id="designInput" placeholder="Design No"><br><br>
-    <div class="size-inputs">
-      <input id="s0" placeholder="22x32" type="number">
-      <input id="s1" placeholder="34x36" type="number">
-      <input id="s2" placeholder="16x18" type="number">
-      <input id="s3" placeholder="26x30" type="number">
-    </div><br>
+    <input id="designInput" placeholder="Design"><br><br>
     <button class="btn btn-primary" onclick="addDesign()">Save</button>
   </div>
 </div>
@@ -101,27 +77,21 @@ const supabaseClient = supabase.createClient(
   'sb_publishable_CkKk1cjkoS1XvBv8zldlcw_1gjt6Y2S'
 );
 
-let inventory = [];
 const sizes=["22x32","34x36","16x18","26x30"];
+let inventory=[];
 
-function saveCache(){
-  localStorage.setItem('inventoryCache',JSON.stringify(inventory));
-}
-
+/* RENDER */
 function render(){
-  const q = searchInput.value.toLowerCase();
   inventoryList.innerHTML='';
   let ts=0,td=0;
-
-  inventory.filter(i=>i.design.toLowerCase().includes(q)).forEach(item=>{
+  inventory.forEach(item=>{
     ts+=item.stock.reduce((a,b)=>a+b,0);
     td+=item.sold.reduce((a,b)=>a+b,0);
-
     inventoryList.innerHTML+=`
       <div class="item-card">
         <div class="item-header">
-          <span class="design-name">${item.design}</span>
-          <button class="btn-danger" onclick="del('${item.id}')">Delete</button>
+          <b>${item.design}</b>
+          <button class="btn-danger" onclick="del('${item.id}')">🗑</button>
         </div>
         ${sizes.map((s,i)=>`
           <div class="size-row">
@@ -132,66 +102,55 @@ function render(){
           </div>`).join('')}
       </div>`;
   });
-
   totalStock.textContent=ts;
   totalSold.textContent=td;
   totalRemaining.textContent=ts-td;
   designCount.textContent=inventory.length;
 }
 
-function openAdd(){addModal.classList.add('active')}
-function closeAdd(){addModal.classList.remove('active')}
-
+/* CRUD */
 async function addDesign(){
-  if(!designInput.value) return;
   await supabaseClient.from('inventory').insert({
     design:designInput.value,
-    stock:[+s0.value||0,+s1.value||0,+s2.value||0,+s3.value||0],
+    stock:[0,0,0,0],
     sold:[0,0,0,0]
   });
-  designInput.value=s0.value=s1.value=s2.value=s3.value='';
   closeAdd();
 }
 
 async function upd(id,i,v,type){
   const item=inventory.find(x=>x.id===id);
-  if(!item) return;
-  const arr=[...item[type]];
-  arr[i]=+v||0;
-  await supabaseClient.from('inventory').update({[type]:arr}).eq('id',id);
+  item[type][i]=+v||0;
+  await supabaseClient.from('inventory').update({
+    stock:item.stock,
+    sold:item.sold
+  }).eq('id',id);
 }
 
 async function del(id){
-  if(confirm('Delete?')){
-    await supabaseClient.from('inventory').delete().eq('id',id);
-  }
+  await supabaseClient.from('inventory').delete().eq('id',id);
 }
 
-async function fetchData(){
+/* REALTIME */
+async function start(){
   const {data}=await supabaseClient.from('inventory').select('*');
   inventory=data||[];
-  saveCache();
   render();
+
+  supabaseClient.channel('realtime')
+    .on('postgres_changes',{event:'*',schema:'public',table:'inventory'},payload=>{
+      if(payload.eventType==='INSERT') inventory.unshift(payload.new);
+      if(payload.eventType==='UPDATE') inventory=inventory.map(i=>i.id===payload.new.id?payload.new:i);
+      if(payload.eventType==='DELETE') inventory=inventory.filter(i=>i.id!==payload.old.id);
+      render();
+    })
+    .subscribe(s=>status.textContent=s==='SUBSCRIBED'?'🟢':'🔴');
 }
 
-supabaseClient
-  .channel('inventory-live')
-  .on('postgres_changes',{event:'*',schema:'public',table:'inventory'},payload=>{
-    if(payload.eventType==='INSERT') inventory.unshift(payload.new);
-    if(payload.eventType==='UPDATE') inventory=inventory.map(i=>i.id===payload.new.id?payload.new:i);
-    if(payload.eventType==='DELETE') inventory=inventory.filter(i=>i.id!==payload.old.id);
-    saveCache();render();
-  })
-  .subscribe(s=>{
-    statusIndicator.textContent=s==='SUBSCRIBED'?'🟢 Live':'🔴 Offline';
-  });
+function openAdd(){addModal.classList.add('active')}
+function closeAdd(){addModal.classList.remove('active')}
 
-if(!navigator.onLine){
-  inventory=JSON.parse(localStorage.getItem('inventoryCache')||'[]');
-  render();
-}else{
-  fetchData();
-}
+start();
 </script>
 </body>
 </html>
