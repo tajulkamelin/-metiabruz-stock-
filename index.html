@@ -200,18 +200,35 @@ function del(id){
 }
 
 async function syncNow(){
-  {statusIndicator.textContent="🔴 Offline";return;}
+  if(!navigator.onLine){
+    statusIndicator.textContent="🔴 Offline";
+    return;
+  }
+
   statusIndicator.textContent="🟡 Syncing";
-  const q=[...syncQueue];syncQueue=[];saveCache();
+
+  const q=[...syncQueue];
+  syncQueue=[];
+  saveCache();
+
   for(const j of q){
-    if(j.type==='add')await supabaseClient.from('inventory').insert(j.item);
-    if(j.type==='update')await supabaseClient.from('inventory').update({stock:j.data.stock,sold:j.data.sold}).eq('id',j.data.id);
-    if(j.type === 'delete'){
-  await supabaseClient
-    .from('inventory')
-    .delete()
-    .eq('design', j.design);
-}
+    if(j.type==='add'){
+      await supabaseClient.from('inventory').insert(j.item);
+    }
+    if(j.type==='update'){
+      await supabaseClient
+        .from('inventory')
+        .update({stock:j.data.stock,sold:j.data.sold})
+        .eq('id',j.data.id);
+    }
+    if(j.type==='delete'){
+      await supabaseClient
+        .from('inventory')
+        .delete()
+        .eq('design', j.design);
+    }
+  }
+
   statusIndicator.textContent="🟢 Online";
 }
 
