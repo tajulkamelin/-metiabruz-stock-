@@ -171,6 +171,7 @@ function addDesign(){
   designInput.value=s0.value=s1.value=s2.value=s3.value='';
   closeAdd();render();syncNow();
 }
+  
 
 function upd(id,i,val,type){
   const it=inventory.find(x=>x.id===id);if(!it)return;
@@ -180,10 +181,22 @@ function upd(id,i,val,type){
 }
 
 function del(id){
-  if(!confirm("Delete?"))return;
-  inventory=inventory.filter(i=>i.id!==id);
-  syncQueue.push({type:'delete',id});
-  render();syncNow();
+  if(!confirm("Delete this design?")) return;
+
+  const item = inventory.find(i => i.id === id);
+  if(!item) return;
+
+  // 1️⃣ Remove locally
+  inventory = inventory.filter(i => i.id !== id);
+
+  // 2️⃣ Queue delete using DESIGN (not local id)
+  syncQueue.push({
+    type: 'delete',
+    design: item.design
+  });
+
+  render();
+  syncNow();
 }
 
 async function syncNow(){
@@ -193,8 +206,12 @@ async function syncNow(){
   for(const j of q){
     if(j.type==='add')await supabaseClient.from('inventory').insert(j.item);
     if(j.type==='update')await supabaseClient.from('inventory').update({stock:j.data.stock,sold:j.data.sold}).eq('id',j.data.id);
-    if(j.type==='delete')await supabaseClient.from('inventory').delete().eq('id',j.id);
-  }
+    if(j.type === 'delete'){
+  await supabaseClient
+    .from('inventory')
+    .delete()
+    .eq('design', j.design);
+}
   statusIndicator.textContent="🟢 Online";
 }
 
