@@ -187,7 +187,7 @@ function del(id){
 }
 
 async function syncNow(){
-  if(!navigator.onLine){statusIndicator.textContent="🔴 Offline";return;}
+  {statusIndicator.textContent="🔴 Offline";return;}
   statusIndicator.textContent="🟡 Syncing";
   const q=[...syncQueue];syncQueue=[];saveCache();
   for(const j of q){
@@ -199,11 +199,28 @@ async function syncNow(){
 }
 
 async function fetchData(){
-  if(!navigator.onLine)return;
+  if(!navigator.onLine){
+    statusIndicator.textContent = "🔴 Offline (Local Data)";
+    render(); // show cached data
+    return;
+  }
+
+  statusIndicator.textContent = "🟡 Syncing";
+
   await syncNow();
-  const {data}=await supabaseClient.from('inventory').select('*').order('created_at',{ascending:false});
-  if(data){inventory=data;render();}
-}
+
+  const { data, error } = await supabaseClient
+    .from('inventory')
+    .select('*')
+    .order('created_at', { ascending: false });
+
+  if(data){
+    inventory = data;
+    saveCache();
+    render();
+    statusIndicator.textContent = "🟢 Online";
+  }
+} 
 function printInventory() {
   if (!inventory.length) {
     alert("No data to print");
@@ -313,7 +330,13 @@ function printInventory() {
 
 window.addEventListener('online',syncNow);
 window.addEventListener('offline',()=>statusIndicator.textContent="🔴 Offline");
-render();fetchData();
+render();
+
+if (navigator.onLine) {
+  fetchData();
+} else {
+  statusIndicator.textContent = "🔴 Offline (Local Data)";
+}
 setInterval(syncNow,30000);
 </script>
 
