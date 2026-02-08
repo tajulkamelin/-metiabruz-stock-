@@ -21,145 +21,86 @@
   --success: #32d74b;
   --warning: #ffd60a;
   --border: rgba(255, 255, 255, 0.12);
-  --glass: rgba(28, 28, 30, 0.7);
+  --glass: rgba(28, 28, 30, 0.8);
 }
 
-* { 
-  box-sizing: border-box; 
-  margin: 0; padding: 0; 
-  -webkit-tap-highlight-color: transparent; 
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif; 
-}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
+body { background: var(--bg); color: var(--text); padding-bottom: 120px; }
 
-body { 
-  background: var(--bg); 
-  color: var(--text); 
-  padding-bottom: 140px; /* Space for bottom dock */
-  overflow-x: hidden;
-}
-
-/* --- iPhone Premium Header --- */
+/* iPhone Premium Header */
 .header-container {
   position: sticky; top: 0; z-index: 100;
-  background: var(--glass);
-  backdrop-filter: blur(30px) saturate(150%);
-  -webkit-backdrop-filter: blur(30px) saturate(150%);
-  border-bottom: 0.5px solid var(--border);
-  padding: 50px 20px 15px; /* iOS Status bar padding */
+  background: var(--glass); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+  border-bottom: 0.5px solid var(--border); padding: 50px 20px 15px;
 }
+.view-tabs { display: flex; background: var(--card-elevated); padding: 3px; border-radius: 10px; margin-top: 15px; }
+.tab { flex: 1; padding: 8px; text-align: center; font-size: 13px; font-weight: 600; border-radius: 8px; border: none; color: var(--text-secondary); background: none; }
+.tab.active { background: #48484a; color: white; }
 
-.header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-.brand { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
+/* Stats & List */
+.content-section { padding: 20px; display: none; }
+.content-section.active { display: block; }
+.summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+.summary-card { background: var(--card); border: 0.5px solid var(--border); padding: 15px; border-radius: 16px; }
+.summary-card label { font-size: 10px; color: var(--text-secondary); font-weight: 700; display: block; margin-bottom: 4px; }
+.summary-card .value { font-size: 22px; font-weight: 800; }
 
-.status-pill {
-  padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700;
-  text-transform: uppercase; background: var(--card-elevated); border: 0.5px solid var(--border);
-}
+.item-card { background: var(--card); border-radius: 20px; padding: 20px; border: 0.5px solid var(--border); margin-bottom: 16px; }
+.history-item { border-left: 3px solid var(--primary); padding: 12px; background: var(--card-elevated); border-radius: 12px; margin-bottom: 10px; }
+.history-add { border-left-color: var(--success); }
+.history-sell { border-left-color: var(--warning); }
 
-/* --- Stats Grid --- */
-.summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-.summary-card { 
-  background: var(--card); 
-  border: 0.5px solid var(--border); 
-  padding: 15px; border-radius: 16px; 
-  display: flex; flex-direction: column; justify-content: center;
-}
-.summary-card label { font-size: 11px; color: var(--text-secondary); font-weight: 600; margin-bottom: 4px; }
-.summary-card .value { font-size: 20px; font-weight: 700; }
-
-/* --- Handy Bottom Dock (iPhone Style) --- */
+/* Bottom Dock */
 .bottom-dock {
   position: fixed; bottom: 0; left: 0; right: 0;
-  background: var(--glass);
-  backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-  border-top: 0.5px solid var(--border);
-  padding: 15px 20px 35px; /* Safe area for iPhone home bar */
-  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
-  z-index: 1000;
+  background: var(--glass); backdrop-filter: blur(30px);
+  border-top: 0.5px solid var(--border); padding: 15px 20px 35px;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; z-index: 1000;
 }
-
-.btn-dock {
-  height: 54px; border-radius: 14px; border: none; font-weight: 700; font-size: 15px;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: transform 0.1s;
-}
-.btn-dock:active { transform: scale(0.96); opacity: 0.9; }
+.btn-dock { height: 50px; border-radius: 14px; border: none; font-weight: 700; font-size: 15px; transition: 0.1s; }
+.btn-dock:active { transform: scale(0.96); opacity: 0.8; }
 .btn-dock-add { background: var(--primary); color: white; }
 .btn-dock-sell { background: white; color: black; }
 
-/* --- Search Bar --- */
-.search-container { padding: 16px 20px; }
-.search-bar {
-  background: var(--card-elevated); border-radius: 12px; height: 44px;
-  display: flex; align-items: center; padding: 0 15px; border: 0.5px solid var(--border);
-}
-.search-bar input {
-  flex: 1; background: transparent; border: none; color: white; font-size: 16px; margin-left: 10px; outline: none;
-}
-
-/* --- List Items --- */
-.inventory-list { padding: 0 20px; display: flex; flex-direction: column; gap: 16px; }
-.item-card { 
-  background: var(--card); border-radius: 20px; padding: 20px; 
-  border: 0.5px solid var(--border);
-}
-.item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-.design-tag { font-size: 18px; font-weight: 800; color: var(--primary); }
-
-.grid-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; text-align: center; }
-.label-small { font-size: 10px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; }
-.qty-box { background: var(--card-elevated); padding: 10px 0; border-radius: 10px; font-size: 14px; font-weight: 600; }
-.pill-status { padding: 10px 0; border-radius: 10px; font-weight: 700; font-size: 14px; }
-.low { color: var(--danger); background: rgba(255, 69, 58, 0.15); }
-.ok { color: var(--success); background: rgba(50, 215, 75, 0.1); }
-
-/* --- Modern Modal --- */
-.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; align-items: flex-end; }
+/* Modal */
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; align-items: flex-end; }
 .modal.active { display: flex; }
-.modal-content { 
-  background: #1c1c1e; width: 100%; border-radius: 30px 30px 0 0; padding: 30px 20px 50px; 
-  animation: iosSlideUp 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-}
-@keyframes iosSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.modal-content { background: #1c1c1e; width: 100%; border-radius: 30px 30px 0 0; padding: 30px 20px 50px; animation: slideUp 0.4s cubic-bezier(0,1,0,1); }
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-.ios-input { 
-  width: 100%; background: #2c2c2e; border: none; border-radius: 12px; padding: 16px; 
-  color: white; font-size: 17px; margin-bottom: 20px;
-}
-.ios-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
-.ios-select-group { display: flex; flex-direction: column; gap: 6px; }
-.ios-select { background: #2c2c2e; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 16px; -webkit-appearance: none; }
-
+.ios-input { width: 100%; background: #2c2c2e; border: none; border-radius: 12px; padding: 16px; color: white; font-size: 17px; margin-bottom: 15px; }
+.ios-select { background: #2c2c2e; color: white; border: none; padding: 10px; border-radius: 10px; width: 100%; }
 </style>
 </head>
 <body>
 
 <div class="header-container">
-  <div class="header-top">
-    <div class="brand">Inventory</div>
-    <div id="statusIndicator" class="status-pill">Online</div>
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <h2 style="font-size: 24px; font-weight: 800;">Stock Pro</h2>
+    <div id="statusIndicator" style="font-size:10px; font-weight:bold; color:var(--text-secondary)">Online</div>
   </div>
+  
+  <div class="view-tabs">
+    <button class="tab active" onclick="switchView('inventory', this)">Inventory</button>
+    <button class="tab" onclick="switchView('history', this)">History Log</button>
+  </div>
+</div>
+
+<div id="inventorySection" class="content-section active">
   <div class="summary">
-    <div class="summary-card">
-      <label>IN STOCK</label>
-      <div class="value" id="totalStock">0</div>
-    </div>
-    <div class="summary-card">
-      <label>BALANCE</label>
-      <div class="value" id="totalRemaining" style="color:var(--success)">0</div>
-    </div>
+    <div class="summary-card"><label>TOTAL STOCK</label><div class="value" id="totalStock">0</div></div>
+    <div class="summary-card"><label>AVAILABLE</label><div class="value" id="totalRemaining" style="color:var(--success)">0</div></div>
   </div>
+  <div id="inventoryList"></div>
 </div>
 
-<div class="search-container">
-  <div class="search-bar">
-    <span>🔍</span>
-    <input id="searchInput" placeholder="Search Design..." onkeyup="render()">
-    <button onclick="generatePDF()" style="background:none; border:none; font-size:18px; padding-left:10px;">📄</button>
-  </div>
+<div id="historySection" class="content-section">
+    <div style="display:flex; gap:10px; margin-bottom:20px;">
+        <button class="tab active" style="background:#2c2c2e" onclick="renderHistory('day')">Today</button>
+        <button class="tab" style="background:#2c2c2e" onclick="renderHistory('week')">This Week</button>
+    </div>
+    <div id="historyList"></div>
 </div>
-
-<div class="inventory-list" id="inventoryList"></div>
 
 <div class="bottom-dock">
   <button class="btn-dock btn-dock-add" onclick="openModal('add')">Add Stock</button>
@@ -169,197 +110,154 @@ body {
 <div class="modal" id="entryModal" onclick="if(event.target===this)closeModal()">
   <div class="modal-content" onclick="event.stopPropagation()">
     <div style="width:36px; height:5px; background:rgba(255,255,255,0.2); border-radius:3px; margin:0 auto 20px;"></div>
-    <h2 id="modalTitle" style="margin-bottom:20px; font-size:22px;">Entry</h2>
-    
-    <input type="text" id="designInput" list="designSuggestions" class="ios-input" 
-           placeholder="Design Number (e.g. 501)" oninput="syncAvailableStock(this.value)">
-    <datalist id="designSuggestions"></datalist>
-
-    <div id="availabilityNotice" style="margin-bottom:20px; border-radius:14px; padding:15px; font-size:13px; display:none;"></div>
-
-    <div class="ios-grid" id="inputGrid">
-        <div class="ios-select-group"><label class="label-small">22x32</label><select id="m0" class="ios-select"></select></div>
-        <div class="ios-select-group"><label class="label-small">34x36</label><select id="m1" class="ios-select"></select></div>
-        <div class="ios-select-group"><label class="label-small">16x18</label><select id="m2" class="ios-select"></select></div>
-        <div class="ios-select-group"><label class="label-small">26x30</label><select id="m3" class="ios-select"></select></div>
+    <h2 id="modalTitle">Entry</h2>
+    <input type="text" id="designInput" class="ios-input" placeholder="Design No." oninput="syncPreview(this.value)">
+    <div id="previewArea" style="margin-bottom:15px; display:none;"></div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+        <div><label style="font-size:10px; color:var(--text-secondary)">22x32</label><select id="m0" class="ios-select"></select></div>
+        <div><label style="font-size:10px; color:var(--text-secondary)">34x36</label><select id="m1" class="ios-select"></select></div>
+        <div><label style="font-size:10px; color:var(--text-secondary)">16x18</label><select id="m2" class="ios-select"></select></div>
+        <div><label style="font-size:10px; color:var(--text-secondary)">26x30</label><select id="m3" class="ios-select"></select></div>
     </div>
-    
-    <button id="modalSubmit" class="btn-dock btn-dock-add" style="width:100%;" onclick="processEntry()">Confirm</button>
+    <button id="modalSubmit" class="btn-dock btn-dock-add" style="width:100%" onclick="processEntry()">Confirm</button>
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-
 <script>
 const supabaseClient = supabase.createClient('https://yhlfqpiwevsehlgbhxtk.supabase.co','sb_publishable_CkKk1cjkoS1XvBv8zldlcw_1gjt6Y2S');
 
 let inventory = JSON.parse(localStorage.getItem('inventoryCache') || '[]');
+let transactions = JSON.parse(localStorage.getItem('transactionCache') || '[]');
 let syncQueue = JSON.parse(localStorage.getItem('syncQueue') || '[]');
 let mode = 'add';
 const sizes = ["22x32", "34x36", "16x18", "26x30"];
 
-// --- Optimized Logic for iPhone Feel ---
-
-function generatePDF() {
-    const { jsPDF } = window.jspdf;
-    const doc = new jsPDF();
-    doc.text("Metiabruz Stock Report", 14, 20);
-    const rows = [];
-    inventory.forEach(item => {
-        sizes.forEach((s, i) => {
-            rows.push([item.design, s, item.stock[i], item.sold[i], (item.stock[i]-item.sold[i])]);
-        });
-    });
-    doc.autoTable({ startY: 30, head: [['Design', 'Size', 'In', 'Out', 'Left']], body: rows });
-    doc.save('Inventory.pdf');
-}
-
-function getOpts(max) {
-    let h = `<option value="0">0</option>`;
-    for(let i=1; i<=max; i++) h += `<option value="${i}">${i}</option>`;
-    return h;
+function switchView(view, el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+    document.getElementById(view + 'Section').classList.add('active');
+    if(view === 'history') renderHistory('day');
 }
 
 function openModal(m) {
     mode = m;
-    const notice = document.getElementById('availabilityNotice');
     document.getElementById('designInput').value = '';
-    notice.style.display = 'none';
     document.getElementById('modalTitle').innerText = mode === 'add' ? "Add Stock" : "Sale Item";
-    document.getElementById('modalSubmit').className = mode === 'add' ? "btn-dock btn-dock-add" : "btn-dock btn-dock-sell";
-    
-    sizes.forEach((s, i) => document.getElementById(`m${i}`).innerHTML = getOpts(mode === 'add' ? 200 : 0));
-    document.getElementById('designSuggestions').innerHTML = inventory.map(it => `<option value="${it.design}">`).join('');
+    sizes.forEach((_, i) => document.getElementById(`m${i}`).innerHTML = getOpts(mode === 'add' ? 200 : 0));
     document.getElementById('entryModal').classList.add('active');
 }
 
-function syncAvailableStock(val) {
-    const existing = inventory.find(it => it.design.toUpperCase() === val.trim().toUpperCase());
-    const notice = document.getElementById('availabilityNotice');
-    
-    if (existing) {
-        notice.style.display = 'block';
-        notice.style.background = "rgba(10, 132, 255, 0.1)";
-        notice.style.color = "var(--primary)";
-        
-        let html = `<div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; text-align:center;">`;
-        sizes.forEach((s, i) => {
-            const left = existing.stock[i] - existing.sold[i];
-            html += `<div><div style="font-size:10px; opacity:0.6;">${s}</div><div style="font-weight:bold;">${left}</div></div>`;
-        });
-        notice.innerHTML = html + `</div>`;
+function getOpts(max) {
+    let h = '<option value="0">0</option>';
+    for(let i=1; i<=max; i++) h += `<option value="${i}">${i}</option>`;
+    return h;
+}
 
-        if (mode === 'sell') {
-            sizes.forEach((s, i) => {
-                document.getElementById(`m${i}`).innerHTML = getOpts(existing.stock[i] - existing.sold[i]);
-            });
-        }
-    } else {
-        notice.style.display = 'none';
-        if(mode === 'sell') sizes.forEach((s, i) => document.getElementById(`m${i}`).innerHTML = getOpts(0));
-    }
+function syncPreview(val) {
+    const item = inventory.find(it => it.design.toUpperCase() === val.trim().toUpperCase());
+    const area = document.getElementById('previewArea');
+    if(item) {
+        area.style.display = 'block';
+        area.innerHTML = `<div style="padding:10px; background:#2c2c2e; border-radius:10px; font-size:12px;">Stock: ${item.stock.map((s,i)=>sizes[i]+': '+(s-item.sold[i])).join(' | ')}</div>`;
+        if(mode==='sell') sizes.forEach((_, i) => document.getElementById(`m${i}`).innerHTML = getOpts(item.stock[i]-item.sold[i]));
+    } else { area.style.display = 'none'; }
 }
 
 async function processEntry() {
     const dNo = document.getElementById('designInput').value.trim().toUpperCase();
-    if(!dNo) return;
-    const inputQtys = [ +m0.value, +m1.value, +m2.value, +m3.value ];
-    if(inputQtys.every(v => v === 0)) return;
+    const qtys = [ +m0.value, +m1.value, +m2.value, +m3.value ];
+    if(!dNo || qtys.every(v=>v===0)) return;
 
-    let target = inventory.find(it => it.design.toUpperCase() === dNo);
-    if (mode === 'add') {
-        if (target) {
-            target.stock = target.stock.map((v, i) => v + inputQtys[i]);
-            addToQueue('update', target);
-        } else {
-            const newItem = { id: crypto.randomUUID(), design: dNo, stock: inputQtys, sold: [0,0,0,0], created_at: new Date().toISOString() };
-            inventory.unshift(newItem);
-            addToQueue('add', newItem);
-        }
+    let target = inventory.find(it => it.design === dNo);
+    const trans = { id: crypto.randomUUID(), design: dNo, type: mode, qtys: [...qtys], created_at: new Date().toISOString() };
+
+    if(mode === 'add') {
+        if(target) target.stock = target.stock.map((v,i)=>v+qtys[i]);
+        else inventory.unshift({ id: crypto.randomUUID(), design: dNo, stock: qtys, sold: [0,0,0,0] });
     } else {
-        if (!target) return;
-        target.sold = target.sold.map((v, i) => v + inputQtys[i]);
-        addToQueue('update', target);
+        if(!target) return alert("Not in stock");
+        target.sold = target.sold.map((v,i)=>v+qtys[i]);
     }
-    closeModal(); render(); syncNow();
+
+    transactions.unshift(trans);
+    addToQueue(trans);
+    closeModal(); render();
 }
 
-function addToQueue(type, data) {
-    syncQueue.push({ type, data });
+function addToQueue(trans) {
+    syncQueue.push({ type: 'transaction', data: trans });
+    // Also push the inventory update
+    const target = inventory.find(it => it.design === trans.design);
+    syncQueue.push({ type: 'inventory', data: target });
     localStorage.setItem('syncQueue', JSON.stringify(syncQueue));
+    localStorage.setItem('inventoryCache', JSON.stringify(inventory));
+    localStorage.setItem('transactionCache', JSON.stringify(transactions));
 }
 
 function render() {
-    const term = document.getElementById('searchInput').value.toUpperCase();
-    const listEl = document.getElementById('inventoryList');
-    listEl.innerHTML = '';
-    let ts=0, td=0;
-
-    inventory.forEach(it => it.stock.forEach((v, i) => { ts += v; td += it.sold[i]; }));
-    
-    inventory.filter(it => it.design.toUpperCase().includes(term)).forEach(item => {
+    const list = document.getElementById('inventoryList');
+    list.innerHTML = '';
+    let ts=0, tr=0;
+    inventory.forEach(item => {
         let rows = '';
-        item.stock.forEach((sVal, i) => {
-            const rem = sVal - item.sold[i];
-            rows += `
-            <div class="grid-row">
-                <div class="label-small" style="text-align:left">${sizes[i]}</div>
-                <div class="qty-box">${sVal}</div>
-                <div class="qty-box">${item.sold[i]}</div>
-                <div class="pill-status ${rem <= 5 ? 'low' : 'ok'}">${rem}</div>
+        item.stock.forEach((s, i) => {
+            const left = s - item.sold[i];
+            ts += s; tr += left;
+            rows += `<div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:5px; margin-bottom:5px; font-size:12px;">
+                <div style="color:var(--text-secondary)">${sizes[i]}</div><div>${s}</div><div>${item.sold[i]}</div><div style="font-weight:bold; color:${left<5?'var(--danger)':'var(--success)'}">${left}</div>
             </div>`;
         });
-        listEl.innerHTML += `
-        <div class="item-card">
-            <div class="item-header">
-                <span class="design-tag"># ${item.design}</span>
-                <button onclick="del('${item.id}')" style="color:var(--danger); background:none; border:none; font-weight:bold; font-size:12px;">DELETE</button>
-            </div>
-            <div class="grid-row" style="margin-bottom:8px; opacity:0.4;">
-                <div class="label-small" style="text-align:left">SIZE</div>
-                <div class="label-small">IN</div>
-                <div class="label-small">OUT</div>
-                <div class="label-small">LEFT</div>
-            </div>
-            ${rows}
-        </div>`;
+        list.innerHTML += `<div class="item-card"><div style="font-weight:800; color:var(--primary); margin-bottom:10px;"># ${item.design}</div>${rows}</div>`;
     });
-
-    document.getElementById('totalStock').innerText = ts; 
-    document.getElementById('totalRemaining').innerText = ts-td;
-    localStorage.setItem('inventoryCache', JSON.stringify(inventory));
+    document.getElementById('totalStock').innerText = ts;
+    document.getElementById('totalRemaining').innerText = tr;
 }
 
-function del(id) { if(confirm("Delete item?")) { inventory = inventory.filter(x => x.id !== id); addToQueue('delete', {id}); render(); syncNow(); } }
+function renderHistory(range) {
+    const list = document.getElementById('historyList');
+    list.innerHTML = '';
+    const now = new Date();
+    const filtered = transactions.filter(t => {
+        const tDate = new Date(t.created_at);
+        if(range === 'day') return tDate.toDateString() === now.toDateString();
+        return (now - tDate) / (1000*60*60*24) <= 7;
+    });
+
+    filtered.forEach(t => {
+        list.innerHTML += `<div class="history-item history-${t.type}">
+            <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:bold;">
+                <span>${t.type.toUpperCase()}: #${t.design}</span>
+                <span style="color:var(--text-secondary); font-weight:normal;">${new Date(t.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
+            </div>
+            <div style="font-size:11px; margin-top:5px; opacity:0.8;">${t.qtys.map((q,i)=>q>0?sizes[i]+': '+q : '').filter(v=>v).join(' | ')}</div>
+        </div>`;
+    });
+}
 
 async function syncNow() {
     if(!navigator.onLine || syncQueue.length === 0) return;
-    const status = document.getElementById('statusIndicator');
-    status.innerText = "Syncing...";
-    while(syncQueue.length > 0) {
-        const task = syncQueue[0];
-        try {
-            let error;
-            if(task.type === 'add') ({ error } = await supabaseClient.from('inventory').insert(task.data));
-            else if(task.type === 'update') ({ error } = await supabaseClient.from('inventory').update({stock: task.data.stock, sold: task.data.sold}).eq('id', task.data.id));
-            else if(task.type === 'delete') ({ error } = await supabaseClient.from('inventory').delete().eq('id', task.data.id));
-            if(error) throw error;
-            syncQueue.shift();
-            localStorage.setItem('syncQueue', JSON.stringify(syncQueue));
-        } catch(e) { status.innerText = "Offline"; return; }
-    }
-    status.innerText = "Online";
+    const task = syncQueue[0];
+    try {
+        if(task.type === 'transaction') await supabaseClient.from('transactions').insert(task.data);
+        if(task.type === 'inventory') await supabaseClient.from('inventory').upsert(task.data);
+        syncQueue.shift();
+        localStorage.setItem('syncQueue', JSON.stringify(syncQueue));
+    } catch(e) {}
 }
 
 async function fetchData() {
-    const {data, error} = await supabaseClient.from('inventory').select('*').order('created_at', {ascending:false});
-    if(!error && data) { inventory = data; render(); }
+    const {data: inv} = await supabaseClient.from('inventory').select('*');
+    const {data: trans} = await supabaseClient.from('transactions').select('*').order('created_at', {ascending:false}).limit(100);
+    if(inv) inventory = inv;
+    if(trans) transactions = trans;
+    render();
 }
+
 function closeModal() { document.getElementById('entryModal').classList.remove('active'); }
 fetchData();
-setInterval(syncNow, 10000);
+setInterval(syncNow, 5000);
 </script>
 </body>
 </html>
