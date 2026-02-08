@@ -31,6 +31,9 @@ body { background: var(--bg); color: var(--text); padding-bottom: 50px; }
   background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border); padding: 20px 16px 12px;
 }
+.header-top { display: flex; justify-content: space-between; align-items: center; }
+.btn-pdf { background: var(--card-elevated); color: var(--text); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; }
+
 .quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 15px 0; }
 .btn-action { padding: 16px; border-radius: 12px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; transition: opacity 0.2s; }
 .btn-action:active { opacity: 0.7; }
@@ -59,7 +62,6 @@ body { background: var(--bg); color: var(--text); padding-bottom: 50px; }
 .stock-low { background: rgba(255, 69, 58, 0.2); color: var(--danger); border: 1px solid var(--danger); }
 .stock-ok { background: rgba(50, 215, 75, 0.1); color: var(--success); }
 
-/* Modal Styles */
 .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; align-items: flex-end; }
 .modal.active { display: flex; }
 .modal-content { background: var(--card); width: 100%; border-radius: 24px 24px 0 0; padding: 24px; padding-bottom: env(safe-area-inset-bottom, 40px); animation: slideUp 0.3s cubic-bezier(0.1, 0.7, 0.1, 1); }
@@ -72,9 +74,12 @@ body { background: var(--bg); color: var(--text); padding-bottom: 50px; }
 <body>
 
 <div class="header-container">
-  <div style="display:flex; justify-content:space-between; align-items:center;">
-    <h2 style="font-size: 22px;">📦 Metiabruz Stock</h2>
-    <div id="statusIndicator" style="font-size:11px; font-weight:bold; color:var(--text-secondary)">Online</div>
+  <div class="header-top">
+    <h2 style="font-size: 20px;">📦 Metiabruz Stock</h2>
+    <div style="display:flex; gap:8px; align-items:center;">
+        <button class="btn-pdf" onclick="generatePDF()">📄 PDF</button>
+        <div id="statusIndicator" style="font-size:10px; font-weight:bold; color:var(--text-secondary)">Online</div>
+    </div>
   </div>
 
   <div class="quick-actions">
@@ -117,11 +122,14 @@ body { background: var(--bg); color: var(--text); padding-bottom: 50px; }
         <div><label class="label-style">26x30</label><select id="m3" class="select-box" style="width:100%"></select></div>
     </div>
     
-    <button id="modalSubmit" class="btn-action" style="width:100%; margin-top:20px; font-size:16px;" onclick="processEntry()">Confirm Action</button>
+    <button id="modalSubmit" class="btn-action" style="width:100%; margin-top:20px; font-size:16px;" onclick="processEntry()">Confirm</button>
   </div>
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.25/jspdf.plugin.autotable.min.js"></script>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+
 <script>
 const supabaseClient = supabase.createClient('https://yhlfqpiwevsehlgbhxtk.supabase.co','sb_publishable_CkKk1cjkoS1XvBv8zldlcw_1gjt6Y2S');
 
@@ -130,6 +138,57 @@ let syncQueue = JSON.parse(localStorage.getItem('syncQueue') || '[]');
 let mode = 'add';
 const sizes = ["22x32", "34x36", "16x18", "26x30"];
 const LOW_STOCK_THRESHOLD = 5;
+
+// --- PDF GENERATION ---
+function generatePDF() {
+    const { jsPDF } = window.jspdf;
+    const doc = new jsPDF();
+    const date = new Date().toLocaleDateString();
+
+    doc.setFontSize(20);
+    doc.text("Metiabruz Stock Report", 14, 20);
+    doc.setFontSize(10);
+    doc.text(`Date: ${date}`, 14, 28);
+
+    const summaryData = [
+        ["Total In", document.getElementById('totalStock').innerText],
+        ["Total Out", document.getElementById('totalSold').innerText],
+        ["Current Balance", document.getElementById('totalRemaining').innerText],
+        ["Unique Designs", document.getElementById('designCount').innerText]
+    ];
+
+    doc.autoTable({
+        startY: 35,
+        head: [['Metric', 'Value']],
+        body: summaryData,
+        theme: 'grid',
+        headStyles: { fillColor: [10, 132, 255] }
+    });
+
+    const tableRows = [];
+    inventory.forEach(item => {
+        sizes.forEach((s, i) => {
+            const left = item.stock[i] - item.sold[i];
+            tableRows.push([
+                item.design,
+                s,
+                item.stock[i],
+                item.sold[i],
+                left
+            ]);
+        });
+    });
+
+    doc.autoTable({
+        startY: doc.lastAutoTable.finalY + 10,
+        head: [['Design #', 'Size', 'In', 'Out', 'Balance']],
+        body: tableRows,
+        theme: 'striped',
+        headStyles: { fillColor: [44, 44, 46] }
+    });
+
+    doc.save(`Stock_Report_${date}.pdf`);
+}
 
 function getOpts(max) {
     let h = `<option value="0">Qty: 0</option>`;
@@ -144,9 +203,8 @@ function openModal(m) {
     notice.style.display = 'none';
     notice.innerHTML = '';
     
-    document.getElementById('modalTitle').innerText = mode === 'add' ? "Add New Stock" : "Sell Item";
+    document.getElementById('modalTitle').innerText = mode === 'add' ? "Add Stock" : "Sell Item";
     document.getElementById('modalSubmit').className = mode === 'add' ? "btn-action btn-add" : "btn-action btn-sell";
-    document.getElementById('modalSubmit').innerText = mode === 'add' ? "Update Inventory" : "Record Sale";
     
     sizes.forEach((s, i) => {
         document.getElementById(`m${i}`).innerHTML = getOpts(mode === 'add' ? 200 : 0);
@@ -154,7 +212,6 @@ function openModal(m) {
     
     const list = document.getElementById('designSuggestions');
     list.innerHTML = inventory.map(it => `<option value="${it.design}">`).join('');
-    
     document.getElementById('entryModal').classList.add('active');
 }
 
@@ -168,47 +225,36 @@ function syncAvailableStock(val) {
         notice.style.background = "var(--card-elevated)";
         notice.style.border = "1px solid var(--primary)";
         
-        let previewHTML = `<div style="margin-bottom:8px; font-weight:bold; color:var(--primary); text-align:center;">Design #${existing.design} - Live Balance</div>`;
+        let previewHTML = `<div style="margin-bottom:8px; font-weight:bold; color:var(--primary); text-align:center;">Design #${existing.design} Balance</div>`;
         previewHTML += `<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:5px; text-align:center;">`;
-        
         sizes.forEach((s, i) => {
             const left = existing.stock[i] - existing.sold[i];
-            previewHTML += `<div>
-                <div style="font-size:9px; color:var(--text-secondary)">${s}</div>
-                <div style="font-weight:bold; color:${left <= LOW_STOCK_THRESHOLD ? 'var(--danger)' : 'var(--success)'}">${left}</div>
-            </div>`;
+            previewHTML += `<div><div style="font-size:9px; color:var(--text-secondary)">${s}</div><div style="font-weight:bold; color:${left <= LOW_STOCK_THRESHOLD ? 'var(--danger)' : 'var(--success)'}">${left}</div></div>`;
         });
         previewHTML += `</div>`;
         notice.innerHTML = previewHTML;
 
         if (mode === 'sell') {
             sizes.forEach((s, i) => {
-                const left = existing.stock[i] - existing.sold[i];
-                document.getElementById(`m${i}`).innerHTML = getOpts(left);
+                document.getElementById(`m${i}`).innerHTML = getOpts(existing.stock[i] - existing.sold[i]);
             });
         }
+    } else if (mode === 'sell' && term.length > 0) {
+        notice.style.display = 'block';
+        notice.innerHTML = `<div style="color:var(--danger); text-align:center;">⚠ Design Not Found</div>`;
+        sizes.forEach((s, i) => document.getElementById(`m${i}`).innerHTML = getOpts(0));
     } else {
-        if (mode === 'sell' && term.length > 0) {
-            notice.style.display = 'block';
-            notice.style.background = "rgba(255, 69, 58, 0.1)";
-            notice.style.border = "1px solid var(--danger)";
-            notice.innerHTML = `<div style="color:var(--danger); text-align:center; font-weight:bold;">⚠ Design Not Found</div>`;
-            sizes.forEach((s, i) => document.getElementById(`m${i}`).innerHTML = getOpts(0));
-        } else {
-            notice.style.display = 'none';
-        }
+        notice.style.display = 'none';
     }
 }
 
 async function processEntry() {
     const dNo = document.getElementById('designInput').value.trim().toUpperCase();
     if(!dNo) return alert("Enter Design Number");
-    
     const inputQtys = [ +m0.value, +m1.value, +m2.value, +m3.value ];
-    if(inputQtys.every(v => v === 0)) return alert("Select a quantity first");
+    if(inputQtys.every(v => v === 0)) return alert("Select a quantity");
 
     let target = inventory.find(it => it.design.toUpperCase() === dNo);
-
     if (mode === 'add') {
         if (target) {
             target.stock = target.stock.map((v, i) => v + inputQtys[i]);
@@ -219,11 +265,10 @@ async function processEntry() {
             addToQueue('add', newItem);
         }
     } else {
-        if (!target) return alert("Error: Design missing from stock.");
+        if (!target) return alert("Error: Design missing.");
         target.sold = target.sold.map((v, i) => v + inputQtys[i]);
         addToQueue('update', target);
     }
-
     closeModal();
     render();
     syncNow();
@@ -238,34 +283,16 @@ function render() {
     const term = document.getElementById('searchInput').value.toUpperCase();
     const listEl = document.getElementById('inventoryList');
     listEl.innerHTML = '';
-    
     let ts=0, td=0;
     inventory.forEach(item => { item.stock.forEach((v, i) => { ts += v; td += item.sold[i]; }); });
-
     inventory.filter(it => it.design.toUpperCase().includes(term)).forEach(item => {
         let rows = '';
         item.stock.forEach((sVal, i) => {
             const rem = sVal - item.sold[i];
-            const lowClass = rem <= LOW_STOCK_THRESHOLD ? 'stock-low' : 'stock-ok';
-            rows += `<div class="grid-row">
-                <div class="label-style">${sizes[i]}</div>
-                <div class="qty-display">${sVal}</div>
-                <div class="qty-display">${item.sold[i]}</div>
-                <div class="remain-pill ${lowClass}">${rem}</div>
-            </div>`;
+            rows += `<div class="grid-row"><div class="label-style">${sizes[i]}</div><div class="qty-display">${sVal}</div><div class="qty-display">${item.sold[i]}</div><div class="remain-pill ${rem <= LOW_STOCK_THRESHOLD ? 'stock-low' : 'stock-ok'}">${rem}</div></div>`;
         });
-        listEl.innerHTML += `<div class="item-card">
-            <div class="item-header">
-                <span class="design-badge"># ${item.design}</span>
-                <button onclick="del('${item.id}')" style="color:var(--danger); background:none; border:none; font-size:11px; font-weight:bold;">DELETE</button>
-            </div>
-            <div class="grid-row" style="margin-bottom:5px; opacity:0.5; font-size:10px;">
-                <div>SIZE</div><div>IN</div><div>OUT</div><div>LEFT</div>
-            </div>
-            ${rows}
-        </div>`;
+        listEl.innerHTML += `<div class="item-card"><div class="item-header"><span class="design-badge"># ${item.design}</span><button onclick="del('${item.id}')" style="color:var(--danger); background:none; border:none; font-size:11px; font-weight:bold;">DELETE</button></div>${rows}</div>`;
     });
-
     document.getElementById('totalStock').innerText = ts; 
     document.getElementById('totalSold').innerText = td; 
     document.getElementById('totalRemaining').innerText = ts-td;
@@ -273,21 +300,12 @@ function render() {
     localStorage.setItem('inventoryCache', JSON.stringify(inventory));
 }
 
-function del(id) { 
-    if(confirm("Permanently delete this design?")) { 
-        inventory = inventory.filter(x => x.id !== id); 
-        addToQueue('delete', {id}); 
-        render(); 
-        syncNow(); 
-    } 
-}
+function del(id) { if(confirm("Delete?")) { inventory = inventory.filter(x => x.id !== id); addToQueue('delete', {id}); render(); syncNow(); } }
 
 async function syncNow() {
     if(!navigator.onLine || syncQueue.length === 0) return;
     const status = document.getElementById('statusIndicator');
     status.innerText = "Syncing...";
-    status.style.color = "var(--warning)";
-
     while(syncQueue.length > 0) {
         const task = syncQueue[0];
         try {
@@ -295,27 +313,19 @@ async function syncNow() {
             if(task.type === 'add') ({ error } = await supabaseClient.from('inventory').insert(task.data));
             else if(task.type === 'update') ({ error } = await supabaseClient.from('inventory').update({stock: task.data.stock, sold: task.data.sold}).eq('id', task.data.id));
             else if(task.type === 'delete') ({ error } = await supabaseClient.from('inventory').delete().eq('id', task.data.id));
-
             if(error) throw error;
             syncQueue.shift();
             localStorage.setItem('syncQueue', JSON.stringify(syncQueue));
-        } catch(e) {
-            status.innerText = "Offline/Retry";
-            status.style.color = "var(--danger)";
-            return;
-        }
+        } catch(e) { status.innerText = "Offline"; return; }
     }
     status.innerText = "Online";
-    status.style.color = "var(--success)";
 }
 
 async function fetchData() {
     const {data, error} = await supabaseClient.from('inventory').select('*').order('created_at', {ascending:false});
     if(!error && data) { inventory = data; render(); }
 }
-
 function closeModal() { document.getElementById('entryModal').classList.remove('active'); }
-
 fetchData();
 setInterval(syncNow, 10000);
 </script>
