@@ -301,12 +301,48 @@ input[type="checkbox"] {
   width: 20px; height: 20px; accent-color: var(--primary); margin-right: 10px;
 }
 
-/* Print */
+/* --- FIXED PRINT STYLING --- */
 @media print {
-  body { background: #fff !important; color: #000 !important; padding: 0; }
-  .header-container, .controls-area, .action-buttons, .btn-danger, .bulk-actions { display: none !important; }
-  .item-card { border: 1px solid #ddd; background: #fff; break-inside: avoid; color: #000; box-shadow: none; margin-bottom: 10px; }
-  .qty-input { border: none !important; color: #000 !important; }
+  body { 
+    background-color: #ffffff !important; 
+    color: #000000 !important; 
+    padding: 0 !important;
+  }
+  
+  /* Hide interface elements */
+  .header-container, .controls-area, .action-buttons, .btn-danger, .bulk-actions, .item-header button { 
+    display: none !important; 
+  }
+
+  .inventory-list {
+    display: block !important;
+    padding: 0 !important;
+  }
+
+  /* Reset Card Styles for Ink Saving */
+  .item-card { 
+    border: 1px solid #000 !important; 
+    background: #ffffff !important; 
+    color: #000000 !important;
+    box-shadow: none !important; 
+    margin-bottom: 15px;
+    break-inside: avoid;
+  }
+  
+  .design-name, .size-label, .col-headers {
+    color: #000000 !important;
+    opacity: 1 !important;
+  }
+
+  /* Reset Input Styles (Fixes Black Box) */
+  input, .qty-input, .input-remain { 
+    border: none !important; 
+    background: transparent !important;
+    color: #000000 !important; 
+    -webkit-text-fill-color: #000000 !important; /* Forces black text on iOS Print */
+    box-shadow: none !important;
+    text-align: center !important;
+  }
 }
 </style>
 </head>
@@ -416,7 +452,6 @@ function render(){
       </div>`;
     });
 
-    // UPDATED RENDER HTML FOR NEW UI
     inventoryList.innerHTML+=`
     <div class="item-card">
       <div class="item-header">
