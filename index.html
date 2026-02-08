@@ -83,7 +83,7 @@ h2 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
 }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-/* --- Print Styles (Table Layout) --- */
+/* --- Print Styles --- */
 #printArea { display: none; }
 @media print {
   .header-container, .controls-area, .bottom-nav, .inventory-list, .modal { display: none !important; }
@@ -169,7 +169,7 @@ h2 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
     <div style="width:40px;height:5px;background:rgba(255,255,255,0.2);margin:0 auto 20px auto;border-radius:5px;"></div>
     <h3 style="margin-bottom:15px">New Design Entry</h3>
     <input type="text" id="manualDesignInput" class="qty-input" style="text-align:left; padding:14px; font-size:16px; margin-bottom:15px;" placeholder="Design Number...">
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;" id="modalSelectors">
         <select id="s0" class="qty-input"></select>
         <select id="s1" class="qty-input"></select>
         <select id="s2" class="qty-input"></select>
@@ -185,28 +185,70 @@ const supabaseClient = supabase.createClient('https://yhlfqpiwevsehlgbhxtk.supab
 
 let inventory = JSON.parse(localStorage.getItem('inventoryCache')||'[]');
 let syncQueue = JSON.parse(localStorage.getItem('syncQueue')||'[]');
-let selectMode = false, sortMode = 'recent';
+let sortMode = 'recent';
 const sizes=["22x32","34x36","16x18","26x30"];
 
-function initQtys() {
-    let opts = ''; for(let i=0; i<=100; i++) opts += `<option value="${i}">${i}</option>`;
-    ['s0','s1','s2','s3'].forEach((id, idx) => {
-        document.getElementById(id).innerHTML = `<option value="0" selected>${sizes[idx]}: 0</option>` + opts;
+// --- Logic Improvements ---
+
+function getOpts(sel, labelPrefix = "") {
+    let h = '';
+    // If we have a label prefix (for the Add Modal), we show it in the options
+    for(let i=0; i<=100; i++) {
+        const text = labelPrefix ? `${labelPrefix}: ${i}` : i;
+        h += `<option value="${i}" ${i==sel?'selected':''}>${text}</option>`;
+    }
+    return h;
+}
+
+function initModalQtys() {
+    sizes.forEach((size, idx) => {
+        document.getElementById(`s${idx}`).innerHTML = getOpts(0, size);
     });
 }
-initQtys();
 
 function handleAdd() {
     const dVal = document.getElementById('manualDesignInput').value.trim();
     if(!dVal) return alert("Enter Design Number");
-    const newQtys = [+s0.value, +s1.value, +s2.value, +s3.value];
-    const item = { id: crypto.randomUUID(), design: dVal, stock: newQtys, sold: [0,0,0,0] };
+
+    // Prevent Duplicates
+    const exists = inventory.find(item => item.design.toLowerCase() === dVal.toLowerCase());
+    if (exists) {
+        alert(`Design #${dVal} already exists!`);
+        return;
+    }
+
+    const newQtys = [
+        +document.getElementById('s0').value, 
+        +document.getElementById('s1').value, 
+        +document.getElementById('s2').value, 
+        +document.getElementById('s3').value
+    ];
+    
+    const item = { 
+        id: crypto.randomUUID(), 
+        design: dVal, 
+        stock: newQtys, 
+        sold: [0,0,0,0],
+        created_at: new Date().toISOString()
+    };
+
     inventory.unshift(item);
     syncQueue.push({type:'add', item});
-    closeAdd(); render(); syncNow();
+    
+    // Reset Form
+    document.getElementById('manualDesignInput').value = '';
+    initModalQtys();
+    
+    closeAdd(); 
+    render(); 
+    syncNow();
 }
 
-function openAdd() { addModal.classList.add('active'); }
+function openAdd() { 
+    initModalQtys();
+    addModal.classList.add('active'); 
+}
+
 function closeAdd() { addModal.classList.remove('active'); }
 
 function upd(id, idx, val, type) {
@@ -222,6 +264,7 @@ function upd(id, idx, val, type) {
 function render() {
     let list = [...inventory];
     const term = searchInput.value.toLowerCase();
+    
     if(sortMode==='asc') list.sort((a,b)=>a.design.localeCompare(b.design, undefined, {numeric: true}));
     if(sortMode==='desc') list.sort((a,b)=>b.design.localeCompare(a.design, undefined, {numeric: true}));
 
@@ -229,7 +272,9 @@ function render() {
     let printRows = '';
     let ts=0, td=0;
 
-    list.filter(i => i.design.toLowerCase().includes(term)).forEach(item => {
+    const filtered = list.filter(i => i.design.toLowerCase().includes(term));
+
+    filtered.forEach(item => {
         let rows = '';
         let itemRemTotal = 0;
         item.stock.forEach((sVal, i) => {
@@ -244,22 +289,29 @@ function render() {
             </div>`;
         });
 
-        inventoryList.innerHTML += `<div class="item-card"><div class="item-header"><span class="design-badge"># ${item.design}</span><button style="background:none; border:none; color:var(--danger); font-size:12px;" onclick="del('${item.id}')">DELETE</button></div>${rows}</div>`;
+        inventoryList.innerHTML += `
+            <div class="item-card">
+                <div class="item-header">
+                    <span class="design-badge"># ${item.design}</span>
+                    <button style="background:none; border:none; color:var(--danger); font-size:12px; font-weight:bold;" onclick="del('${item.id}')">DELETE</button>
+                </div>
+                ${rows}
+            </div>`;
 
         printRows += `<tr><td><b>${item.design}</b></td><td>${item.stock[0]}</td><td>${item.stock[1]}</td><td>${item.stock[2]}</td><td>${item.stock[3]}</td><td class="bg-gray">${item.sold[0]}</td><td class="bg-gray">${item.sold[1]}</td><td class="bg-gray">${item.sold[2]}</td><td class="bg-gray">${item.sold[3]}</td><td>${item.stock[0]-item.sold[0]}</td><td>${item.stock[1]-item.sold[1]}</td><td>${item.stock[2]-item.sold[2]}</td><td>${item.stock[3]-item.sold[3]}</td><td><b>${itemRemTotal}</b></td></tr>`;
     });
 
-    totalStock.innerText = ts; totalSold.innerText = td; totalRemaining.innerText = ts-td;
+    totalStock.innerText = ts; 
+    totalSold.innerText = td; 
+    totalRemaining.innerText = ts-td;
     designCount.innerText = inventory.length;
-    pTotalStock.innerText = ts; pTotalSold.innerText = td; pTotalRem.innerText = ts-td; pDesignCount.innerText = inventory.length;
+    pTotalStock.innerText = ts; 
+    pTotalSold.innerText = td; 
+    pTotalRem.innerText = ts-td; 
+    pDesignCount.innerText = inventory.length;
     printTableBody.innerHTML = printRows;
     printDate.innerText = "Printed on " + new Date().toLocaleString();
     saveCache();
-}
-
-function getOpts(sel) {
-    let h = ''; for(let i=0; i<=100; i++) h += `<option value="${i}" ${i==sel?'selected':''}>${i}</option>`;
-    return h;
 }
 
 function saveCache() {
@@ -268,33 +320,50 @@ function saveCache() {
 }
 
 function del(id) {
-    if(!confirm("Delete?")) return;
+    if(!confirm("Delete this design?")) return;
     const it = inventory.find(x => x.id === id);
+    if(!it) return;
     inventory = inventory.filter(x => x.id !== id);
-    syncQueue.push({type:'delete', design: it.design});
-    render(); syncNow();
+    syncQueue.push({type:'delete', design: it.design, id: it.id});
+    render(); 
+    syncNow();
 }
 
 async function syncNow() {
     if(!navigator.onLine) { statusIndicator.innerText="Offline"; return; }
+    if(syncQueue.length === 0) { statusIndicator.innerText="Online"; return; }
+    
     statusIndicator.innerText="Syncing...";
-    const q = [...syncQueue]; syncQueue = []; saveCache();
+    const q = [...syncQueue]; 
+    syncQueue = []; 
+    saveCache();
+
     for(const j of q) {
-        if(j.type==='add') await supabaseClient.from('inventory').insert(j.item);
-        if(j.type==='update') await supabaseClient.from('inventory').update({stock:j.data.stock, sold:j.data.sold}).eq('id', j.data.id);
-        if(j.type==='delete') await supabaseClient.from('inventory').delete().eq('design', j.design);
+        try {
+            if(j.type==='add') await supabaseClient.from('inventory').insert(j.item);
+            if(j.type==='update') await supabaseClient.from('inventory').update({stock:j.data.stock, sold:j.data.sold}).eq('id', j.data.id);
+            if(j.type==='delete') await supabaseClient.from('inventory').delete().eq('id', j.id);
+        } catch (e) {
+            console.error("Sync Error:", e);
+        }
     }
     statusIndicator.innerText="Online";
 }
 
 async function fetchData() {
     if(!navigator.onLine) return;
-    const {data} = await supabaseClient.from('inventory').select('*').order('created_at', {ascending:false});
-    if(data) { inventory = data; render(); }
+    const {data, error} = await supabaseClient.from('inventory').select('*').order('created_at', {ascending:false});
+    if(data) { 
+        inventory = data; 
+        render(); 
+    }
 }
 
 function setSort(v) { sortMode = v; render(); }
+function toggleSelect() { alert("Tools: Filter by date or export features can be added here."); }
 
+// Initial load
+initModalQtys();
 render();
 fetchData();
 setInterval(syncNow, 15000);
