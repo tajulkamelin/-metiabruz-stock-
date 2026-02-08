@@ -157,15 +157,20 @@ h2 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
 <div class="modal" id="addModal" onclick="if(event.target===this)closeAdd()">
   <div class="modal-content">
     <div style="width:40px;height:5px;background:rgba(255,255,255,0.2);margin:0 auto 20px auto;border-radius:5px;"></div>
-    <h3 style="margin-bottom:15px">New Design Entry</h3>
-    <input type="text" id="manualDesignInput" class="qty-input" style="text-align:left; padding:14px; font-size:16px; margin-bottom:15px;" placeholder="Design Number...">
+    <h3 style="margin-bottom:15px">Design Entry</h3>
+    
+    <input type="text" id="manualDesignInput" list="designSuggestions" class="qty-input" 
+           style="text-align:left; padding:14px; font-size:16px; margin-bottom:15px;" 
+           placeholder="Design Number..." onchange="checkExistingDesign(this.value)">
+    <datalist id="designSuggestions"></datalist>
+
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
         <select id="s0" class="qty-input"></select>
         <select id="s1" class="qty-input"></select>
         <select id="s2" class="qty-input"></select>
         <select id="s3" class="qty-input"></select>
     </div>
-    <button class="btn-main" style="width:100%; padding:16px; margin-top:20px" onclick="handleAdd()">Save Design</button>
+    <button id="saveBtn" class="btn-main" style="width:100%; padding:16px; margin-top:20px" onclick="handleAdd()">Save Design</button>
   </div>
 </div>
 
@@ -176,6 +181,7 @@ const supabaseClient = supabase.createClient('https://yhlfqpiwevsehlgbhxtk.supab
 let inventory = JSON.parse(localStorage.getItem('inventoryCache')||'[]');
 let syncQueue = JSON.parse(localStorage.getItem('syncQueue')||'[]');
 let sortMode = 'recent';
+let editingId = null; // Track if we are updating an existing design
 const sizes=["22x32","34x36","16x18","26x30"];
 
 // --- Core Logic ---
@@ -183,53 +189,73 @@ const sizes=["22x32","34x36","16x18","26x30"];
 function getOpts(selectedVal, labelPrefix = "") {
     let html = '';
     for(let i=0; i<=100; i++) {
-        // If labelPrefix is provided (for modal), show "Size: 10", else just "10"
         let display = labelPrefix ? `${labelPrefix}: ${i}` : i;
         html += `<option value="${i}" ${i == selectedVal ? 'selected' : ''}>${display}</option>`;
     }
     return html;
 }
 
+function updateSuggestions() {
+    const list = document.getElementById('designSuggestions');
+    list.innerHTML = inventory.map(item => `<option value="${item.design}">`).join('');
+}
+
+function checkExistingDesign(val) {
+    const existing = inventory.find(item => item.design.toLowerCase() === val.trim().toLowerCase());
+    const saveBtn = document.getElementById('saveBtn');
+    
+    if (existing) {
+        if(confirm(`Design #${val} already exists. Update quantities?`)) {
+            editingId = existing.id;
+            saveBtn.innerText = "Update Existing Design";
+            // Pre-fill existing stock
+            sizes.forEach((s, i) => {
+                document.getElementById(`s${i}`).innerHTML = getOpts(existing.stock[i], s);
+            });
+        } else {
+            document.getElementById('manualDesignInput').value = '';
+            initModal();
+        }
+    } else {
+        editingId = null;
+        saveBtn.innerText = "Save New Design";
+    }
+}
+
 function initModal() {
+    editingId = null;
+    document.getElementById('saveBtn').innerText = "Save Design";
     sizes.forEach((s, i) => {
         document.getElementById(`s${i}`).innerHTML = getOpts(0, s);
     });
+    updateSuggestions();
 }
 
 function handleAdd() {
     const designNo = document.getElementById('manualDesignInput').value.trim();
     if(!designNo) return alert("Please enter a design number.");
 
-    // DUPLICATE CHECK
-    const existing = inventory.find(item => item.design.toLowerCase() === designNo.toLowerCase());
-    if(existing) {
-        alert(`Design #${designNo} already exists! Finding it for you...`);
-        closeAdd();
-        searchInput.value = designNo;
-        render();
-        // Highlight effect
-        const card = document.querySelector(`[data-id="${existing.id}"]`);
-        if(card) {
-            card.classList.add('highlight-card');
-            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            setTimeout(() => card.classList.remove('highlight-card'), 3000);
-        }
-        return;
-    }
-
     const newStock = [+s0.value, +s1.value, +s2.value, +s3.value];
-    const newItem = { 
-        id: crypto.randomUUID(), 
-        design: designNo, 
-        stock: newStock, 
-        sold: [0,0,0,0],
-        created_at: new Date().toISOString()
-    };
 
-    inventory.unshift(newItem);
-    syncQueue.push({type:'add', item: newItem});
+    if (editingId) {
+        // UPDATE EXISTING
+        const item = inventory.find(x => x.id === editingId);
+        item.stock = newStock;
+        item.design = designNo; // in case they changed casing
+        syncQueue.push({type:'update', data: item});
+    } else {
+        // ADD NEW
+        const newItem = { 
+            id: crypto.randomUUID(), 
+            design: designNo, 
+            stock: newStock, 
+            sold: [0,0,0,0],
+            created_at: new Date().toISOString()
+        };
+        inventory.unshift(newItem);
+        syncQueue.push({type:'add', item: newItem});
+    }
     
-    // Reset and Close
     document.getElementById('manualDesignInput').value = '';
     closeAdd();
     render();
@@ -343,7 +369,7 @@ async function fetchData() {
 }
 
 function setSort(v) { sortMode = v; render(); }
-function toggleSelect() { alert("Search and Filter are active. More tools coming soon!"); }
+function toggleSelect() { alert("Suggestions and duplicate auto-fill are active!"); }
 
 // Init
 initModal();
