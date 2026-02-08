@@ -25,9 +25,8 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-body { background: var(--bg); color: var(--text); padding-bottom: 140px; overflow-x: hidden; }
+body { background: var(--bg); color: var(--text); padding-bottom: 140px; }
 
-/* iPhone Premium Header */
 .header-container {
   position: sticky; top: 0; z-index: 100;
   background: var(--glass); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
@@ -39,26 +38,21 @@ body { background: var(--bg); color: var(--text); padding-bottom: 140px; overflo
 .tab.active { background: #48484a; color: white; }
 
 .search-box {
-    background: var(--card-elevated); border-radius: 12px; height: 40px;
+    background: var(--card-elevated); border-radius: 12px; height: 44px;
     display: flex; align-items: center; padding: 0 12px; border: 0.5px solid var(--border); margin-top: 10px;
 }
 .search-box input { flex: 1; background: transparent; border: none; color: white; font-size: 16px; margin-left: 8px; outline: none; }
 
-.content-section { padding: 15px 20px; display: none; }
-.content-section.active { display: block; }
-
-/* Item Cards */
 .item-card { 
-    background: var(--card); border-radius: 20px; padding: 18px; 
-    border: 0.5px solid var(--border); margin-bottom: 15px;
-    display: flex; align-items: center; gap: 12px; transition: transform 0.1s;
+    background: var(--card); border-radius: 20px; padding: 20px; 
+    border: 0.5px solid var(--border); margin: 15px 20px;
+    display: flex; align-items: center; gap: 12px;
 }
 .item-card.selected { border-color: var(--primary); background: rgba(10, 132, 255, 0.1); }
 .select-circle { display: none; width: 22px; height: 22px; border-radius: 50%; border: 2px solid var(--border); flex-shrink: 0; }
 .selection-active .select-circle { display: block; }
 .selected .select-circle { background: white; border-color: white; }
 
-/* Bottom Dock */
 .bottom-dock {
   position: fixed; bottom: 0; left: 0; right: 0;
   background: var(--glass); backdrop-filter: blur(30px);
@@ -66,16 +60,14 @@ body { background: var(--bg); color: var(--text); padding-bottom: 140px; overflo
   display: grid; grid-template-columns: 1fr 1fr; gap: 12px; z-index: 1000;
 }
 .btn-dock { height: 52px; border-radius: 14px; border: none; font-weight: 700; font-size: 16px; transition: 0.1s; }
-.btn-dock:active { transform: scale(0.97); }
 
-/* Modal */
-.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 2000; align-items: flex-end; }
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 2000; align-items: flex-end; }
 .modal.active { display: flex; }
 .modal-content { background: #1c1c1e; width: 100%; border-radius: 30px 30px 0 0; padding: 30px 20px 50px; animation: slideUp 0.3s ease-out; }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-.ios-input { width: 100%; background: #2c2c2e; border: none; border-radius: 12px; padding: 16px; color: white; font-size: 17px; margin-bottom: 15px; }
 
-/* Selection Header Overlay */
+.ios-input { width: 100%; background: #2c2c2e; border: none; border-radius: 12px; padding: 16px; color: white; font-size: 17px; margin-bottom: 12px; }
+
 .selection-bar { 
     display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 2001;
     background: var(--primary); color: white; padding: 55px 20px 15px; 
@@ -99,24 +91,19 @@ body { background: var(--bg); color: var(--text); padding-bottom: 140px; overflo
     <h2 style="font-size: 24px; font-weight: 800;">Inventory</h2>
     <span id="statusIndicator" style="font-size:10px; opacity:0.5;">Online</span>
   </div>
-  
   <div class="view-tabs">
-    <button class="tab active" id="tabInv" onclick="switchView('inventory')">Active</button>
-    <button class="tab" id="tabTrash" onclick="switchView('trash')">Trash (24h)</button>
+    <button class="tab active" id="tabInv" onclick="switchView('inventory')">Active Items</button>
+    <button class="tab" id="tabTrash" onclick="switchView('trash')">Trash Log</button>
   </div>
-
-  <div class="search-box">
-    <span>🔍</span>
-    <input id="searchInput" placeholder="Search Design..." oninput="render()">
-  </div>
+  <div class="search-box"><span>🔍</span><input id="searchInput" placeholder="Search Design..." oninput="render()"></div>
 </div>
 
-<div class="content-section active" id="inventorySection"><div id="inventoryList"></div></div>
-<div class="content-section" id="trashSection"><div id="trashList"></div></div>
+<div id="inventoryList"></div>
+<div id="trashList" style="display:none"></div>
 
 <div class="bottom-dock" id="bottomDock">
-  <button class="btn-dock" style="background:var(--primary); color:white" onclick="openModal('add')">+ Add Stock</button>
-  <button class="btn-dock" style="background:white; color:black" onclick="openModal('sell')">- Sale Item</button>
+  <button class="btn-dock" style="background:var(--primary); color:white" onclick="openModal('add')">+ Add New</button>
+  <button class="btn-dock" style="background:white; color:black" onclick="openModal('sell')">- Record Sale</button>
 </div>
 
 <div class="bottom-dock" id="deleteDock" style="display:none">
@@ -126,11 +113,10 @@ body { background: var(--bg); color: var(--text); padding-bottom: 140px; overflo
 <div class="modal" id="entryModal" onclick="if(event.target===this)closeModal()">
     <div class="modal-content" onclick="event.stopPropagation()">
         <div style="width:36px; height:5px; background:rgba(255,255,255,0.2); border-radius:3px; margin:0 auto 20px;"></div>
-        <h2 id="modalTitle" style="margin-bottom:15px">Entry</h2>
-        <input type="text" id="designInput" class="ios-input" placeholder="Design No." oninput="syncPreview(this.value)">
-        <div id="previewArea" style="margin-bottom:15px; display:none;"></div>
-        <div id="modalInputs" style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;"></div>
-        <button id="modalSubmit" class="btn-dock" style="width:100%; background:var(--primary); color:white;" onclick="processEntry()">Confirm Action</button>
+        <h2 id="modalTitle" style="margin-bottom:15px">Action</h2>
+        <input type="text" id="designInput" class="ios-input" placeholder="Design Number">
+        <div id="modalInputs" style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;"></div>
+        <button id="modalSubmit" class="btn-dock" style="width:100%; background:var(--primary); color:white;" onclick="processEntry()">Confirm Changes</button>
     </div>
 </div>
 
@@ -142,73 +128,65 @@ let inventory = JSON.parse(localStorage.getItem('inventoryCache') || '[]');
 let isSelectionMode = false;
 let selectedIds = new Set();
 let currentView = 'inventory';
-let mode = 'add';
+let mode = 'add'; // 'add', 'sell', or 'edit'
+let editingId = null;
 const sizes = ["22x32", "34x36", "16x18", "26x30"];
-
-// --- Logic Implementation ---
 
 function switchView(v) {
     currentView = v;
     document.getElementById('tabInv').classList.toggle('active', v === 'inventory');
     document.getElementById('tabTrash').classList.toggle('active', v === 'trash');
-    document.getElementById('inventorySection').style.display = v === 'inventory' ? 'block' : 'none';
-    document.getElementById('trashSection').style.display = v === 'trash' ? 'block' : 'none';
+    document.getElementById('inventoryList').style.display = v === 'inventory' ? 'block' : 'none';
+    document.getElementById('trashList').style.display = v === 'trash' ? 'block' : 'none';
     render();
 }
 
-function openModal(m) {
+function openModal(m, id = null) {
     mode = m;
-    document.getElementById('modalTitle').innerText = mode === 'add' ? "Add Stock" : "Sale Item";
-    document.getElementById('designInput').value = '';
-    document.getElementById('previewArea').style.display = 'none';
+    editingId = id;
+    const title = document.getElementById('modalTitle');
+    const dInput = document.getElementById('designInput');
+    const submitBtn = document.getElementById('modalSubmit');
     
-    document.getElementById('modalInputs').innerHTML = sizes.map((s,i) => `
-        <div><label style="font-size:10px; color:var(--text-secondary)">${s}</label>
-        <select id="m${i}" class="ios-input" style="padding:10px; margin-top:5px">
-            <option value="0">0</option>
-            ${Array.from({length: 100}, (_, v) => `<option value="${v+1}">${v+1}</option>`).join('')}
-        </select></div>
-    `).join('');
+    title.innerText = m === 'add' ? "Add New Stock" : m === 'sell' ? "Record Sale" : "Edit Design Details";
+    submitBtn.style.background = m === 'sell' ? "white" : "var(--primary)";
+    submitBtn.style.color = m === 'sell' ? "black" : "white";
+
+    const item = id ? inventory.find(it => it.id === id) : null;
+    dInput.value = item ? item.design : '';
+    dInput.disabled = (m === 'sell');
+
+    document.getElementById('modalInputs').innerHTML = sizes.map((s,i) => {
+        let val = 0;
+        if(m === 'edit' && item) val = item.stock[i];
+        return `<div><label style="font-size:10px; color:var(--text-secondary)">${s}</label>
+        <input type="number" id="m${i}" class="ios-input" style="padding:10px; margin-top:5px" value="${val}"></div>`;
+    }).join('');
     
     document.getElementById('entryModal').classList.add('active');
-}
-
-function syncPreview(val) {
-    const item = inventory.find(it => it.design.toUpperCase() === val.trim().toUpperCase());
-    const area = document.getElementById('previewArea');
-    if(item && !item.deleted_at) {
-        area.style.display = 'block';
-        area.innerHTML = `<div style="padding:12px; background:#2c2c2e; border-radius:12px; font-size:12px; border:1px solid var(--primary)">
-            <b>Current Stock:</b> ${item.stock.map((s,i) => sizes[i]+': '+(s-item.sold[i])).join(' | ')}
-        </div>`;
-    } else { area.style.display = 'none'; }
 }
 
 async function processEntry() {
     const dNo = document.getElementById('designInput').value.trim().toUpperCase();
     const qtys = sizes.map((_, i) => +document.getElementById(`m${i}`).value);
-    if(!dNo || qtys.every(v => v === 0)) return alert("Missing Info");
-
-    let target = inventory.find(it => it.design === dNo);
-
-    if(mode === 'add') {
+    
+    if(mode === 'edit' && editingId) {
+        let it = inventory.find(x => x.id === editingId);
+        it.design = dNo;
+        it.stock = qtys;
+    } else if(mode === 'add') {
+        let target = inventory.find(it => it.design === dNo);
         if(target) target.stock = target.stock.map((v,i) => v + qtys[i]);
         else inventory.unshift({ id: crypto.randomUUID(), design: dNo, stock: qtys, sold: [0,0,0,0], created_at: new Date().toISOString() });
-    } else {
-        if(!target || target.deleted_at) return alert("Design not found!");
+    } else if(mode === 'sell') {
+        let target = inventory.find(it => it.design === dNo);
+        if(!target) return alert("Error");
         target.sold = target.sold.map((v,i) => v + qtys[i]);
     }
 
     localStorage.setItem('inventoryCache', JSON.stringify(inventory));
-    await syncToDB();
+    await supabaseClient.from('inventory').upsert(inventory);
     closeModal(); render();
-}
-
-async function syncToDB() {
-    document.getElementById('statusIndicator').innerText = "Syncing...";
-    // In a real app, perform individual or batch upserts here.
-    const { error } = await supabaseClient.from('inventory').upsert(inventory);
-    document.getElementById('statusIndicator').innerText = error ? "Error" : "Online";
 }
 
 function render() {
@@ -219,7 +197,6 @@ function render() {
 
     inventory.forEach(item => {
         if(!item.design.toUpperCase().includes(term)) return;
-        
         const isSelected = selectedIds.has(item.id);
         const card = document.createElement('div');
         card.className = `item-card ${isSelected ? 'selected' : ''}`;
@@ -229,8 +206,11 @@ function render() {
         card.innerHTML = `
             <div class="select-circle"></div>
             <div style="flex:1">
-                <div style="font-weight:800; color:var(--primary); font-size:18px"># ${item.design}</div>
-                <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-top:8px;">
+                <div style="display:flex; justify-content:space-between">
+                    <span style="font-weight:800; color:var(--primary); font-size:18px"># ${item.design}</span>
+                    ${!item.deleted_at ? `<span onclick="event.stopPropagation(); openModal('edit','${item.id}')" style="font-size:18px">✏️</span>` : ''}
+                </div>
+                <div style="display:grid; grid-template-columns:repeat(4,1fr); gap:5px; margin-top:10px;">
                     ${item.stock.map((s,i) => `<div style="font-size:10px;">${sizes[i]}<br><b>${s-item.sold[i]}</b></div>`).join('')}
                 </div>
             </div>
@@ -242,7 +222,6 @@ function render() {
     });
 }
 
-// --- Selection Logic ---
 function enterSelection(id) {
     isSelectionMode = true;
     document.getElementById('body').classList.add('selection-active');
@@ -275,16 +254,17 @@ function selectAll() {
 }
 
 async function confirmMultiDelete() {
-    if(!confirm("Move selected to Trash?")) return;
+    if(!confirm("Move to Trash?")) return;
     const now = new Date().toISOString();
     inventory.forEach(it => { if(selectedIds.has(it.id)) it.deleted_at = now; });
     localStorage.setItem('inventoryCache', JSON.stringify(inventory));
-    await syncToDB(); exitSelection();
+    await supabaseClient.from('inventory').upsert(inventory);
+    exitSelection();
 }
 
 async function restoreItem(id) {
     const item = inventory.find(it => it.id === id);
-    if(item) { delete item.deleted_at; localStorage.setItem('inventoryCache', JSON.stringify(inventory)); await syncToDB(); render(); }
+    if(item) { delete item.deleted_at; localStorage.setItem('inventoryCache', JSON.stringify(inventory)); await supabaseClient.from('inventory').upsert(inventory); render(); }
 }
 
 function closeModal() { document.getElementById('entryModal').classList.remove('active'); }
