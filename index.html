@@ -20,8 +20,9 @@ body{
   background:var(--bg);color:var(--text);
   padding:12px;padding-bottom:120px;
 }
-.header,.search-box,.item-card,.modal-content{
-  background:var(--card);border-radius:12px;padding:14px;
+.header,.search-box,.item-card,.modal-content,.utility-panel{
+  background:var(--card);border-radius:12px;padding:16px;
+  box-shadow:0 4px 6px -1px rgba(0,0,0,.1)
 }
 .summary{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
 .summary-card{background:var(--input-bg);padding:10px;border-radius:8px;border:1px solid var(--border);text-align:center}
@@ -29,75 +30,43 @@ body{
 .summary-card .value{font-size:20px;font-weight:700;color:var(--primary)}
 .summary-card.green .value{color:var(--remain)}
 
-/* 🔽 COMPACT SEARCH BAR */
-.search-box.compact{
-  margin:16px 0;
-  display:grid;
-  grid-template-columns:1fr auto auto auto auto;
-  gap:6px;
-}
-.search-box.compact input,
-.search-box.compact select,
-.search-box.compact button{
-  padding:10px;
-  border-radius:8px;
-  border:1px solid var(--border);
-  background:var(--input-bg);
-  color:var(--text);
-  font-size:14px;
+.search-box{margin:16px 0;display:flex}
+.search-box input{
+  width:100%;padding:12px;border-radius:8px;border:1px solid var(--border);
+  background:var(--input-bg);color:var(--text);font-size:16px
 }
 
-.inventory-list{display:flex;flex-direction:column;gap:14px}
-.item-card{padding:12px}
-.item-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  margin-bottom:8px;
-  border-bottom:1px solid var(--border);
-  padding-bottom:6px
-}
-.design-name{font-size:16px;font-weight:800;color:var(--primary)}
-.col-headers,.size-row{display:grid;grid-template-columns:60px 1fr 1fr 1fr;gap:6px;align-items:center}
-.col-headers{font-size:10px;color:var(--muted);margin-bottom:4px;text-align:center}
-.size-label{font-size:12px;color:var(--muted)}
+.utility-panel{display:none;gap:8px;margin-bottom:16px}
+.utility-panel.active{display:flex;flex-direction:column}
 
-.qty-input{
-  text-align:center;
-  font-weight:600;
-  height:34px;
-  font-size:14px;
-}
-.input-remain{
-  height:34px;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  background:rgba(16,185,129,.1);
-  color:var(--remain);
-  font-weight:700;
-  border-radius:6px;
-}
+.inventory-list{display:flex;flex-direction:column;gap:16px}
+.item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:8px}
+.design-name{font-size:18px;font-weight:800;color:var(--primary)}
+.col-headers,.size-row{display:grid;grid-template-columns:60px 1fr 1fr 1fr;gap:8px;align-items:center}
+.col-headers{font-size:10px;color:var(--muted);margin-bottom:5px;text-align:center}
+.size-label{font-size:13px;font-weight:600;color:var(--muted)}
+.qty-input{text-align:center;font-weight:600}
+.input-remain{background:rgba(16,185,129,.1);color:var(--remain);font-weight:700;text-align:center;border:none}
 
 .action-buttons{
   position:fixed;bottom:0;left:0;right:0;
-  background:var(--card);padding:8px;
-  display:grid;grid-template-columns:repeat(4,1fr);gap:6px;
+  background:var(--card);padding:12px;
+  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
   border-top:1px solid var(--border)
 }
-.btn{padding:8px;border:none;border-radius:8px;font-weight:600;font-size:10px}
+.btn{padding:10px;border:none;border-radius:8px;font-weight:600;font-size:11px}
 .btn-primary{background:var(--primary);color:#fff}
 .btn-secondary{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
-.btn-danger{background:var(--danger);color:#fff;border-radius:6px;padding:4px 10px}
+.btn-danger{background:var(--danger);color:#fff;border-radius:6px;padding:4px 12px}
 
 .modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);align-items:center;justify-content:center;z-index:99}
 .modal.active{display:flex}
-.modal-content{width:90%;max-width:380px}
-.size-inputs{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.modal-content{width:90%;max-width:400px}
+.size-inputs{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
 
 @media print{
   body{background:#fff!important;color:#000!important}
-  .header,.search-box,.action-buttons,.btn-danger,input[type=checkbox]{display:none!important}
+  .header,.search-box,.action-buttons,.btn-danger,.utility-panel{display:none!important}
   .item-card{page-break-inside:avoid;border:1px solid #000;background:#fff}
   input{border:none!important;background:transparent!important;color:#000!important;text-align:center}
 }
@@ -119,17 +88,21 @@ body{
   </div>
 </div>
 
-<!-- ✅ SINGLE COMPACT CONTROL BAR -->
-<div class="search-box compact">
-  <input id="searchInput" placeholder="🔍 Search Design..." onkeyup="render()">
+<div class="search-box">
+  <input id="searchInput" placeholder="🔍 Search Design No..." onkeyup="render()">
+</div>
+
+<button class="btn btn-secondary" onclick="toggleTools()">⚙️ Tools</button>
+
+<div class="utility-panel" id="toolsPanel">
   <select onchange="setSort(this.value)">
     <option value="recent">Recent</option>
-    <option value="asc">A→Z</option>
-    <option value="desc">Z→A</option>
+    <option value="asc">A → Z</option>
+    <option value="desc">Z → A</option>
   </select>
-  <button onclick="toggleSelectMode()">☑︎</button>
-  <button onclick="deleteSelected()">🗑</button>
-  <button onclick="resetAll()">⟳</button>
+  <button class="btn btn-secondary" onclick="toggleSelectMode()">Select Designs</button>
+  <button class="btn btn-danger" onclick="deleteSelected()">Delete Selected</button>
+  <button class="btn btn-danger" onclick="resetAll()">Reset All</button>
 </div>
 
 <div class="inventory-list" id="inventoryList"></div>
@@ -143,7 +116,7 @@ body{
 
 <div class="modal" id="addModal" onclick="if(event.target===this)closeAdd()">
   <div class="modal-content">
-    <h3>Add Design</h3><br>
+    <h3>Add New Design</h3><br>
     <input id="designInput" placeholder="Design Number">
     <div class="size-inputs">
       <input id="s0" placeholder="22x32" type="number">
@@ -151,14 +124,153 @@ body{
       <input id="s2" placeholder="16x18" type="number">
       <input id="s3" placeholder="26x30" type="number">
     </div><br>
-    <button class="btn btn-primary" onclick="addDesign()">Save</button>
+    <button class="btn btn-primary" onclick="addDesign()">Save Design</button>
   </div>
 </div>
 
-<!-- 🔒 YOUR EXISTING JS (UNCHANGED) -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-/* YOUR JS IS 100% UNCHANGED — intentionally */
+const supabaseClient = supabase.createClient(
+  'https://yhlfqpiwevsehlgbhxtk.supabase.co',
+  'sb_publishable_CkKk1cjkoS1XvBv8zldlcw_1gjt6Y2S'
+);
+
+let inventory = JSON.parse(localStorage.getItem('inventoryCache')||'[]');
+let syncQueue = JSON.parse(localStorage.getItem('syncQueue')||'[]');
+let selected = new Set();
+let selectMode = false;
+let sortMode = 'recent';
+
+const sizes=["22x32","34x36","16x18","26x30"];
+
+function toggleTools(){
+  document.getElementById('toolsPanel').classList.toggle('active');
+}
+
+function saveCache(){
+  localStorage.setItem('inventoryCache',JSON.stringify(inventory));
+  localStorage.setItem('syncQueue',JSON.stringify(syncQueue));
+}
+
+function setSort(v){ sortMode=v; render(); }
+
+function toggleSelectMode(){
+  selectMode=!selectMode;
+  selected.clear();
+  render();
+}
+
+function render(){
+  let list=[...inventory];
+  if(sortMode==='asc') list.sort((a,b)=>a.design.localeCompare(b.design));
+  if(sortMode==='desc') list.sort((a,b)=>b.design.localeCompare(a.design));
+
+  inventoryList.innerHTML='';
+  let ts=0,td=0;
+
+  list.filter(i=>i.design.toLowerCase().includes(searchInput.value.toLowerCase()))
+  .forEach(item=>{
+    ts+=item.stock.reduce((a,b)=>a+b,0);
+    td+=item.sold.reduce((a,b)=>a+b,0);
+
+    let rows='';
+    sizes.forEach((s,i)=>{
+      rows+=`
+      <div class="size-row">
+        <div class="size-label">${s}</div>
+        <input class="qty-input" value="${item.stock[i]}" onchange="upd('${item.id}',${i},this.value,'stock')">
+        <input class="qty-input" value="${item.sold[i]}" onchange="upd('${item.id}',${i},this.value,'sold')">
+        <div class="input-remain">${item.stock[i]-item.sold[i]}</div>
+      </div>`;
+    });
+
+    inventoryList.innerHTML+=`
+    <div class="item-card">
+      <div class="item-header">
+        <div style="display:flex;gap:6px;align-items:center">
+          ${selectMode?`<input type="checkbox" onchange="toggleSelect('${item.id}')">`:''}
+          <span class="design-name"># ${item.design}</span>
+        </div>
+        ${!selectMode?`<button class="btn-danger" onclick="del('${item.id}')">Delete</button>`:''}
+      </div>
+      <div class="col-headers"><span>SIZE</span><span>STOCK</span><span>SOLD</span><span>REM</span></div>
+      ${rows}
+    </div>`;
+  });
+
+  totalStock.textContent=ts;
+  totalSold.textContent=td;
+  totalRemaining.textContent=ts-td;
+  designCount.textContent=inventory.length;
+  saveCache();
+}
+
+function toggleSelect(id){
+  selected.has(id)?selected.delete(id):selected.add(id);
+}
+
+function deleteSelected(){
+  if(!selected.size||!confirm("Delete selected designs?")) return;
+  inventory.forEach(i=>selected.has(i.id)&&syncQueue.push({type:'delete',design:i.design}));
+  inventory=inventory.filter(i=>!selected.has(i.id));
+  selected.clear(); render(); syncNow();
+}
+
+function resetAll(){
+  if(!confirm("Delete ALL designs?")) return;
+  inventory.forEach(i=>syncQueue.push({type:'delete',design:i.design}));
+  inventory=[]; render(); syncNow();
+}
+
+function openAdd(){addModal.classList.add('active')}
+function closeAdd(){addModal.classList.remove('active')}
+
+function addDesign(){
+  if(!designInput.value||inventory.find(x=>x.design===designInput.value)) return;
+  const item={id:crypto.randomUUID(),design:designInput.value,
+    stock:[+s0.value||0,+s1.value||0,+s2.value||0,+s3.value||0],sold:[0,0,0,0]};
+  inventory.unshift(item); syncQueue.push({type:'add',item});
+  designInput.value=s0.value=s1.value=s2.value=s3.value='';
+  closeAdd(); render(); syncNow();
+}
+
+function upd(id,i,v,type){
+  const it=inventory.find(x=>x.id===id); if(!it) return;
+  it[type][i]=+v||0; syncQueue.push({type:'update',data:it}); render();
+}
+
+function del(id){
+  if(!confirm("Delete this design?")) return;
+  const it=inventory.find(x=>x.id===id);
+  inventory=inventory.filter(x=>x.id!==id);
+  syncQueue.push({type:'delete',design:it.design});
+  render(); syncNow();
+}
+
+async function syncNow(){
+  if(!navigator.onLine){statusIndicator.textContent="Offline";return;}
+  statusIndicator.textContent="Syncing";
+  const q=[...syncQueue]; syncQueue=[]; saveCache();
+  for(const j of q){
+    if(j.type==='add')await supabaseClient.from('inventory').insert(j.item);
+    if(j.type==='update')await supabaseClient.from('inventory').update({stock:j.data.stock,sold:j.data.sold}).eq('id',j.data.id);
+    if(j.type==='delete')await supabaseClient.from('inventory').delete().eq('design',j.design);
+  }
+  statusIndicator.textContent="Online";
+}
+
+async function fetchData(){
+  if(!navigator.onLine){statusIndicator.textContent="Offline (Local)";render();return;}
+  await syncNow();
+  const {data}=await supabaseClient.from('inventory').select('*').order('created_at',{ascending:false});
+  if(data){inventory=data;render();}
+}
+
+function printInventory(){ window.print(); }
+
+render();
+if(navigator.onLine) fetchData();
+setInterval(syncNow,30000);
 </script>
 
 </body>
