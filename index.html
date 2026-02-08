@@ -30,7 +30,7 @@ body {
   background: var(--bg);
   color: var(--text);
   padding: 0;
-  padding-bottom: 140px; /* Space for bottom bar */
+  padding-bottom: 140px;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -198,8 +198,8 @@ h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
   text-align: left;
 }
 
-/* Styled Inputs inside cards */
-.qty-input {
+/* Styled Dropdowns inside cards */
+.qty-select {
   width: 100%;
   background: var(--bg);
   border: 1px solid var(--border);
@@ -207,9 +207,11 @@ h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
   border-radius: 8px;
   padding: 8px 0;
   text-align: center;
+  text-align-last: center; /* Centers text in select */
   font-size: 15px;
   font-weight: 600;
-  -moz-appearance: textfield;
+  appearance: none;
+  -webkit-appearance: none;
 }
 
 .input-remain {
@@ -263,7 +265,7 @@ h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
   inset: 0;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(4px);
-  align-items: flex-end; /* Bottom sheet style */
+  align-items: flex-end;
   justify-content: center;
   z-index: 200;
   opacity: 0;
@@ -284,7 +286,9 @@ h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
 .modal h3 { margin-bottom: 20px; font-size: 20px; }
-.modal input {
+
+/* Custom Select for Modal */
+.modal select, .modal input {
   width: 100%;
   padding: 14px;
   background: var(--bg);
@@ -293,56 +297,22 @@ h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
   color: #fff;
   font-size: 16px;
   margin-bottom: 12px;
+  appearance: none;
+  -webkit-appearance: none;
 }
 .size-inputs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 
 /* Checkbox Style */
-input[type="checkbox"] {
-  width: 20px; height: 20px; accent-color: var(--primary); margin-right: 10px;
-}
+input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--primary); margin-right: 10px; }
 
-/* --- FIXED PRINT STYLING --- */
+/* Print */
 @media print {
-  body { 
-    background-color: #ffffff !important; 
-    color: #000000 !important; 
-    padding: 0 !important;
-  }
-  
-  /* Hide interface elements */
-  .header-container, .controls-area, .action-buttons, .btn-danger, .bulk-actions, .item-header button { 
-    display: none !important; 
-  }
-
-  .inventory-list {
-    display: block !important;
-    padding: 0 !important;
-  }
-
-  /* Reset Card Styles for Ink Saving */
-  .item-card { 
-    border: 1px solid #000 !important; 
-    background: #ffffff !important; 
-    color: #000000 !important;
-    box-shadow: none !important; 
-    margin-bottom: 15px;
-    break-inside: avoid;
-  }
-  
-  .design-name, .size-label, .col-headers {
-    color: #000000 !important;
-    opacity: 1 !important;
-  }
-
-  /* Reset Input Styles (Fixes Black Box) */
-  input, .qty-input, .input-remain { 
-    border: none !important; 
-    background: transparent !important;
-    color: #000000 !important; 
-    -webkit-text-fill-color: #000000 !important; /* Forces black text on iOS Print */
-    box-shadow: none !important;
-    text-align: center !important;
-  }
+  body { background: #fff !important; color: #000 !important; padding: 0 !important; }
+  .header-container, .controls-area, .action-buttons, .btn-danger, .bulk-actions, .item-header button { display: none !important; }
+  .inventory-list { display: block !important; padding: 0 !important; }
+  .item-card { border: 1px solid #000 !important; background: #fff !important; color: #000 !important; box-shadow: none !important; margin-bottom: 15px; break-inside: avoid; }
+  .design-name, .size-label, .col-headers { color: #000 !important; opacity: 1 !important; }
+  select, .qty-select, .input-remain { border: none !important; background: transparent !important; color: #000 !important; -webkit-text-fill-color: #000 !important; box-shadow: none !important; text-align: center !important; appearance: none !important; }
 }
 </style>
 </head>
@@ -393,13 +363,28 @@ input[type="checkbox"] {
   <div class="modal-content">
     <div style="width:40px;height:4px;background:#38383a;margin:0 auto 20px auto;border-radius:2px;"></div>
     <h3>New Design</h3>
-    <input id="designInput" placeholder="Design Number (e.g., 501)">
+    
+    <select id="designInput">
+      <option value="" disabled selected>Select Design Number</option>
+      <option value="1001">Design 1001</option>
+      <option value="1002">Design 1002</option>
+      <option value="1003">Design 1003</option>
+      <option value="1004">Design 1004</option>
+      <option value="1005">Design 1005</option>
+      <option value="1006">Design 1006</option>
+      <option value="2001">Design 2001</option>
+      <option value="2002">Design 2002</option>
+      <option value="2003">Design 2003</option>
+      <option value="3001">Design 3001</option>
+    </select>
+
     <div class="size-inputs">
-      <input id="s0" placeholder="22x32" type="number">
-      <input id="s1" placeholder="34x36" type="number">
-      <input id="s2" placeholder="16x18" type="number">
-      <input id="s3" placeholder="26x30" type="number">
+      <select id="s0"><option value="" disabled selected>22x32 Qty</option></select>
+      <select id="s1"><option value="" disabled selected>34x36 Qty</option></select>
+      <select id="s2"><option value="" disabled selected>16x18 Qty</option></select>
+      <select id="s3"><option value="" disabled selected>26x30 Qty</option></select>
     </div>
+    
     <button class="btn btn-primary" style="width:100%; margin-top:12px" onclick="addDesign()">Save Design</button>
   </div>
 </div>
@@ -418,6 +403,25 @@ let selectMode = false;
 let sortMode = 'recent';
 
 const sizes=["22x32","34x36","16x18","26x30"];
+const MAX_QTY = 50; // Maximum number in dropdown
+
+// Helper to generate options 0-50
+function getQtyOptions(selectedVal) {
+  let opts = '';
+  for(let i=0; i<=MAX_QTY; i++) {
+    opts += `<option value="${i}" ${i==selectedVal ? 'selected' : ''}>${i}</option>`;
+  }
+  return opts;
+}
+
+// Populate Add Modal Dropdowns on load
+function initModalDropdowns() {
+  const opts = getQtyOptions(0); // Default to 0
+  ['s0','s1','s2','s3'].forEach(id => {
+    document.getElementById(id).innerHTML = `<option value="" disabled selected>${document.getElementById(id).children[0].textContent}</option>` + opts;
+  });
+}
+initModalDropdowns();
 
 function setSort(v){ sortMode=v; render(); }
 function toggleSelect(){ selectMode=!selectMode; selected.clear(); render(); }
@@ -443,11 +447,19 @@ function render(){
 
     let rows='';
     sizes.forEach((s,i)=>{
+      // Generate dropdowns for Stock and Sold
+      const stockOpts = getQtyOptions(item.stock[i]);
+      const soldOpts = getQtyOptions(item.sold[i]);
+
       rows+=`
       <div class="size-row">
         <div class="size-label">${s}</div>
-        <input type="tel" class="qty-input" value="${item.stock[i]}" onchange="upd('${item.id}',${i},this.value,'stock')">
-        <input type="tel" class="qty-input" value="${item.sold[i]}" onchange="upd('${item.id}',${i},this.value,'sold')">
+        <select class="qty-select" onchange="upd('${item.id}',${i},this.value,'stock')">
+          ${stockOpts}
+        </select>
+        <select class="qty-select" onchange="upd('${item.id}',${i},this.value,'sold')">
+          ${soldOpts}
+        </select>
         <div class="input-remain">${item.stock[i]-item.sold[i]}</div>
       </div>`;
     });
@@ -494,11 +506,24 @@ function openAdd(){addModal.classList.add('active')}
 function closeAdd(){addModal.classList.remove('active')}
 
 function addDesign(){
-  if(!designInput.value||inventory.find(x=>x.design===designInput.value)) return;
-  const item={id:crypto.randomUUID(),design:designInput.value,
+  const dVal = designInput.value;
+  if(!dVal||inventory.find(x=>x.design===dVal)) {
+    if(!dVal) alert("Please select a design number");
+    else alert("Design already exists");
+    return;
+  }
+  
+  const item={id:crypto.randomUUID(),design:dVal,
     stock:[+s0.value||0,+s1.value||0,+s2.value||0,+s3.value||0],sold:[0,0,0,0]};
   inventory.unshift(item); syncQueue.push({type:'add',item});
-  designInput.value=s0.value=s1.value=s2.value=s3.value='';
+  
+  // Reset selects
+  designInput.selectedIndex = 0;
+  s0.selectedIndex = 0;
+  s1.selectedIndex = 0;
+  s2.selectedIndex = 0;
+  s3.selectedIndex = 0;
+
   closeAdd(); render(); syncNow();
 }
 
