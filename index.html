@@ -20,7 +20,7 @@ body{
   background:var(--bg);color:var(--text);
   padding:12px;padding-bottom:120px;
 }
-.header,.search-box,.item-card,.modal-content,.utility-panel{
+.header,.search-box,.item-card,.modal-content{
   background:var(--card);border-radius:12px;padding:16px;
   box-shadow:0 4px 6px -1px rgba(0,0,0,.1)
 }
@@ -29,16 +29,11 @@ body{
 .summary-card label{font-size:10px;color:var(--muted);text-transform:uppercase}
 .summary-card .value{font-size:20px;font-weight:700;color:var(--primary)}
 .summary-card.green .value{color:var(--remain)}
-
 .search-box{margin:16px 0;display:flex}
 .search-box input{
   width:100%;padding:12px;border-radius:8px;border:1px solid var(--border);
   background:var(--input-bg);color:var(--text);font-size:16px
 }
-
-.utility-panel{display:none;gap:8px;margin-bottom:16px}
-.utility-panel.active{display:flex;flex-direction:column}
-
 .inventory-list{display:flex;flex-direction:column;gap:16px}
 .item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:8px}
 .design-name{font-size:18px;font-weight:800;color:var(--primary)}
@@ -66,7 +61,7 @@ body{
 
 @media print{
   body{background:#fff!important;color:#000!important}
-  .header,.search-box,.action-buttons,.btn-danger,.utility-panel{display:none!important}
+  .header,.search-box,.action-buttons,.btn-danger{display:none!important}
   .item-card{page-break-inside:avoid;border:1px solid #000;background:#fff}
   input{border:none!important;background:transparent!important;color:#000!important;text-align:center}
 }
@@ -90,19 +85,6 @@ body{
 
 <div class="search-box">
   <input id="searchInput" placeholder="🔍 Search Design No..." onkeyup="render()">
-</div>
-
-<button class="btn btn-secondary" onclick="toggleTools()">⚙️ Tools</button>
-
-<div class="utility-panel" id="toolsPanel">
-  <select onchange="setSort(this.value)">
-    <option value="recent">Recent</option>
-    <option value="asc">A → Z</option>
-    <option value="desc">Z → A</option>
-  </select>
-  <button class="btn btn-secondary" onclick="toggleSelectMode()">Select Designs</button>
-  <button class="btn btn-danger" onclick="deleteSelected()">Delete Selected</button>
-  <button class="btn btn-danger" onclick="resetAll()">Reset All</button>
 </div>
 
 <div class="inventory-list" id="inventoryList"></div>
@@ -137,39 +119,19 @@ const supabaseClient = supabase.createClient(
 
 let inventory = JSON.parse(localStorage.getItem('inventoryCache')||'[]');
 let syncQueue = JSON.parse(localStorage.getItem('syncQueue')||'[]');
-let selected = new Set();
-let selectMode = false;
-let sortMode = 'recent';
-
 const sizes=["22x32","34x36","16x18","26x30"];
-
-function toggleTools(){
-  document.getElementById('toolsPanel').classList.toggle('active');
-}
 
 function saveCache(){
   localStorage.setItem('inventoryCache',JSON.stringify(inventory));
   localStorage.setItem('syncQueue',JSON.stringify(syncQueue));
 }
 
-function setSort(v){ sortMode=v; render(); }
-
-function toggleSelectMode(){
-  selectMode=!selectMode;
-  selected.clear();
-  render();
-}
-
 function render(){
-  let list=[...inventory];
-  if(sortMode==='asc') list.sort((a,b)=>a.design.localeCompare(b.design));
-  if(sortMode==='desc') list.sort((a,b)=>b.design.localeCompare(a.design));
-
+  const term=searchInput.value.toLowerCase();
   inventoryList.innerHTML='';
   let ts=0,td=0;
 
-  list.filter(i=>i.design.toLowerCase().includes(searchInput.value.toLowerCase()))
-  .forEach(item=>{
+  inventory.filter(i=>i.design.toLowerCase().includes(term)).forEach(item=>{
     ts+=item.stock.reduce((a,b)=>a+b,0);
     td+=item.sold.reduce((a,b)=>a+b,0);
 
@@ -187,11 +149,8 @@ function render(){
     inventoryList.innerHTML+=`
     <div class="item-card">
       <div class="item-header">
-        <div style="display:flex;gap:6px;align-items:center">
-          ${selectMode?`<input type="checkbox" onchange="toggleSelect('${item.id}')">`:''}
-          <span class="design-name"># ${item.design}</span>
-        </div>
-        ${!selectMode?`<button class="btn-danger" onclick="del('${item.id}')">Delete</button>`:''}
+        <span class="design-name"># ${item.design}</span>
+        <button class="btn-danger" onclick="del('${item.id}')">Delete</button>
       </div>
       <div class="col-headers"><span>SIZE</span><span>STOCK</span><span>SOLD</span><span>REM</span></div>
       ${rows}
@@ -205,46 +164,33 @@ function render(){
   saveCache();
 }
 
-function toggleSelect(id){
-  selected.has(id)?selected.delete(id):selected.add(id);
-}
-
-function deleteSelected(){
-  if(!selected.size||!confirm("Delete selected designs?")) return;
-  inventory.forEach(i=>selected.has(i.id)&&syncQueue.push({type:'delete',design:i.design}));
-  inventory=inventory.filter(i=>!selected.has(i.id));
-  selected.clear(); render(); syncNow();
-}
-
-function resetAll(){
-  if(!confirm("Delete ALL designs?")) return;
-  inventory.forEach(i=>syncQueue.push({type:'delete',design:i.design}));
-  inventory=[]; render(); syncNow();
-}
-
 function openAdd(){addModal.classList.add('active')}
 function closeAdd(){addModal.classList.remove('active')}
 
 function addDesign(){
-  if(!designInput.value||inventory.find(x=>x.design===designInput.value)) return;
+  if(!designInput.value)return;
+  if(inventory.find(x=>x.design===designInput.value))return alert("Exists");
   const item={id:crypto.randomUUID(),design:designInput.value,
     stock:[+s0.value||0,+s1.value||0,+s2.value||0,+s3.value||0],sold:[0,0,0,0]};
-  inventory.unshift(item); syncQueue.push({type:'add',item});
+  inventory.unshift(item);
+  syncQueue.push({type:'add',item});
   designInput.value=s0.value=s1.value=s2.value=s3.value='';
-  closeAdd(); render(); syncNow();
+  closeAdd();render();syncNow();
 }
 
-function upd(id,i,v,type){
-  const it=inventory.find(x=>x.id===id); if(!it) return;
-  it[type][i]=+v||0; syncQueue.push({type:'update',data:it}); render();
+function upd(id,i,val,type){
+  const it=inventory.find(x=>x.id===id);if(!it)return;
+  it[type][i]=+val||0;
+  syncQueue.push({type:'update',data:it});
+  render();
 }
 
 function del(id){
   if(!confirm("Delete this design?")) return;
-  const it=inventory.find(x=>x.id===id);
-  inventory=inventory.filter(x=>x.id!==id);
-  syncQueue.push({type:'delete',design:it.design});
-  render(); syncNow();
+  const item=inventory.find(i=>i.id===id);
+  inventory=inventory.filter(i=>i.id!==id);
+  syncQueue.push({type:'delete',design:item.design});
+  render();syncNow();
 }
 
 async function syncNow(){
