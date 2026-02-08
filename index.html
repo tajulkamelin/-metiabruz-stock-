@@ -7,95 +7,97 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Metiabruz Stock</title>
+  <title>Metiabruz Stock Pro</title>
 
 <style>
 :root {
   --bg: #000000;
   --card: #1c1c1e;
-  --card-highlight: #2c2c2e;
+  --card-elevated: #2c2c2e;
   --text: #ffffff;
-  --muted: #8e8e93;
-  --border: #38383a;
+  --text-secondary: #8e8e93;
   --primary: #0a84ff;
   --danger: #ff453a;
-  --success: #30d158;
-  --glass: rgba(28, 28, 30, 0.85);
+  --success: #32d74b;
+  --border: rgba(255, 255, 255, 0.1);
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; outline: none; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; }
 
-body {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  background: var(--bg);
-  color: var(--text);
-  padding-bottom: 140px;
-}
+body { background: var(--bg); color: var(--text); padding-bottom: 120px; }
 
-/* --- iOS Header --- */
+/* --- iOS Glass Header --- */
 .header-container {
-  position: sticky; top: 0; z-index: 50;
-  background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
   border-bottom: 1px solid var(--border);
-  padding: 16px; padding-top: max(16px, env(safe-area-inset-top));
+  padding: 20px 16px 12px; padding-top: max(20px, env(safe-area-inset-top));
 }
 
 .top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-h2 { font-size: 28px; font-weight: 700; }
-#statusIndicator { font-size: 11px; font-weight: 600; padding: 4px 10px; background: var(--card-highlight); border-radius: 20px; color: var(--muted); }
+h2 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+#statusIndicator { font-size: 12px; font-weight: 600; color: var(--text-secondary); background: var(--card-elevated); padding: 4px 12px; border-radius: 20px; }
 
 .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.summary-card { background: var(--card-highlight); padding: 10px 4px; border-radius: 10px; text-align: center; }
-.summary-card label { font-size: 9px; color: var(--muted); text-transform: uppercase; display: block; }
-.summary-card .value { font-size: 15px; font-weight: 700; }
-.summary-card.green .value { color: var(--success); }
+.summary-card { background: var(--card); border: 1px solid var(--border); padding: 12px 4px; border-radius: 12px; text-align: center; }
+.summary-card label { font-size: 9px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 2px; }
+.summary-card .value { font-size: 16px; font-weight: 700; }
 
-/* --- Search & Controls --- */
+/* --- Search Bar --- */
 .controls-area { padding: 16px; }
-.search-box { background: var(--card-highlight); border-radius: 10px; padding: 8px; display: flex; gap: 8px; align-items: center; }
-.search-box input { flex: 1; background: transparent; border: none; color: var(--text); font-size: 17px; }
-.search-box select { background: var(--card); color: var(--primary); border: none; border-radius: 8px; padding: 8px; font-weight: 600; }
+.search-wrapper {
+  background: var(--card-elevated); border-radius: 12px;
+  padding: 12px; display: flex; align-items: center; gap: 10px;
+}
+.search-wrapper input { flex: 1; background: transparent; border: none; color: var(--text); font-size: 17px; }
 
-.bulk-actions { display: flex; gap: 10px; margin-top: 12px; }
+/* --- Inventory Cards --- */
+.inventory-list { padding: 0 16px; display: flex; flex-direction: column; gap: 16px; }
+.item-card { background: var(--card); border-radius: 18px; padding: 16px; border: 1px solid var(--border); }
+.item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.design-badge { background: var(--primary); color: white; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 16px; }
 
-/* --- Inventory List --- */
-.inventory-list { display: flex; flex-direction: column; gap: 16px; padding: 0 16px; }
-.item-card { background: var(--card); border-radius: 14px; padding: 16px; }
-.item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; border-bottom: 1px solid var(--border); padding-bottom: 12px; }
-.design-name { font-size: 20px; font-weight: 700; }
+.grid-row { display: grid; grid-template-columns: 1.2fr 1fr 1fr 0.8fr; gap: 8px; align-items: center; margin-bottom: 8px; }
+.label-style { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
 
-.col-headers { display: grid; grid-template-columns: 60px 1fr 1fr 1fr; gap: 8px; margin-bottom: 8px; opacity: 0.5; font-size: 10px; font-weight: 600; text-align: center; }
-.size-row { display: grid; grid-template-columns: 60px 1fr 1fr 1fr; gap: 10px; align-items: center; margin-bottom: 10px; }
-.size-label { font-size: 13px; font-weight: 600; color: var(--muted); }
-.qty-select { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); border-radius: 8px; padding: 8px 0; text-align: center; font-weight: 600; appearance: none; }
-.input-remain { font-size: 15px; font-weight: 700; color: var(--success); text-align: center; }
+.qty-input {
+    background: var(--card-elevated); border: 1px solid var(--border);
+    color: var(--text); padding: 8px 4px; border-radius: 8px;
+    font-size: 14px; font-weight: 600; text-align: center; appearance: none; width: 100%;
+}
+.remain-pill { background: rgba(50, 215, 75, 0.1); color: var(--success); padding: 6px; border-radius: 8px; font-weight: 700; text-align: center; font-size: 14px; }
+
+/* --- Bottom Navigation --- */
+.bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(28, 28, 30, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 10px;
+    border-top: 1px solid var(--border); z-index: 100;
+}
+.btn-main { background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 15px; }
+.btn-icon { background: var(--card-elevated); color: var(--text); border: none; border-radius: 12px; padding: 12px; font-size: 18px; }
 
 /* --- Modal & Suggestions --- */
 .modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; align-items: flex-end; opacity: 0; transition: 0.2s; }
 .modal.active { display: flex; opacity: 1; }
-.modal-content { background: var(--card); width: 100%; border-radius: 20px 20px 0 0; padding: 24px; padding-bottom: max(24px, env(safe-area-inset-bottom)); animation: slideUp 0.3s ease-out; }
+.modal-content { 
+    background: var(--card); width: 100%; border-radius: 24px 24px 0 0; padding: 24px; 
+    padding-bottom: max(24px, env(safe-area-inset-bottom)); animation: slideUp 0.3s ease-out; 
+}
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-.modal input, .modal select { width: 100%; padding: 14px; background: var(--bg); border: 1px solid var(--border); border-radius: 10px; color: #fff; font-size: 16px; margin-bottom: 12px; }
-
-/* Suggestion Box */
-.suggestion-container { position: relative; width: 100%; }
 #suggestionList { 
-    position: absolute; top: -5px; left: 0; right: 0; 
-    background: var(--card-highlight); border-radius: 0 0 10px 10px; 
-    max-height: 150px; overflow-y: auto; z-index: 210; border: 1px solid var(--border);
-    display: none;
+    position: absolute; width: 100%; background: var(--card-elevated); 
+    border-radius: 12px; max-height: 160px; overflow-y: auto; z-index: 210; 
+    margin-top: 5px; border: 1px solid var(--border); display: none;
 }
-.suggestion-item { padding: 12px; border-bottom: 1px solid var(--border); color: var(--primary); font-weight: 600; }
-.suggestion-item:active { background: var(--border); }
+.suggestion-item { padding: 14px; border-bottom: 1px solid var(--border); color: var(--primary); font-weight: 600; }
 
-.action-buttons { position: fixed; bottom: 0; left: 0; right: 0; background: var(--glass); backdrop-filter: blur(25px); padding: 12px 16px; padding-bottom: max(12px, env(safe-area-inset-bottom)); display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; border-top: 1px solid var(--border); z-index: 100; }
-.btn { padding: 12px; border: none; border-radius: 10px; font-weight: 600; font-size: 13px; cursor: pointer; text-align: center; }
-.btn-primary { background: var(--primary); color: #fff; }
-.btn-secondary { background: var(--card-highlight); color: var(--primary); }
-.btn-danger { background: rgba(255, 69, 58, 0.15); color: var(--danger); }
+.size-grid-input { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 15px 0; }
 
-@media print { .header-container, .controls-area, .action-buttons, .btn-danger { display: none !important; } }
+@media print { .header-container, .controls-area, .bottom-nav { display: none !important; } }
 </style>
 </head>
 <body>
@@ -108,54 +110,50 @@ h2 { font-size: 28px; font-weight: 700; }
   <div class="summary">
     <div class="summary-card"><label>Stock</label><div class="value" id="totalStock">0</div></div>
     <div class="summary-card"><label>Sold</label><div class="value" id="totalSold">0</div></div>
-    <div class="summary-card green"><label>Left</label><div class="value" id="totalRemaining">0</div></div>
+    <div class="summary-card"><label>Left</label><div class="value" id="totalRemaining" style="color:var(--success)">0</div></div>
     <div class="summary-card"><label>Items</label><div class="value" id="designCount">0</div></div>
   </div>
 </div>
 
 <div class="controls-area">
-  <div class="search-box">
+  <div class="search-wrapper">
     <span>🔍</span>
     <input id="searchInput" placeholder="Search Design No..." onkeyup="render()">
-    <select id="sortSelect" onchange="setSort(this.value)">
+    <select id="sortSelect" onchange="setSort(this.value)" style="background:none; border:none; color:var(--primary); font-weight:700;">
       <option value="recent">Recent</option>
-      <option value="asc">A → Z</option>
-      <option value="desc">Z → A</option>
+      <option value="asc">A→Z</option>
+      <option value="desc">Z→A</option>
     </select>
-  </div>
-  <div class="bulk-actions">
-    <button class="btn btn-secondary" style="flex:1" onclick="toggleSelect()">Select</button>
-    <button class="btn btn-danger" style="flex:1" onclick="deleteSelected()">Delete</button>
   </div>
 </div>
 
 <div class="inventory-list" id="inventoryList"></div>
 
-<div class="action-buttons">
-  <button class="btn btn-primary" onclick="openAdd()">➕ Add</button>
-  <button class="btn btn-secondary" onclick="window.print()">🖨 Print</button>
-  <button class="btn btn-secondary" onclick="fetchData()">🔄 Sync</button>
-  <button class="btn btn-secondary" onclick="saveCache()">💾 Save</button>
+<div class="bottom-nav">
+  <button class="btn-main" onclick="openAdd()">+ ADD DESIGN</button>
+  <button class="btn-icon" onclick="fetchData()">🔄</button>
+  <button class="btn-icon" onclick="window.print()">🖨️</button>
+  <button class="btn-icon" onclick="toggleSelect()">🛠️</button>
 </div>
 
 <div class="modal" id="addModal" onclick="if(event.target===this)closeAdd()">
   <div class="modal-content">
-    <div style="width:40px;height:4px;background:#38383a;margin:0 auto 20px auto;border-radius:2px;"></div>
-    <h3>Enter Design Number</h3>
+    <div style="width:40px;height:5px;background:rgba(255,255,255,0.2);margin:0 auto 20px auto;border-radius:5px;"></div>
+    <h3 style="margin-bottom:15px">New Design Entry</h3>
     
-    <div class="suggestion-container">
-        <input type="text" id="manualDesignInput" placeholder="Type Design No (e.g. 1001)" autocomplete="off" onkeyup="showSuggestions(this.value)">
+    <div style="position:relative">
+        <input type="text" id="manualDesignInput" class="qty-input" style="text-align:left; padding:14px; font-size:16px" placeholder="Type Design Number..." autocomplete="off" onkeyup="showSuggestions(this.value)">
         <div id="suggestionList"></div>
     </div>
 
-    <div class="size-inputs">
-      <select id="s0"><option value="" disabled selected>22x32 Qty</option></select>
-      <select id="s1"><option value="" disabled selected>34x36 Qty</option></select>
-      <select id="s2"><option value="" disabled selected>16x18 Qty</option></select>
-      <select id="s3"><option value="" disabled selected>26x30 Qty</option></select>
+    <div class="size-grid-input">
+      <div><label class="label-style">22x32 Qty</label><select id="s0" class="qty-input"></select></div>
+      <div><label class="label-style">34x36 Qty</label><select id="s1" class="qty-input"></select></div>
+      <div><label class="label-style">16x18 Qty</label><select id="s2" class="qty-input"></select></div>
+      <div><label class="label-style">26x30 Qty</label><select id="s3" class="qty-input"></select></div>
     </div>
     
-    <button class="btn btn-primary" style="width:100%; margin-top:12px; height:50px; font-size:16px" onclick="handleAdd()">Save Design</button>
+    <button class="btn-main" style="width:100%; padding:16px; margin-top:10px" onclick="handleAdd()">Save Design</button>
   </div>
 </div>
 
@@ -169,23 +167,20 @@ let remembered = JSON.parse(localStorage.getItem('rememberedDesigns')||'["1001",
 let selectMode = false, selected = new Set(), sortMode = 'recent';
 const sizes=["22x32","34x36","16x18","26x30"];
 
-// Init Qty Dropdowns
 function initQtys() {
     let opts = ''; for(let i=0; i<=50; i++) opts += `<option value="${i}">${i}</option>`;
     ['s0','s1','s2','s3'].forEach(id => {
-        const lbl = document.getElementById(id).children[0].textContent;
+        const lbl = document.getElementById(id).previousElementSibling.textContent.split(' ')[0];
         document.getElementById(id).innerHTML = `<option value="0" selected>${lbl}: 0</option>` + opts;
     });
 }
 initQtys();
 
-// Suggestion Logic
 function showSuggestions(val) {
     const list = document.getElementById('suggestionList');
     if(!val) { list.style.display = 'none'; return; }
     const matches = remembered.filter(d => d.includes(val)).slice(0, 5);
     if(matches.length === 0) { list.style.display = 'none'; return; }
-    
     list.innerHTML = matches.map(m => `<div class="suggestion-item" onclick="selectSug('${m}')">${m}</div>`).join('');
     list.style.display = 'block';
 }
@@ -198,10 +193,8 @@ function selectSug(val) {
 function handleAdd() {
     const dVal = document.getElementById('manualDesignInput').value.trim();
     if(!dVal) return alert("Enter Design Number");
-
     const existing = inventory.find(x => x.design === dVal);
     const newQtys = [+s0.value, +s1.value, +s2.value, +s3.value];
-
     if(existing) {
         if(confirm(`Design ${dVal} already exists. Add these quantities to current stock?`)) {
             existing.stock = existing.stock.map((v, i) => v + newQtys[i]);
@@ -210,17 +203,13 @@ function handleAdd() {
         }
         return;
     }
-
-    // New Design Logic
     const item = { id: crypto.randomUUID(), design: dVal, stock: newQtys, sold: [0,0,0,0] };
     inventory.unshift(item);
     syncQueue.push({type:'add', item});
-    
     if(!remembered.includes(dVal)) {
         remembered.push(dVal);
         localStorage.setItem('rememberedDesigns', JSON.stringify(remembered));
     }
-
     closeAdd(); render(); syncNow();
 }
 
@@ -254,15 +243,11 @@ function render() {
         item.stock.forEach((sVal, i) => {
             ts += sVal; td += item.sold[i];
             rows += `
-            <div class="size-row">
-                <div class="size-label">${sizes[i]}</div>
-                <select class="qty-select" onchange="upd('${item.id}',${i},this.value,'stock')">
-                    ${getOpts(sVal)}
-                </select>
-                <select class="qty-select" onchange="upd('${item.id}',${i},this.value,'sold')">
-                    ${getOpts(item.sold[i])}
-                </select>
-                <div class="input-remain">${sVal - item.sold[i]}</div>
+            <div class="grid-row">
+                <div class="label-style">${sizes[i]}</div>
+                <select class="qty-input" onchange="upd('${item.id}',${i},this.value,'stock')">${getOpts(sVal)}</select>
+                <select class="qty-input" onchange="upd('${item.id}',${i},this.value,'sold')">${getOpts(item.sold[i])}</select>
+                <div class="remain-pill">${sVal - item.sold[i]}</div>
             </div>`;
         });
 
@@ -271,11 +256,13 @@ function render() {
             <div class="item-header">
                 <div>
                     ${selectMode ? `<input type="checkbox" onchange="togglePick('${item.id}')"> ` : ''}
-                    <span class="design-name"># ${item.design}</span>
+                    <span class="design-badge"># ${item.design}</span>
                 </div>
-                <button class="btn-danger" style="padding:4px 8px; font-size:10px" onclick="del('${item.id}')">DEL</button>
+                <button style="background:none; border:none; color:var(--danger); font-size:12px; font-weight:700;" onclick="del('${item.id}')">DELETE</button>
             </div>
-            <div class="col-headers"><span>SIZE</span><span>STOCK</span><span>SOLD</span><span>REM</span></div>
+            <div class="grid-row" style="margin-bottom:4px; opacity:0.5; font-size:10px; font-weight:700; text-align:center;">
+                <div>SIZE</div><div>STOCK</div><div>SOLD</div><div>REM</div>
+            </div>
             ${rows}
         </div>`;
     });
@@ -295,7 +282,7 @@ function saveCache() {
 }
 
 function del(id) {
-    if(!confirm("Delete?")) return;
+    if(!confirm("Delete this design?")) return;
     const it = inventory.find(x => x.id === id);
     inventory = inventory.filter(x => x.id !== id);
     syncQueue.push({type:'delete', design: it.design});
