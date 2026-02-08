@@ -15,114 +15,176 @@
   --card: #1c1c1e;
   --card-elevated: #2c2c2e;
   --text: #ffffff;
-  --text-secondary: #8e8e93;
+  --text-secondary: #a1a1a6;
   --primary: #0a84ff;
   --danger: #ff453a;
   --success: #32d74b;
-  --warning: #ff9f0a;
-  --border: rgba(255, 255, 255, 0.1);
+  --warning: #ffd60a;
+  --border: rgba(255, 255, 255, 0.12);
+  --glass: rgba(28, 28, 30, 0.7);
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: -apple-system, sans-serif; }
-body { background: var(--bg); color: var(--text); padding-bottom: 50px; }
+* { 
+  box-sizing: border-box; 
+  margin: 0; padding: 0; 
+  -webkit-tap-highlight-color: transparent; 
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Helvetica Neue", sans-serif; 
+}
 
+body { 
+  background: var(--bg); 
+  color: var(--text); 
+  padding-bottom: 140px; /* Space for bottom dock */
+  overflow-x: hidden;
+}
+
+/* --- iPhone Premium Header --- */
 .header-container {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border); padding: 20px 16px 12px;
+  background: var(--glass);
+  backdrop-filter: blur(30px) saturate(150%);
+  -webkit-backdrop-filter: blur(30px) saturate(150%);
+  border-bottom: 0.5px solid var(--border);
+  padding: 50px 20px 15px; /* iOS Status bar padding */
 }
-.header-top { display: flex; justify-content: space-between; align-items: center; }
-.btn-pdf { background: var(--card-elevated); color: var(--text); border: 1px solid var(--border); padding: 6px 12px; border-radius: 8px; font-size: 11px; font-weight: bold; cursor: pointer; }
 
-.quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 15px 0; }
-.btn-action { padding: 16px; border-radius: 12px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; transition: opacity 0.2s; }
-.btn-action:active { opacity: 0.7; }
-.btn-add { background: var(--primary); color: white; }
-.btn-sell { background: var(--warning); color: black; }
+.header-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.brand { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
 
-.summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.summary-card { background: var(--card); border: 1px solid var(--border); padding: 10px 4px; border-radius: 10px; text-align: center; }
-.summary-card label { font-size: 9px; color: var(--text-secondary); text-transform: uppercase; display: block; margin-bottom: 4px; }
-.summary-card .value { font-size: 15px; font-weight: 700; }
+.status-pill {
+  padding: 4px 10px; border-radius: 20px; font-size: 10px; font-weight: 700;
+  text-transform: uppercase; background: var(--card-elevated); border: 0.5px solid var(--border);
+}
 
-.controls-area { padding: 16px; }
-.search-wrapper { background: var(--card-elevated); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); }
-.search-wrapper input { flex: 1; background: transparent; border: none; color: var(--text); font-size: 16px; outline: none; }
+/* --- Stats Grid --- */
+.summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+.summary-card { 
+  background: var(--card); 
+  border: 0.5px solid var(--border); 
+  padding: 15px; border-radius: 16px; 
+  display: flex; flex-direction: column; justify-content: center;
+}
+.summary-card label { font-size: 11px; color: var(--text-secondary); font-weight: 600; margin-bottom: 4px; }
+.summary-card .value { font-size: 20px; font-weight: 700; }
 
-.inventory-list { padding: 0 16px; display: flex; flex-direction: column; gap: 16px; }
-.item-card { background: var(--card); border-radius: 18px; padding: 16px; border: 1px solid var(--border); }
-.item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.design-badge { background: var(--card-elevated); color: var(--primary); padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 16px; border: 1px solid var(--primary); }
+/* --- Handy Bottom Dock (iPhone Style) --- */
+.bottom-dock {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--glass);
+  backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+  border-top: 0.5px solid var(--border);
+  padding: 15px 20px 35px; /* Safe area for iPhone home bar */
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px;
+  z-index: 1000;
+}
 
-.grid-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; align-items: center; margin-bottom: 8px; text-align: center; }
-.label-style { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+.btn-dock {
+  height: 54px; border-radius: 14px; border: none; font-weight: 700; font-size: 15px;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.3); transition: transform 0.1s;
+}
+.btn-dock:active { transform: scale(0.96); opacity: 0.9; }
+.btn-dock-add { background: var(--primary); color: white; }
+.btn-dock-sell { background: white; color: black; }
 
-.qty-display { background: var(--card-elevated); padding: 8px 4px; border-radius: 8px; font-size: 13px; font-weight: 600; }
-.remain-pill { padding: 8px 4px; border-radius: 8px; font-weight: 800; font-size: 13px; }
-.stock-low { background: rgba(255, 69, 58, 0.2); color: var(--danger); border: 1px solid var(--danger); }
-.stock-ok { background: rgba(50, 215, 75, 0.1); color: var(--success); }
+/* --- Search Bar --- */
+.search-container { padding: 16px 20px; }
+.search-bar {
+  background: var(--card-elevated); border-radius: 12px; height: 44px;
+  display: flex; align-items: center; padding: 0 15px; border: 0.5px solid var(--border);
+}
+.search-bar input {
+  flex: 1; background: transparent; border: none; color: white; font-size: 16px; margin-left: 10px; outline: none;
+}
 
-.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; align-items: flex-end; }
+/* --- List Items --- */
+.inventory-list { padding: 0 20px; display: flex; flex-direction: column; gap: 16px; }
+.item-card { 
+  background: var(--card); border-radius: 20px; padding: 20px; 
+  border: 0.5px solid var(--border);
+}
+.item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.design-tag { font-size: 18px; font-weight: 800; color: var(--primary); }
+
+.grid-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; margin-bottom: 10px; text-align: center; }
+.label-small { font-size: 10px; color: var(--text-secondary); font-weight: 700; text-transform: uppercase; }
+.qty-box { background: var(--card-elevated); padding: 10px 0; border-radius: 10px; font-size: 14px; font-weight: 600; }
+.pill-status { padding: 10px 0; border-radius: 10px; font-weight: 700; font-size: 14px; }
+.low { color: var(--danger); background: rgba(255, 69, 58, 0.15); }
+.ok { color: var(--success); background: rgba(50, 215, 75, 0.1); }
+
+/* --- Modern Modal --- */
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 2000; align-items: flex-end; }
 .modal.active { display: flex; }
-.modal-content { background: var(--card); width: 100%; border-radius: 24px 24px 0 0; padding: 24px; padding-bottom: env(safe-area-inset-bottom, 40px); animation: slideUp 0.3s cubic-bezier(0.1, 0.7, 0.1, 1); }
-@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-.qty-input-large { background: var(--card-elevated); border: 1px solid var(--border); color: var(--text); padding: 16px; border-radius: 12px; font-size: 18px; width: 100%; margin-bottom: 15px; }
-.select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.select-box { background: var(--card-elevated); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 10px; font-size: 14px; }
+.modal-content { 
+  background: #1c1c1e; width: 100%; border-radius: 30px 30px 0 0; padding: 30px 20px 50px; 
+  animation: iosSlideUp 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+}
+@keyframes iosSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.ios-input { 
+  width: 100%; background: #2c2c2e; border: none; border-radius: 12px; padding: 16px; 
+  color: white; font-size: 17px; margin-bottom: 20px;
+}
+.ios-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px; }
+.ios-select-group { display: flex; flex-direction: column; gap: 6px; }
+.ios-select { background: #2c2c2e; color: white; border: none; padding: 12px; border-radius: 10px; font-size: 16px; -webkit-appearance: none; }
+
 </style>
 </head>
 <body>
 
 <div class="header-container">
   <div class="header-top">
-    <h2 style="font-size: 20px;">📦 Metiabruz Stock</h2>
-    <div style="display:flex; gap:8px; align-items:center;">
-        <button class="btn-pdf" onclick="generatePDF()">📄 PDF</button>
-        <div id="statusIndicator" style="font-size:10px; font-weight:bold; color:var(--text-secondary)">Online</div>
-    </div>
+    <div class="brand">Inventory</div>
+    <div id="statusIndicator" class="status-pill">Online</div>
   </div>
-
-  <div class="quick-actions">
-    <button class="btn-action btn-add" onclick="openModal('add')">+ ADD STOCK</button>
-    <button class="btn-action btn-sell" onclick="openModal('sell')">- SELL ITEM</button>
-  </div>
-
   <div class="summary">
-    <div class="summary-card"><label>Total In</label><div class="value" id="totalStock">0</div></div>
-    <div class="summary-card"><label>Total Out</label><div class="value" id="totalSold">0</div></div>
-    <div class="summary-card"><label>Balance</label><div class="value" id="totalRemaining" style="color:var(--success)">0</div></div>
-    <div class="summary-card"><label>Designs</label><div class="value" id="designCount">0</div></div>
+    <div class="summary-card">
+      <label>IN STOCK</label>
+      <div class="value" id="totalStock">0</div>
+    </div>
+    <div class="summary-card">
+      <label>BALANCE</label>
+      <div class="value" id="totalRemaining" style="color:var(--success)">0</div>
+    </div>
   </div>
 </div>
 
-<div class="controls-area">
-  <div class="search-wrapper">
+<div class="search-container">
+  <div class="search-bar">
     <span>🔍</span>
-    <input id="searchInput" placeholder="Search Design Number..." onkeyup="render()">
+    <input id="searchInput" placeholder="Search Design..." onkeyup="render()">
+    <button onclick="generatePDF()" style="background:none; border:none; font-size:18px; padding-left:10px;">📄</button>
   </div>
 </div>
 
 <div class="inventory-list" id="inventoryList"></div>
 
+<div class="bottom-dock">
+  <button class="btn-dock btn-dock-add" onclick="openModal('add')">Add Stock</button>
+  <button class="btn-dock btn-dock-sell" onclick="openModal('sell')">Sale Item</button>
+</div>
+
 <div class="modal" id="entryModal" onclick="if(event.target===this)closeModal()">
   <div class="modal-content" onclick="event.stopPropagation()">
-    <div style="width:40px;height:4px;background:rgba(255,255,255,0.2);margin:0 auto 20px auto;border-radius:2px;"></div>
-    <h3 id="modalTitle" style="margin-bottom:15px">Action</h3>
+    <div style="width:36px; height:5px; background:rgba(255,255,255,0.2); border-radius:3px; margin:0 auto 20px;"></div>
+    <h2 id="modalTitle" style="margin-bottom:20px; font-size:22px;">Entry</h2>
     
-    <input type="text" id="designInput" list="designSuggestions" class="qty-input-large" 
-           placeholder="Design Number" oninput="syncAvailableStock(this.value)">
+    <input type="text" id="designInput" list="designSuggestions" class="ios-input" 
+           placeholder="Design Number (e.g. 501)" oninput="syncAvailableStock(this.value)">
     <datalist id="designSuggestions"></datalist>
 
-    <div id="availabilityNotice" style="margin-bottom:20px; padding:12px; border-radius:12px; font-size:13px; display:none;"></div>
+    <div id="availabilityNotice" style="margin-bottom:20px; border-radius:14px; padding:15px; font-size:13px; display:none;"></div>
 
-    <div class="select-grid" id="inputGrid">
-        <div><label class="label-style">22x32</label><select id="m0" class="select-box" style="width:100%"></select></div>
-        <div><label class="label-style">34x36</label><select id="m1" class="select-box" style="width:100%"></select></div>
-        <div><label class="label-style">16x18</label><select id="m2" class="select-box" style="width:100%"></select></div>
-        <div><label class="label-style">26x30</label><select id="m3" class="select-box" style="width:100%"></select></div>
+    <div class="ios-grid" id="inputGrid">
+        <div class="ios-select-group"><label class="label-small">22x32</label><select id="m0" class="ios-select"></select></div>
+        <div class="ios-select-group"><label class="label-small">34x36</label><select id="m1" class="ios-select"></select></div>
+        <div class="ios-select-group"><label class="label-small">16x18</label><select id="m2" class="ios-select"></select></div>
+        <div class="ios-select-group"><label class="label-small">26x30</label><select id="m3" class="ios-select"></select></div>
     </div>
     
-    <button id="modalSubmit" class="btn-action" style="width:100%; margin-top:20px; font-size:16px;" onclick="processEntry()">Confirm</button>
+    <button id="modalSubmit" class="btn-dock btn-dock-add" style="width:100%;" onclick="processEntry()">Confirm</button>
   </div>
 </div>
 
@@ -137,61 +199,25 @@ let inventory = JSON.parse(localStorage.getItem('inventoryCache') || '[]');
 let syncQueue = JSON.parse(localStorage.getItem('syncQueue') || '[]');
 let mode = 'add';
 const sizes = ["22x32", "34x36", "16x18", "26x30"];
-const LOW_STOCK_THRESHOLD = 5;
 
-// --- PDF GENERATION ---
+// --- Optimized Logic for iPhone Feel ---
+
 function generatePDF() {
     const { jsPDF } = window.jspdf;
     const doc = new jsPDF();
-    const date = new Date().toLocaleDateString();
-
-    doc.setFontSize(20);
     doc.text("Metiabruz Stock Report", 14, 20);
-    doc.setFontSize(10);
-    doc.text(`Date: ${date}`, 14, 28);
-
-    const summaryData = [
-        ["Total In", document.getElementById('totalStock').innerText],
-        ["Total Out", document.getElementById('totalSold').innerText],
-        ["Current Balance", document.getElementById('totalRemaining').innerText],
-        ["Unique Designs", document.getElementById('designCount').innerText]
-    ];
-
-    doc.autoTable({
-        startY: 35,
-        head: [['Metric', 'Value']],
-        body: summaryData,
-        theme: 'grid',
-        headStyles: { fillColor: [10, 132, 255] }
-    });
-
-    const tableRows = [];
+    const rows = [];
     inventory.forEach(item => {
         sizes.forEach((s, i) => {
-            const left = item.stock[i] - item.sold[i];
-            tableRows.push([
-                item.design,
-                s,
-                item.stock[i],
-                item.sold[i],
-                left
-            ]);
+            rows.push([item.design, s, item.stock[i], item.sold[i], (item.stock[i]-item.sold[i])]);
         });
     });
-
-    doc.autoTable({
-        startY: doc.lastAutoTable.finalY + 10,
-        head: [['Design #', 'Size', 'In', 'Out', 'Balance']],
-        body: tableRows,
-        theme: 'striped',
-        headStyles: { fillColor: [44, 44, 46] }
-    });
-
-    doc.save(`Stock_Report_${date}.pdf`);
+    doc.autoTable({ startY: 30, head: [['Design', 'Size', 'In', 'Out', 'Left']], body: rows });
+    doc.save('Inventory.pdf');
 }
 
 function getOpts(max) {
-    let h = `<option value="0">Qty: 0</option>`;
+    let h = `<option value="0">0</option>`;
     for(let i=1; i<=max; i++) h += `<option value="${i}">${i}</option>`;
     return h;
 }
@@ -201,58 +227,46 @@ function openModal(m) {
     const notice = document.getElementById('availabilityNotice');
     document.getElementById('designInput').value = '';
     notice.style.display = 'none';
-    notice.innerHTML = '';
+    document.getElementById('modalTitle').innerText = mode === 'add' ? "Add Stock" : "Sale Item";
+    document.getElementById('modalSubmit').className = mode === 'add' ? "btn-dock btn-dock-add" : "btn-dock btn-dock-sell";
     
-    document.getElementById('modalTitle').innerText = mode === 'add' ? "Add Stock" : "Sell Item";
-    document.getElementById('modalSubmit').className = mode === 'add' ? "btn-action btn-add" : "btn-action btn-sell";
-    
-    sizes.forEach((s, i) => {
-        document.getElementById(`m${i}`).innerHTML = getOpts(mode === 'add' ? 200 : 0);
-    });
-    
-    const list = document.getElementById('designSuggestions');
-    list.innerHTML = inventory.map(it => `<option value="${it.design}">`).join('');
+    sizes.forEach((s, i) => document.getElementById(`m${i}`).innerHTML = getOpts(mode === 'add' ? 200 : 0));
+    document.getElementById('designSuggestions').innerHTML = inventory.map(it => `<option value="${it.design}">`).join('');
     document.getElementById('entryModal').classList.add('active');
 }
 
 function syncAvailableStock(val) {
-    const term = val.trim().toUpperCase();
-    const existing = inventory.find(it => it.design.toUpperCase() === term);
+    const existing = inventory.find(it => it.design.toUpperCase() === val.trim().toUpperCase());
     const notice = document.getElementById('availabilityNotice');
     
     if (existing) {
         notice.style.display = 'block';
-        notice.style.background = "var(--card-elevated)";
-        notice.style.border = "1px solid var(--primary)";
+        notice.style.background = "rgba(10, 132, 255, 0.1)";
+        notice.style.color = "var(--primary)";
         
-        let previewHTML = `<div style="margin-bottom:8px; font-weight:bold; color:var(--primary); text-align:center;">Design #${existing.design} Balance</div>`;
-        previewHTML += `<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:5px; text-align:center;">`;
+        let html = `<div style="display:grid; grid-template-columns:repeat(4,1fr); gap:10px; text-align:center;">`;
         sizes.forEach((s, i) => {
             const left = existing.stock[i] - existing.sold[i];
-            previewHTML += `<div><div style="font-size:9px; color:var(--text-secondary)">${s}</div><div style="font-weight:bold; color:${left <= LOW_STOCK_THRESHOLD ? 'var(--danger)' : 'var(--success)'}">${left}</div></div>`;
+            html += `<div><div style="font-size:10px; opacity:0.6;">${s}</div><div style="font-weight:bold;">${left}</div></div>`;
         });
-        previewHTML += `</div>`;
-        notice.innerHTML = previewHTML;
+        notice.innerHTML = html + `</div>`;
 
         if (mode === 'sell') {
             sizes.forEach((s, i) => {
                 document.getElementById(`m${i}`).innerHTML = getOpts(existing.stock[i] - existing.sold[i]);
             });
         }
-    } else if (mode === 'sell' && term.length > 0) {
-        notice.style.display = 'block';
-        notice.innerHTML = `<div style="color:var(--danger); text-align:center;">⚠ Design Not Found</div>`;
-        sizes.forEach((s, i) => document.getElementById(`m${i}`).innerHTML = getOpts(0));
     } else {
         notice.style.display = 'none';
+        if(mode === 'sell') sizes.forEach((s, i) => document.getElementById(`m${i}`).innerHTML = getOpts(0));
     }
 }
 
 async function processEntry() {
     const dNo = document.getElementById('designInput').value.trim().toUpperCase();
-    if(!dNo) return alert("Enter Design Number");
+    if(!dNo) return;
     const inputQtys = [ +m0.value, +m1.value, +m2.value, +m3.value ];
-    if(inputQtys.every(v => v === 0)) return alert("Select a quantity");
+    if(inputQtys.every(v => v === 0)) return;
 
     let target = inventory.find(it => it.design.toUpperCase() === dNo);
     if (mode === 'add') {
@@ -265,13 +279,11 @@ async function processEntry() {
             addToQueue('add', newItem);
         }
     } else {
-        if (!target) return alert("Error: Design missing.");
+        if (!target) return;
         target.sold = target.sold.map((v, i) => v + inputQtys[i]);
         addToQueue('update', target);
     }
-    closeModal();
-    render();
-    syncNow();
+    closeModal(); render(); syncNow();
 }
 
 function addToQueue(type, data) {
@@ -284,23 +296,43 @@ function render() {
     const listEl = document.getElementById('inventoryList');
     listEl.innerHTML = '';
     let ts=0, td=0;
-    inventory.forEach(item => { item.stock.forEach((v, i) => { ts += v; td += item.sold[i]; }); });
+
+    inventory.forEach(it => it.stock.forEach((v, i) => { ts += v; td += it.sold[i]; }));
+    
     inventory.filter(it => it.design.toUpperCase().includes(term)).forEach(item => {
         let rows = '';
         item.stock.forEach((sVal, i) => {
             const rem = sVal - item.sold[i];
-            rows += `<div class="grid-row"><div class="label-style">${sizes[i]}</div><div class="qty-display">${sVal}</div><div class="qty-display">${item.sold[i]}</div><div class="remain-pill ${rem <= LOW_STOCK_THRESHOLD ? 'stock-low' : 'stock-ok'}">${rem}</div></div>`;
+            rows += `
+            <div class="grid-row">
+                <div class="label-small" style="text-align:left">${sizes[i]}</div>
+                <div class="qty-box">${sVal}</div>
+                <div class="qty-box">${item.sold[i]}</div>
+                <div class="pill-status ${rem <= 5 ? 'low' : 'ok'}">${rem}</div>
+            </div>`;
         });
-        listEl.innerHTML += `<div class="item-card"><div class="item-header"><span class="design-badge"># ${item.design}</span><button onclick="del('${item.id}')" style="color:var(--danger); background:none; border:none; font-size:11px; font-weight:bold;">DELETE</button></div>${rows}</div>`;
+        listEl.innerHTML += `
+        <div class="item-card">
+            <div class="item-header">
+                <span class="design-tag"># ${item.design}</span>
+                <button onclick="del('${item.id}')" style="color:var(--danger); background:none; border:none; font-weight:bold; font-size:12px;">DELETE</button>
+            </div>
+            <div class="grid-row" style="margin-bottom:8px; opacity:0.4;">
+                <div class="label-small" style="text-align:left">SIZE</div>
+                <div class="label-small">IN</div>
+                <div class="label-small">OUT</div>
+                <div class="label-small">LEFT</div>
+            </div>
+            ${rows}
+        </div>`;
     });
+
     document.getElementById('totalStock').innerText = ts; 
-    document.getElementById('totalSold').innerText = td; 
     document.getElementById('totalRemaining').innerText = ts-td;
-    document.getElementById('designCount').innerText = inventory.length;
     localStorage.setItem('inventoryCache', JSON.stringify(inventory));
 }
 
-function del(id) { if(confirm("Delete?")) { inventory = inventory.filter(x => x.id !== id); addToQueue('delete', {id}); render(); syncNow(); } }
+function del(id) { if(confirm("Delete item?")) { inventory = inventory.filter(x => x.id !== id); addToQueue('delete', {id}); render(); syncNow(); } }
 
 async function syncNow() {
     if(!navigator.onLine || syncQueue.length === 0) return;
