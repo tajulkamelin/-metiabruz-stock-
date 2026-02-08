@@ -207,7 +207,7 @@ h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
   border-radius: 8px;
   padding: 8px 0;
   text-align: center;
-  text-align-last: center; /* Centers text in select */
+  text-align-last: center; 
   font-size: 15px;
   font-weight: 600;
   appearance: none;
@@ -239,7 +239,6 @@ h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
   z-index: 100;
 }
 
-/* Button Styles */
 .btn {
   padding: 12px;
   border: none;
@@ -287,7 +286,6 @@ h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
 
 .modal h3 { margin-bottom: 20px; font-size: 20px; }
 
-/* Custom Select for Modal */
 .modal select, .modal input[type="text"] {
   width: 100%;
   padding: 14px;
@@ -302,7 +300,6 @@ h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
 }
 .size-inputs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 
-/* Toggle Box Style */
 .toggle-wrapper {
   display: flex;
   align-items: center;
@@ -314,10 +311,8 @@ h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
 }
 input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--primary); margin-right: 10px; }
 
-/* Hidden Custom Input */
 #customDesignInput { display: none; border-color: var(--primary); }
 
-/* Print */
 @media print {
   body { background: #fff !important; color: #000 !important; padding: 0 !important; }
   .header-container, .controls-area, .action-buttons, .btn-danger, .bulk-actions, .item-header button { display: none !important; }
@@ -383,17 +378,7 @@ input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--primary)
 
     <select id="designInput">
       <option value="" disabled selected>Select Design Number</option>
-      <option value="1001">Design 1001</option>
-      <option value="1002">Design 1002</option>
-      <option value="1003">Design 1003</option>
-      <option value="1004">Design 1004</option>
-      <option value="1005">Design 1005</option>
-      <option value="1006">Design 1006</option>
-      <option value="2001">Design 2001</option>
-      <option value="2002">Design 2002</option>
-      <option value="2003">Design 2003</option>
-      <option value="3001">Design 3001</option>
-    </select>
+      </select>
 
     <input type="text" id="customDesignInput" placeholder="Type Design Number...">
 
@@ -417,11 +402,15 @@ const supabaseClient = supabase.createClient(
 
 let inventory = JSON.parse(localStorage.getItem('inventoryCache')||'[]');
 let syncQueue = JSON.parse(localStorage.getItem('syncQueue')||'[]');
+// NEW: List of custom designs remembered by the app
+let rememberedDesigns = JSON.parse(localStorage.getItem('rememberedDesigns')||'[]');
+
 let selected = new Set();
 let selectMode = false;
 let sortMode = 'recent';
 
 const sizes=["22x32","34x36","16x18","26x30"];
+const defaultDesigns = ["1001","1002","1003","1004","1005","1006","2001","2002","2003","3001"];
 const MAX_QTY = 50; 
 
 function getQtyOptions(selectedVal) {
@@ -435,10 +424,23 @@ function getQtyOptions(selectedVal) {
 function initModalDropdowns() {
   const opts = getQtyOptions(0);
   ['s0','s1','s2','s3'].forEach(id => {
-    document.getElementById(id).innerHTML = `<option value="" disabled selected>${document.getElementById(id).children[0].textContent}</option>` + opts;
+    const label = document.getElementById(id).children[0].textContent;
+    document.getElementById(id).innerHTML = `<option value="" disabled selected>${label}</option>` + opts;
   });
 }
-initModalDropdowns();
+
+function updateDesignDropdown() {
+  const selectBox = document.getElementById('designInput');
+  // Combine defaults and custom ones, remove duplicates, and sort
+  const combined = [...new Set([...defaultDesigns, ...rememberedDesigns])];
+  combined.sort((a,b) => a.localeCompare(b, undefined, {numeric: true}));
+  
+  let html = '<option value="" disabled selected>Select Design Number</option>';
+  combined.forEach(d => {
+    html += `<option value="${d}">Design ${d}</option>`;
+  });
+  selectBox.innerHTML = html;
+}
 
 function setSort(v){ sortMode=v; render(); }
 function toggleSelect(){ selectMode=!selectMode; selected.clear(); render(); }
@@ -446,14 +448,14 @@ function toggleSelect(){ selectMode=!selectMode; selected.clear(); render(); }
 function saveCache(){
   localStorage.setItem('inventoryCache',JSON.stringify(inventory));
   localStorage.setItem('syncQueue',JSON.stringify(syncQueue));
+  localStorage.setItem('rememberedDesigns',JSON.stringify(rememberedDesigns));
 }
 
 function render(){
   let list=[...inventory];
   const term=searchInput.value.toLowerCase();
-
-  if(sortMode==='asc') list.sort((a,b)=>a.design.localeCompare(b.design));
-  if(sortMode==='desc') list.sort((a,b)=>b.design.localeCompare(a.design));
+  if(sortMode==='asc') list.sort((a,b)=>a.design.localeCompare(b.design, undefined, {numeric: true}));
+  if(sortMode==='desc') list.sort((a,b)=>b.design.localeCompare(a.design, undefined, {numeric: true}));
 
   inventoryList.innerHTML='';
   let ts=0,td=0;
@@ -464,17 +466,14 @@ function render(){
 
     let rows='';
     sizes.forEach((s,i)=>{
-      const stockOpts = getQtyOptions(item.stock[i]);
-      const soldOpts = getQtyOptions(item.sold[i]);
-
       rows+=`
       <div class="size-row">
         <div class="size-label">${s}</div>
         <select class="qty-select" onchange="upd('${item.id}',${i},this.value,'stock')">
-          ${stockOpts}
+          ${getQtyOptions(item.stock[i])}
         </select>
         <select class="qty-select" onchange="upd('${item.id}',${i},this.value,'sold')">
-          ${soldOpts}
+          ${getQtyOptions(item.sold[i])}
         </select>
         <div class="input-remain">${item.stock[i]-item.sold[i]}</div>
       </div>`;
@@ -518,41 +517,44 @@ function resetAll(){
   inventory=[]; render(); syncNow();
 }
 
-function openAdd(){addModal.classList.add('active')}
+function openAdd(){
+  updateDesignDropdown();
+  addModal.classList.add('active');
+}
 function closeAdd(){addModal.classList.remove('active')}
 
-// --- Toggle Logic for Input vs Select ---
 function toggleCustomInput() {
   const isCustom = document.getElementById('customToggle').checked;
   const selectBox = document.getElementById('designInput');
   const inputBox = document.getElementById('customDesignInput');
-
   if(isCustom) {
     selectBox.style.display = 'none';
     inputBox.style.display = 'block';
-    selectBox.value = ""; // clear select
+    selectBox.value = "";
     inputBox.focus();
   } else {
     selectBox.style.display = 'block';
     inputBox.style.display = 'none';
-    inputBox.value = ""; // clear input
+    inputBox.value = "";
   }
 }
 
 function addDesign(){
-  // Determine which input to read from
   const isCustom = document.getElementById('customToggle').checked;
   let dVal;
   
   if (isCustom) {
     dVal = document.getElementById('customDesignInput').value.trim();
+    // Remember the design for future use if it's new
+    if(dVal && !defaultDesigns.includes(dVal) && !rememberedDesigns.includes(dVal)) {
+      rememberedDesigns.push(dVal);
+    }
   } else {
     dVal = document.getElementById('designInput').value;
   }
 
   if(!dVal||inventory.find(x=>x.design===dVal)) {
-    if(!dVal) alert("Please select or type a design number");
-    else alert("Design already exists");
+    alert(!dVal ? "Please select or type a design number" : "Design already exists in current list");
     return;
   }
   
@@ -560,16 +562,13 @@ function addDesign(){
     stock:[+s0.value||0,+s1.value||0,+s2.value||0,+s3.value||0],sold:[0,0,0,0]};
   inventory.unshift(item); syncQueue.push({type:'add',item});
   
-  // Reset all inputs
+  // Reset
   document.getElementById('designInput').selectedIndex = 0;
   document.getElementById('customDesignInput').value = "";
   document.getElementById('customToggle').checked = false; 
-  toggleCustomInput(); // Reset UI state
+  toggleCustomInput();
 
-  s0.selectedIndex = 0;
-  s1.selectedIndex = 0;
-  s2.selectedIndex = 0;
-  s3.selectedIndex = 0;
+  ['s0','s1','s2','s3'].forEach(id => document.getElementById(id).selectedIndex = 0);
 
   closeAdd(); render(); syncNow();
 }
@@ -610,6 +609,9 @@ async function fetchData(){
 
 function printInventory(){ window.print(); }
 
+// Initial Run
+initModalDropdowns();
+updateDesignDropdown();
 render();
 if(navigator.onLine) fetchData();
 setInterval(syncNow,30000);
