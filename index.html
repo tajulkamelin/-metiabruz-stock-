@@ -7,7 +7,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <title>Dilkhus Fashion Stock</title>
+  <title>Metiabruz Stock Pro</title>
 
 <style>
 :root {
@@ -16,8 +16,7 @@
   --card-elevated: #2c2c2e;
   --text: #ffffff;
   --text-secondary: #8e8e93;
-  --primary: #e91e63; /* Pink accent to match Dilkhus logo */
-  --ios-blue: #0a84ff;
+  --primary: #0a84ff;
   --danger: #ff453a;
   --success: #32d74b;
   --border: rgba(255, 255, 255, 0.1);
@@ -29,78 +28,73 @@ body { background: var(--bg); color: var(--text); padding-bottom: 120px; }
 /* --- Mobile UI Styles --- */
 .header-container {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.75);
   backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
   border-bottom: 1px solid var(--border);
-  padding: 15px 16px 12px; padding-top: max(15px, env(safe-area-inset-top));
+  padding: 20px 16px 12px; padding-top: max(20px, env(safe-area-inset-top));
 }
-.top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.brand-box { display: flex; align-items: center; gap: 12px; }
-.brand-logo { height: 42px; width: 42px; border-radius: 50%; border: 1px solid var(--primary); background: white; padding: 2px; }
-.brand-name { font-size: 20px; font-weight: 800; letter-spacing: -0.5px; }
-
-#statusIndicator { font-size: 10px; font-weight: 700; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+.top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+h2 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+#statusIndicator { font-size: 12px; font-weight: 600; color: var(--text-secondary); background: var(--card-elevated); padding: 4px 12px; border-radius: 20px; }
 
 .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.summary-card { background: var(--card); border: 1px solid var(--border); padding: 10px 4px; border-radius: 14px; text-align: center; }
-.summary-card label { font-size: 8px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 2px; }
-.summary-card .value { font-size: 15px; font-weight: 700; }
+.summary-card { background: var(--card); border: 1px solid var(--border); padding: 12px 4px; border-radius: 12px; text-align: center; }
+.summary-card label { font-size: 9px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 2px; }
+.summary-card .value { font-size: 16px; font-weight: 700; }
 
 .controls-area { padding: 16px; }
 .search-wrapper {
-  background: var(--card-elevated); border-radius: 14px;
-  padding: 12px 16px; display: flex; align-items: center; gap: 12px;
+  background: var(--card-elevated); border-radius: 12px;
+  padding: 12px; display: flex; align-items: center; gap: 10px;
 }
 .search-wrapper input { flex: 1; background: transparent; border: none; color: var(--text); font-size: 17px; outline: none; }
 
 .inventory-list { padding: 0 16px; display: flex; flex-direction: column; gap: 16px; }
-.item-card { background: var(--card); border-radius: 20px; padding: 18px; border: 1px solid var(--border); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-.item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-.design-badge { background: var(--primary); color: white; padding: 5px 12px; border-radius: 10px; font-weight: 800; font-size: 16px; }
+.item-card { background: var(--card); border-radius: 18px; padding: 16px; border: 1px solid var(--border); }
+.item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.design-badge { background: var(--primary); color: white; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 16px; }
 
-.grid-row { display: grid; grid-template-columns: 1.2fr 1fr 1fr 0.8fr; gap: 10px; align-items: center; margin-bottom: 8px; }
-.label-style { font-size: 12px; font-weight: 700; color: var(--text-secondary); }
+.grid-row { display: grid; grid-template-columns: 1.2fr 1fr 1fr 0.8fr; gap: 8px; align-items: center; margin-bottom: 8px; }
+.label-style { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
 
 .qty-input {
     background: var(--card-elevated); border: 1px solid var(--border);
-    color: var(--text); padding: 10px 4px; border-radius: 10px;
-    font-size: 14px; font-weight: 700; text-align: center; appearance: none; width: 100%;
+    color: var(--text); padding: 8px 4px; border-radius: 8px;
+    font-size: 14px; font-weight: 600; text-align: center; appearance: none; width: 100%;
 }
-.remain-pill { background: rgba(50, 215, 75, 0.15); color: var(--success); padding: 8px; border-radius: 10px; font-weight: 800; text-align: center; font-size: 14px; }
+.remain-pill { background: rgba(50, 215, 75, 0.1); color: var(--success); padding: 6px; border-radius: 8px; font-weight: 700; text-align: center; font-size: 14px; }
 
 .bottom-nav {
     position: fixed; bottom: 0; left: 0; right: 0;
-    background: rgba(28, 28, 30, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-    padding: 12px 16px calc(15px + env(safe-area-inset-bottom));
-    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 12px;
+    background: rgba(28, 28, 30, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 10px;
     border-top: 1px solid var(--border); z-index: 100;
 }
-.btn-main { background: var(--primary); color: white; border: none; border-radius: 14px; font-weight: 700; font-size: 15px; cursor: pointer; transition: transform 0.1s; }
-.btn-main:active { transform: scale(0.96); }
-.btn-icon { background: var(--card-elevated); color: var(--text); border: none; border-radius: 14px; padding: 12px; font-size: 18px; cursor: pointer; }
+.btn-main { background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 15px; cursor: pointer; }
+.btn-icon { background: var(--card-elevated); color: var(--text); border: none; border-radius: 12px; padding: 12px; font-size: 18px; cursor: pointer; }
 
 /* --- Modal --- */
-.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; align-items: flex-end; opacity: 0; transition: 0.2s; }
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; align-items: flex-end; opacity: 0; transition: 0.2s; }
 .modal.active { display: flex; opacity: 1; }
 .modal-content { 
-    background: var(--card); width: 100%; border-radius: 30px 30px 0 0; padding: 25px; 
-    padding-bottom: max(30px, env(safe-area-inset-bottom)); animation: slideUp 0.3s cubic-bezier(0.25, 1, 0.5, 1); 
+    background: var(--card); width: 100%; border-radius: 24px 24px 0 0; padding: 24px; 
+    padding-bottom: max(24px, env(safe-area-inset-bottom)); animation: slideUp 0.3s ease-out; 
 }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
 
-/* --- Print Styles (Table) --- */
+/* --- Print Styles (Table Layout) --- */
 #printArea { display: none; }
 @media print {
   .header-container, .controls-area, .bottom-nav, .inventory-list, .modal { display: none !important; }
   body { background: white; color: black; padding: 0; }
-  #printArea { display: block !important; padding: 10px 20px; }
-  .print-header { text-align: center; margin-bottom: 15px; }
-  .print-logo { height: 90px; margin-bottom: 5px; }
-  .print-summary { display: flex; justify-content: space-around; margin-bottom: 15px; border: 1.5px solid #000; padding: 12px; font-weight: bold; font-size: 13px; }
-  table { width: 100%; border-collapse: collapse; }
-  th, td { border: 1px solid #000; padding: 8px 3px; text-align: center; font-size: 11px; color: black; }
-  th { background-color: #f0f0f0; }
-  .total-row { font-weight: 900; background: #fafafa; }
+  #printArea { display: block !important; padding: 20px; }
+  .print-header { text-align: center; margin-bottom: 20px; }
+  .print-summary { display: flex; justify-content: space-around; margin-bottom: 20px; border: 1px solid #000; padding: 10px; font-family: sans-serif; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { border: 1px solid #333; padding: 8px 4px; text-align: center; font-size: 12px; color: black; }
+  th { background-color: #f2f2f2; font-weight: bold; }
+  .bg-gray { background-color: #f9f9f9; }
 }
 </style>
 </head>
@@ -108,29 +102,28 @@ body { background: var(--bg); color: var(--text); padding-bottom: 120px; }
 
 <div id="printArea">
   <div class="print-header">
-    <img src="https://i.ibb.co/XkyYmN9/dilkhus-logo.png" class="print-logo" alt="Dilkhus Fashion">
-    <h1 style="font-size: 24px;">Stock Inventory Report</h1>
-    <p id="printDate" style="font-size: 12px; color: #666;"></p>
+    <h1 style="font-size: 24px;">Metiabruz Stock List</h1>
+    <p id="printDate" style="font-size: 12px;"></p>
   </div>
   <div class="print-summary">
-    <span>TOTAL STOCK: <span id="pTotalStock">0</span></span>
-    <span>TOTAL SOLD: <span id="pTotalSold">0</span></span>
-    <span>REMAINING: <span id="pTotalRem">0</span></span>
-    <span>DESIGNS: <span id="pDesignCount">0</span></span>
+    <span>Total Stock: <b id="pTotalStock">0</b></span>
+    <span>Total Sold: <b id="pTotalSold">0</b></span>
+    <span>Remaining: <b id="pTotalRem">0</b></span>
+    <span>Designs: <b id="pDesignCount">0</b></span>
   </div>
   <table>
     <thead>
       <tr>
-        <th rowspan="2">Design No</th>
-        <th colspan="4">Opening Stock</th>
-        <th colspan="4">Sold Items</th>
-        <th colspan="4">Current Remaining</th>
+        <th rowspan="2">Design</th>
+        <th colspan="4">Stock</th>
+        <th colspan="4">Sold</th>
+        <th colspan="4">Remaining</th>
         <th rowspan="2">Total Rem</th>
       </tr>
       <tr>
-        <th>22Ã32</th><th>34Ã36</th><th>16Ã18</th><th>26Ã30</th>
-        <th>22Ã32</th><th>34Ã36</th><th>16Ã18</th><th>26Ã30</th>
-        <th>22Ã32</th><th>34Ã36</th><th>16Ã18</th><th>26Ã30</th>
+        <th>22×32</th><th>34×36</th><th>16×18</th><th>26×30</th>
+        <th>22×32</th><th>34×36</th><th>16×18</th><th>26×30</th>
+        <th>22×32</th><th>34×36</th><th>16×18</th><th>26×30</th>
       </tr>
     </thead>
     <tbody id="printTableBody"></tbody>
@@ -139,28 +132,25 @@ body { background: var(--bg); color: var(--text); padding-bottom: 120px; }
 
 <div class="header-container">
   <div class="top-bar">
-    <div class="brand-box">
-        <img src="https://i.ibb.co/XkyYmN9/dilkhus-logo.png" class="brand-logo" alt="Logo">
-        <span class="brand-name">Dilkhus</span>
-    </div>
-    <div id="statusIndicator">System Ready</div>
+    <h2>📦 Stock</h2>
+    <div id="statusIndicator">Offline</div>
   </div>
   <div class="summary">
     <div class="summary-card"><label>Stock</label><div class="value" id="totalStock">0</div></div>
     <div class="summary-card"><label>Sold</label><div class="value" id="totalSold">0</div></div>
-    <div class="summary-card"><label>Balance</label><div class="value" id="totalRemaining" style="color:var(--success)">0</div></div>
-    <div class="summary-card"><label>Designs</label><div class="value" id="designCount">0</div></div>
+    <div class="summary-card"><label>Left</label><div class="value" id="totalRemaining" style="color:var(--success)">0</div></div>
+    <div class="summary-card"><label>Items</label><div class="value" id="designCount">0</div></div>
   </div>
 </div>
 
 <div class="controls-area">
   <div class="search-wrapper">
-    <span>ð</span>
-    <input id="searchInput" placeholder="Search Design..." onkeyup="render()">
-    <select id="sortSelect" onchange="haptic(); setSort(this.value)" style="background:none; border:none; color:var(--primary); font-weight:800; font-size:14px;">
+    <span>🔍</span>
+    <input id="searchInput" placeholder="Search Design No..." onkeyup="render()">
+    <select id="sortSelect" onchange="setSort(this.value)" style="background:none; border:none; color:var(--primary); font-weight:700;">
       <option value="recent">Recent</option>
-      <option value="asc">AâZ</option>
-      <option value="desc">ZâA</option>
+      <option value="asc">A→Z</option>
+      <option value="desc">Z→A</option>
     </select>
   </div>
 </div>
@@ -168,43 +158,35 @@ body { background: var(--bg); color: var(--text); padding-bottom: 120px; }
 <div class="inventory-list" id="inventoryList"></div>
 
 <div class="bottom-nav">
-  <button class="btn-main" onclick="haptic(); openAdd()">+ ADD DESIGN</button>
-  <button class="btn-icon" onclick="haptic(); fetchData()">ð</button>
-  <button class="btn-icon" onclick="haptic(); window.print()">ð¨ï¸</button>
-  <button class="btn-icon" onclick="haptic(); toggleSelect()">ð ï¸</button>
+  <button class="btn-main" onclick="openAdd()">+ ADD DESIGN</button>
+  <button class="btn-icon" onclick="fetchData()">🔄</button>
+  <button class="btn-icon" onclick="window.print()">🖨️</button>
+  <button class="btn-icon" onclick="toggleSelect()">🛠️</button>
 </div>
 
 <div class="modal" id="addModal" onclick="if(event.target===this)closeAdd()">
   <div class="modal-content">
-    <div style="width:45px;height:5px;background:rgba(255,255,255,0.2);margin:0 auto 20px auto;border-radius:10px;"></div>
-    <h3 style="margin-bottom:20px; font-size:22px;">New Entry</h3>
-    <input type="text" id="manualDesignInput" class="qty-input" style="text-align:left; padding:16px; font-size:18px; margin-bottom:15px;" placeholder="Design Number (e.g. 101)">
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+    <div style="width:40px;height:5px;background:rgba(255,255,255,0.2);margin:0 auto 20px auto;border-radius:5px;"></div>
+    <h3 style="margin-bottom:15px">New Design Entry</h3>
+    <input type="text" id="manualDesignInput" class="qty-input" style="text-align:left; padding:14px; font-size:16px; margin-bottom:15px;" placeholder="Design Number...">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
         <select id="s0" class="qty-input"></select>
         <select id="s1" class="qty-input"></select>
         <select id="s2" class="qty-input"></select>
         <select id="s3" class="qty-input"></select>
     </div>
-    <button class="btn-main" style="width:100%; padding:18px; margin-top:25px; font-size:17px;" onclick="haptic(); handleAdd()">Add to Inventory</button>
+    <button class="btn-main" style="width:100%; padding:16px; margin-top:20px" onclick="handleAdd()">Save Design</button>
   </div>
 </div>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-// I used a placeholder image link for your logo; if you have a direct URL, you can replace it.
 const supabaseClient = supabase.createClient('https://yhlfqpiwevsehlgbhxtk.supabase.co','sb_publishable_CkKk1cjkoS1XvBv8zldlcw_1gjt6Y2S');
 
 let inventory = JSON.parse(localStorage.getItem('inventoryCache')||'[]');
 let syncQueue = JSON.parse(localStorage.getItem('syncQueue')||'[]');
-let sortMode = 'recent';
+let selectMode = false, sortMode = 'recent';
 const sizes=["22x32","34x36","16x18","26x30"];
-
-// Haptic Feedback function
-function haptic() {
-    if (window.navigator && window.navigator.vibrate) {
-        window.navigator.vibrate(10); // Short tap vibration
-    }
-}
 
 function initQtys() {
     let opts = ''; for(let i=0; i<=100; i++) opts += `<option value="${i}">${i}</option>`;
@@ -216,7 +198,7 @@ initQtys();
 
 function handleAdd() {
     const dVal = document.getElementById('manualDesignInput').value.trim();
-    if(!dVal) return alert("Please enter a design number.");
+    if(!dVal) return alert("Enter Design Number");
     const newQtys = [+s0.value, +s1.value, +s2.value, +s3.value];
     const item = { id: crypto.randomUUID(), design: dVal, stock: newQtys, sold: [0,0,0,0] };
     inventory.unshift(item);
@@ -228,7 +210,6 @@ function openAdd() { addModal.classList.add('active'); }
 function closeAdd() { addModal.classList.remove('active'); }
 
 function upd(id, idx, val, type) {
-    haptic();
     const it = inventory.find(x => x.id === id);
     if(!it) return;
     if(type === 'stock') it.stock[idx] = +val;
@@ -263,30 +244,16 @@ function render() {
             </div>`;
         });
 
-        inventoryList.innerHTML += `
-        <div class="item-card">
-            <div class="item-header">
-                <span class="design-badge"># ${item.design}</span>
-                <button style="background:none; border:none; color:var(--danger); font-size:11px; font-weight:800;" onclick="haptic(); del('${item.id}')">DELETE</button>
-            </div>
-            ${rows}
-        </div>`;
+        inventoryList.innerHTML += `<div class="item-card"><div class="item-header"><span class="design-badge"># ${item.design}</span><button style="background:none; border:none; color:var(--danger); font-size:12px;" onclick="del('${item.id}')">DELETE</button></div>${rows}</div>`;
 
-        printRows += `
-        <tr>
-            <td><strong>${item.design}</strong></td>
-            <td>${item.stock[0]}</td><td>${item.stock[1]}</td><td>${item.stock[2]}</td><td>${item.stock[3]}</td>
-            <td style="background:#f9f9f9">${item.sold[0]}</td><td style="background:#f9f9f9">${item.sold[1]}</td><td style="background:#f9f9f9">${item.sold[2]}</td><td style="background:#f9f9f9">${item.sold[3]}</td>
-            <td>${item.stock[0]-item.sold[0]}</td><td>${item.stock[1]-item.sold[1]}</td><td>${item.stock[2]-item.sold[2]}</td><td>${item.stock[3]-item.sold[3]}</td>
-            <td class="total-row">${itemRemTotal}</td>
-        </tr>`;
+        printRows += `<tr><td><b>${item.design}</b></td><td>${item.stock[0]}</td><td>${item.stock[1]}</td><td>${item.stock[2]}</td><td>${item.stock[3]}</td><td class="bg-gray">${item.sold[0]}</td><td class="bg-gray">${item.sold[1]}</td><td class="bg-gray">${item.sold[2]}</td><td class="bg-gray">${item.sold[3]}</td><td>${item.stock[0]-item.sold[0]}</td><td>${item.stock[1]-item.sold[1]}</td><td>${item.stock[2]-item.sold[2]}</td><td>${item.stock[3]-item.sold[3]}</td><td><b>${itemRemTotal}</b></td></tr>`;
     });
 
     totalStock.innerText = ts; totalSold.innerText = td; totalRemaining.innerText = ts-td;
     designCount.innerText = inventory.length;
     pTotalStock.innerText = ts; pTotalSold.innerText = td; pTotalRem.innerText = ts-td; pDesignCount.innerText = inventory.length;
     printTableBody.innerHTML = printRows;
-    printDate.innerText = "Report Date: " + new Date().toLocaleString();
+    printDate.innerText = "Printed on " + new Date().toLocaleString();
     saveCache();
 }
 
@@ -301,7 +268,7 @@ function saveCache() {
 }
 
 function del(id) {
-    if(!confirm("Are you sure you want to delete this design?")) return;
+    if(!confirm("Delete?")) return;
     const it = inventory.find(x => x.id === id);
     inventory = inventory.filter(x => x.id !== id);
     syncQueue.push({type:'delete', design: it.design});
@@ -309,7 +276,7 @@ function del(id) {
 }
 
 async function syncNow() {
-    if(!navigator.onLine) { statusIndicator.innerText="Offline Mode"; return; }
+    if(!navigator.onLine) { statusIndicator.innerText="Offline"; return; }
     statusIndicator.innerText="Syncing...";
     const q = [...syncQueue]; syncQueue = []; saveCache();
     for(const j of q) {
@@ -317,7 +284,7 @@ async function syncNow() {
         if(j.type==='update') await supabaseClient.from('inventory').update({stock:j.data.stock, sold:j.data.sold}).eq('id', j.data.id);
         if(j.type==='delete') await supabaseClient.from('inventory').delete().eq('design', j.design);
     }
-    statusIndicator.innerText="Online â¢ Synced";
+    statusIndicator.innerText="Online";
 }
 
 async function fetchData() {
@@ -327,7 +294,6 @@ async function fetchData() {
 }
 
 function setSort(v) { sortMode = v; render(); }
-function toggleSelect() { /* Placeholder for future multi-select tools */ }
 
 render();
 fetchData();
