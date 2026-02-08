@@ -26,19 +26,14 @@
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; }
 body { background: var(--bg); color: var(--text); padding-bottom: 120px; }
 
-/* --- Mobile UI Styles --- */
+/* --- Mobile UI --- */
 .header-container {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(0, 0, 0, 0.75);
-  backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
-  border-bottom: 1px solid var(--border);
-  padding: 20px 16px 12px; padding-top: max(20px, env(safe-area-inset-top));
+  background: rgba(0, 0, 0, 0.85); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--border); padding: 20px 16px 12px;
 }
-.top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
-h2 { font-size: 24px; font-weight: 800; }
-
-.quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; }
-.btn-action { padding: 14px; border-radius: 12px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; margin-top: 10px; }
+.btn-action { padding: 14px; border-radius: 12px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; }
 .btn-add { background: var(--primary); color: white; }
 .btn-sell { background: var(--warning); color: black; }
 
@@ -63,30 +58,23 @@ h2 { font-size: 24px; font-weight: 800; }
 .remain-pill { background: rgba(50, 215, 75, 0.1); color: var(--success); padding: 6px; border-radius: 8px; font-weight: 700; text-align: center; font-size: 14px; }
 
 /* --- Modal --- */
-.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; align-items: flex-end; opacity: 0; transition: 0.2s; }
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: flex-end; opacity: 0; transition: 0.2s; }
 .modal.active { display: flex; opacity: 1; }
-.modal-content { background: var(--card); width: 100%; border-radius: 24px 24px 0 0; padding: 24px; animation: slideUp 0.3s ease-out; }
+.modal-content { background: var(--card); width: 100%; border-radius: 24px 24px 0 0; padding: 24px; padding-bottom: 40px; animation: slideUp 0.3s ease-out; }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-/* --- Print --- */
-#printArea { display: none; }
-@media print {
-  .header-container, .controls-area, .bottom-nav, .inventory-list, .modal { display: none !important; }
-  #printArea { display: block !important; }
-}
 </style>
 </head>
 <body>
 
 <div class="header-container">
-  <div class="top-bar">
-    <h2>📦 Stock Manager</h2>
-    <div id="statusIndicator">Online</div>
+  <div style="display:flex; justify-content:space-between; align-items:center;">
+    <h2 style="font-size: 24px;">📦 Stock Pro</h2>
+    <div id="statusIndicator" style="font-size:12px; color:var(--text-secondary)">Online</div>
   </div>
 
   <div class="quick-actions">
     <button class="btn-action btn-add" onclick="openModal('add')">➕ ADD STOCK</button>
-    <button class="btn-action btn-sell" onclick="openModal('sell')">➖ SELL OPTION</button>
+    <button class="btn-action btn-sell" onclick="openModal('sell')">➖ SELL ITEM</button>
   </div>
 
   <div class="summary">
@@ -100,7 +88,7 @@ h2 { font-size: 24px; font-weight: 800; }
 <div class="controls-area">
   <div class="search-wrapper">
     <span>🔍</span>
-    <input id="searchInput" placeholder="Search Design..." onkeyup="render()">
+    <input id="searchInput" placeholder="Search Design No..." onkeyup="render()">
   </div>
 </div>
 
@@ -108,8 +96,12 @@ h2 { font-size: 24px; font-weight: 800; }
 
 <div class="modal" id="entryModal" onclick="if(event.target===this)closeModal()">
   <div class="modal-content">
+    <div style="width:40px;height:5px;background:rgba(255,255,255,0.2);margin:0 auto 20px auto;border-radius:5px;"></div>
     <h3 id="modalTitle" style="margin-bottom:15px">Entry</h3>
-    <input type="text" id="designInput" list="designSuggestions" class="qty-input" style="text-align:left; padding:14px; font-size:16px; margin-bottom:15px;" placeholder="Design Number..." onchange="handleDesignChange(this.value)">
+    
+    <input type="text" id="designInput" list="designSuggestions" class="qty-input" 
+           style="text-align:left; padding:14px; font-size:16px; margin-bottom:15px;" 
+           placeholder="Search/Enter Design Number..." oninput="syncAvailableStock(this.value)">
     <datalist id="designSuggestions"></datalist>
 
     <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;" id="inputGrid">
@@ -118,7 +110,10 @@ h2 { font-size: 24px; font-weight: 800; }
         <select id="m2" class="qty-input"></select>
         <select id="m3" class="qty-input"></select>
     </div>
-    <button id="modalSubmit" class="btn-action btn-add" style="width:100%; margin-top:20px" onclick="processEntry()">Confirm</button>
+    
+    <div id="availabilityNotice" style="margin-top:15px; font-size:12px; color:var(--warning); display:none;"></div>
+    
+    <button id="modalSubmit" class="btn-action" style="width:100%; margin-top:20px" onclick="processEntry()">Confirm Action</button>
   </div>
 </div>
 
@@ -128,17 +123,20 @@ const supabaseClient = supabase.createClient('https://yhlfqpiwevsehlgbhxtk.supab
 
 let inventory = JSON.parse(localStorage.getItem('inventoryCache')||'[]');
 let syncQueue = JSON.parse(localStorage.getItem('syncQueue')||'[]');
-let mode = 'add'; // 'add' or 'sell'
+let mode = 'add'; 
 const sizes=["22x32","34x36","16x18","26x30"];
 
-function getOpts(selected, prefix = "") {
+// --- Logic Implementation ---
+
+function getOpts(max, labelPrefix = "") {
     let h = '';
-    for(let i=0; i<=100; i++) h += `<option value="${i}" ${i==selected?'selected':''}>${prefix}${i}</option>`;
+    for(let i=0; i<=max; i++) h += `<option value="${i}">${labelPrefix}: ${i}</option>`;
     return h;
 }
 
 function updateSuggestions() {
-    document.getElementById('designSuggestions').innerHTML = inventory.map(it => `<option value="${it.design}">`).join('');
+    const list = document.getElementById('designSuggestions');
+    list.innerHTML = inventory.map(it => `<option value="${it.design}">`).join('');
 }
 
 function openModal(m) {
@@ -146,25 +144,49 @@ function openModal(m) {
     const title = document.getElementById('modalTitle');
     const btn = document.getElementById('modalSubmit');
     const input = document.getElementById('designInput');
+    const notice = document.getElementById('availabilityNotice');
     
     input.value = '';
-    title.innerText = mode === 'add' ? "Add New Stock" : "Sell Item (Decrease)";
-    btn.innerText = mode === 'add' ? "Save Stock" : "Deduct Stock";
+    notice.style.display = 'none';
+    title.innerText = mode === 'add' ? "Add Stock" : "Sell Item (From Inventory)";
     btn.className = mode === 'add' ? "btn-action btn-add" : "btn-action btn-sell";
+    btn.innerText = mode === 'add' ? "Add to Stock" : "Deduct from Stock";
     
-    sizes.forEach((s, i) => document.getElementById(`m${i}`).innerHTML = getOpts(0, s + ": "));
+    // Default 0-100 for Add, 0 for Sell until design picked
+    sizes.forEach((s, i) => {
+        document.getElementById(`m${i}`).innerHTML = getOpts(mode === 'add' ? 100 : 0, s);
+    });
+    
     updateSuggestions();
     entryModal.classList.add('active');
 }
 
-function closeModal() { entryModal.classList.remove('active'); }
-
-function handleDesignChange(val) {
+function syncAvailableStock(val) {
     const existing = inventory.find(it => it.design.toLowerCase() === val.trim().toLowerCase());
-    if (existing && mode === 'add') {
-        if(confirm("Design exists. Add more to current stock?")) {
-            sizes.forEach((s, i) => document.getElementById(`m${i}`).innerHTML = getOpts(0, s + " + "));
+    const notice = document.getElementById('availabilityNotice');
+    
+    if (mode === 'sell') {
+        if (existing) {
+            notice.style.display = 'block';
+            notice.innerText = "✓ Design found. Select quantity to sell.";
+            sizes.forEach((s, i) => {
+                const available = existing.stock[i] - existing.sold[i];
+                document.getElementById(`m${i}`).innerHTML = getOpts(available, s);
+            });
+        } else {
+            notice.style.display = 'block';
+            notice.innerText = "⚠ Design NOT in inventory.";
+            sizes.forEach((s, i) => document.getElementById(`m${i}`).innerHTML = getOpts(0, s));
         }
+    } else {
+        // Add Mode: If design exists, show current levels as context
+        if (existing) {
+            notice.style.display = 'block';
+            notice.innerText = "Note: Design already exists. Adding to current levels.";
+        } else {
+            notice.style.display = 'none';
+        }
+        sizes.forEach((s, i) => document.getElementById(`m${i}`).innerHTML = getOpts(100, s));
     }
 }
 
@@ -185,22 +207,23 @@ function processEntry() {
             syncQueue.push({type:'add', item: newItem});
         }
     } else {
-        if (!target) return alert("Design not found in stock!");
-        // Sell decreases stock OR increases "sold" count? 
-        // Based on your request "decrease stock from add stock", we update target.sold to reflect deductions
+        // SELL MODE
+        if (!target) return alert("Error: Design not found in inventory!");
+        
+        // Ensure not selling 0
+        if(inputQtys.every(v => v === 0)) return alert("Please select quantity to sell.");
+
+        // Deduct logic (Add to sold count)
         target.sold = target.sold.map((v, i) => v + inputQtys[i]);
         syncQueue.push({type:'update', data: target});
     }
 
+    closeModal();
     render();
     syncNow();
-    closeModal();
 }
 
-function upd(id, idx, val, field) {
-    const it = inventory.find(x => x.id === id);
-    if(it) { it[field][idx] = +val; syncQueue.push({type:'update', data: it}); render(); syncNow(); }
-}
+function closeModal() { entryModal.classList.remove('active'); }
 
 function render() {
     const term = searchInput.value.toLowerCase();
@@ -215,25 +238,33 @@ function render() {
             rows += `
             <div class="grid-row">
                 <div class="label-style">${sizes[i]}</div>
-                <select class="qty-input" onchange="upd('${item.id}',${i},this.value,'stock')">${getOpts(sVal)}</select>
-                <select class="qty-input" onchange="upd('${item.id}',${i},this.value,'sold')">${getOpts(item.sold[i])}</select>
+                <div class="qty-input">${sVal}</div>
+                <div class="qty-input">${item.sold[i]}</div>
                 <div class="remain-pill">${rem}</div>
             </div>`;
         });
 
         inventoryList.innerHTML += `
         <div class="item-card">
-            <div class="item-header"><span class="design-badge"># ${item.design}</span><button onclick="del('${item.id}')" style="color:var(--danger); background:none; border:none; font-weight:700;">DEL</button></div>
+            <div class="item-header">
+                <span class="design-badge"># ${item.design}</span>
+                <button onclick="del('${item.id}')" style="color:var(--danger); background:none; border:none; font-weight:700; font-size:11px;">DELETE</button>
+            </div>
+            <div class="grid-row" style="margin-bottom:4px; opacity:0.6">
+                <div class="label-style">Size</div><div class="label-style">In</div><div class="label-style">Out</div><div class="label-style">Left</div>
+            </div>
             ${rows}
         </div>`;
     });
 
-    totalStock.innerText = ts; totalSold.innerText = td; totalRemaining.innerText = ts-td;
+    totalStock.innerText = ts; 
+    totalSold.innerText = td; 
+    totalRemaining.innerText = ts-td;
     designCount.innerText = inventory.length;
     localStorage.setItem('inventoryCache', JSON.stringify(inventory));
 }
 
-function del(id) { if(confirm("Delete?")) { inventory = inventory.filter(x => x.id !== id); syncQueue.push({type:'delete', id}); render(); syncNow(); } }
+function del(id) { if(confirm("Permanently remove this design?")) { inventory = inventory.filter(x => x.id !== id); syncQueue.push({type:'delete', id}); render(); syncNow(); } }
 
 async function syncNow() {
     if(!navigator.onLine || syncQueue.length === 0) return;
