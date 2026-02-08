@@ -25,102 +25,110 @@
 }
 
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, sans-serif; }
-body { background: var(--bg); color: var(--text); padding-bottom: 120px; }
+body { background: var(--bg); color: var(--text); padding-bottom: 140px; }
 
 /* iPhone Premium Header */
 .header-container {
   position: sticky; top: 0; z-index: 100;
   background: var(--glass); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
-  border-bottom: 0.5px solid var(--border); padding: 50px 20px 15px;
+  border-bottom: 0.5px solid var(--border); padding: 50px 20px 10px;
 }
-.view-tabs { display: flex; background: var(--card-elevated); padding: 3px; border-radius: 10px; margin-top: 15px; }
-.tab { flex: 1; padding: 8px; text-align: center; font-size: 13px; font-weight: 600; border-radius: 8px; border: none; color: var(--text-secondary); background: none; }
-.tab.active { background: #48484a; color: white; }
 
-/* Stats & List */
-.content-section { padding: 20px; display: none; }
-.content-section.active { display: block; }
-.summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
-.summary-card { background: var(--card); border: 0.5px solid var(--border); padding: 15px; border-radius: 16px; }
-.summary-card label { font-size: 10px; color: var(--text-secondary); font-weight: 700; display: block; margin-bottom: 4px; }
-.summary-card .value { font-size: 22px; font-weight: 800; }
+/* Sorting & Search Bar */
+.search-area { padding: 10px 0; }
+.search-box {
+    background: var(--card-elevated); border-radius: 12px; height: 40px;
+    display: flex; align-items: center; padding: 0 12px; border: 0.5px solid var(--border);
+}
+.search-box input {
+    flex: 1; background: transparent; border: none; color: white; font-size: 16px; margin-left: 8px; outline: none;
+}
 
-.item-card { background: var(--card); border-radius: 20px; padding: 20px; border: 0.5px solid var(--border); margin-bottom: 16px; }
-.history-item { border-left: 3px solid var(--primary); padding: 12px; background: var(--card-elevated); border-radius: 12px; margin-bottom: 10px; }
-.history-add { border-left-color: var(--success); }
-.history-sell { border-left-color: var(--warning); }
+.sort-scroll {
+    display: flex; gap: 8px; overflow-x: auto; padding: 12px 0 5px;
+    scrollbar-width: none; -webkit-overflow-scrolling: touch;
+}
+.sort-scroll::-webkit-scrollbar { display: none; }
+.sort-chip {
+    white-space: nowrap; background: var(--card-elevated); color: var(--text-secondary);
+    padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+    border: 0.5px solid var(--border); cursor: pointer;
+}
+.sort-chip.active { background: var(--primary); color: white; border-color: var(--primary); }
+
+/* Item List */
+.content-section { padding: 10px 20px; }
+.item-card { 
+    background: var(--card); border-radius: 20px; padding: 18px; 
+    border: 0.5px solid var(--border); margin-bottom: 15px;
+}
+.item-card.selected { border-color: var(--primary); background: rgba(10, 132, 255, 0.05); }
+
+/* Selection UI */
+.selection-bar { 
+    display: none; position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    background: var(--primary); color: white; padding: 55px 20px 15px; 
+    justify-content: space-between; align-items: center; font-weight: bold;
+}
+.selection-bar.active { display: flex; }
+
+.select-circle { 
+    display: none; width: 22px; height: 22px; border-radius: 50%; 
+    border: 2px solid var(--border); margin-right: 12px;
+}
+.selection-active .select-circle { display: block; }
+.selected .select-circle { background: white; border-color: white; }
 
 /* Bottom Dock */
 .bottom-dock {
   position: fixed; bottom: 0; left: 0; right: 0;
   background: var(--glass); backdrop-filter: blur(30px);
   border-top: 0.5px solid var(--border); padding: 15px 20px 35px;
-  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; z-index: 1000;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 12px; z-index: 100;
 }
-.btn-dock { height: 50px; border-radius: 14px; border: none; font-weight: 700; font-size: 15px; transition: 0.1s; }
-.btn-dock:active { transform: scale(0.96); opacity: 0.8; }
-.btn-dock-add { background: var(--primary); color: white; }
-.btn-dock-sell { background: white; color: black; }
-
-/* Modal */
-.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 2000; align-items: flex-end; }
-.modal.active { display: flex; }
-.modal-content { background: #1c1c1e; width: 100%; border-radius: 30px 30px 0 0; padding: 30px 20px 50px; animation: slideUp 0.4s cubic-bezier(0,1,0,1); }
-@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-
-.ios-input { width: 100%; background: #2c2c2e; border: none; border-radius: 12px; padding: 16px; color: white; font-size: 17px; margin-bottom: 15px; }
-.ios-select { background: #2c2c2e; color: white; border: none; padding: 10px; border-radius: 10px; width: 100%; }
+.btn-dock { height: 50px; border-radius: 14px; border: none; font-weight: 700; font-size: 15px; }
+.btn-dock-danger { background: var(--danger); color: white; grid-column: span 2; }
 </style>
 </head>
-<body>
+<body id="body">
+
+<div class="selection-bar" id="selectionBar">
+    <span id="selectCount">0 Selected</span>
+    <div style="display:flex; gap:15px">
+        <button onclick="selectAll()" style="background:none; border:none; color:white; font-weight:bold">All</button>
+        <button onclick="exitSelection()" style="background:none; border:none; color:white; font-weight:bold">Cancel</button>
+    </div>
+</div>
 
 <div class="header-container">
-  <div style="display:flex; justify-content:space-between; align-items:center;">
-    <h2 style="font-size: 24px; font-weight: 800;">Stock Pro</h2>
-    <div id="statusIndicator" style="font-size:10px; font-weight:bold; color:var(--text-secondary)">Online</div>
+  <div style="display:flex; justify-content:space-between; align-items:baseline;">
+    <h2 style="font-size: 26px; font-weight: 800;">Inventory</h2>
+    <span id="statusIndicator" style="font-size:10px; opacity:0.5;">Online</span>
   </div>
   
-  <div class="view-tabs">
-    <button class="tab active" onclick="switchView('inventory', this)">Inventory</button>
-    <button class="tab" onclick="switchView('history', this)">History Log</button>
+  <div class="search-area">
+      <div class="search-box">
+          <span>🔍</span>
+          <input id="searchInput" placeholder="Search Design No..." oninput="render()">
+      </div>
+      <div class="sort-scroll">
+          <div class="sort-chip active" onclick="setSort('new', this)">Latest</div>
+          <div class="sort-chip" onclick="setSort('old', this)">Oldest</div>
+          <div class="sort-chip" onclick="setSort('asc', this)">Design (1-9)</div>
+          <div class="sort-chip" onclick="setSort('desc', this)">Design (9-1)</div>
+      </div>
   </div>
 </div>
 
-<div id="inventorySection" class="content-section active">
-  <div class="summary">
-    <div class="summary-card"><label>TOTAL STOCK</label><div class="value" id="totalStock">0</div></div>
-    <div class="summary-card"><label>AVAILABLE</label><div class="value" id="totalRemaining" style="color:var(--success)">0</div></div>
-  </div>
-  <div id="inventoryList"></div>
+<div class="content-section" id="inventoryList"></div>
+
+<div class="bottom-dock" id="bottomDock">
+  <button class="btn-dock" style="background:var(--primary); color:white" onclick="openModal('add')">Add New</button>
+  <button class="btn-dock" style="background:white; color:black" onclick="openModal('sell')">Sale Item</button>
 </div>
 
-<div id="historySection" class="content-section">
-    <div style="display:flex; gap:10px; margin-bottom:20px;">
-        <button class="tab active" style="background:#2c2c2e" onclick="renderHistory('day')">Today</button>
-        <button class="tab" style="background:#2c2c2e" onclick="renderHistory('week')">This Week</button>
-    </div>
-    <div id="historyList"></div>
-</div>
-
-<div class="bottom-dock">
-  <button class="btn-dock btn-dock-add" onclick="openModal('add')">Add Stock</button>
-  <button class="btn-dock btn-dock-sell" onclick="openModal('sell')">Sale Item</button>
-</div>
-
-<div class="modal" id="entryModal" onclick="if(event.target===this)closeModal()">
-  <div class="modal-content" onclick="event.stopPropagation()">
-    <div style="width:36px; height:5px; background:rgba(255,255,255,0.2); border-radius:3px; margin:0 auto 20px;"></div>
-    <h2 id="modalTitle">Entry</h2>
-    <input type="text" id="designInput" class="ios-input" placeholder="Design No." oninput="syncPreview(this.value)">
-    <div id="previewArea" style="margin-bottom:15px; display:none;"></div>
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
-        <div><label style="font-size:10px; color:var(--text-secondary)">22x32</label><select id="m0" class="ios-select"></select></div>
-        <div><label style="font-size:10px; color:var(--text-secondary)">34x36</label><select id="m1" class="ios-select"></select></div>
-        <div><label style="font-size:10px; color:var(--text-secondary)">16x18</label><select id="m2" class="ios-select"></select></div>
-        <div><label style="font-size:10px; color:var(--text-secondary)">26x30</label><select id="m3" class="ios-select"></select></div>
-    </div>
-    <button id="modalSubmit" class="btn-dock btn-dock-add" style="width:100%" onclick="processEntry()">Confirm</button>
-  </div>
+<div class="bottom-dock" id="deleteDock" style="display:none">
+    <button class="btn-dock btn-dock-danger" onclick="confirmMultiDelete()">Move to Trash</button>
 </div>
 
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -128,136 +136,115 @@ body { background: var(--bg); color: var(--text); padding-bottom: 120px; }
 const supabaseClient = supabase.createClient('https://yhlfqpiwevsehlgbhxtk.supabase.co','sb_publishable_CkKk1cjkoS1XvBv8zldlcw_1gjt6Y2S');
 
 let inventory = JSON.parse(localStorage.getItem('inventoryCache') || '[]');
-let transactions = JSON.parse(localStorage.getItem('transactionCache') || '[]');
-let syncQueue = JSON.parse(localStorage.getItem('syncQueue') || '[]');
-let mode = 'add';
+let isSelectionMode = false;
+let selectedIds = new Set();
+let currentSort = 'new';
 const sizes = ["22x32", "34x36", "16x18", "26x30"];
 
-function switchView(view, el) {
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+// --- Sorting & Searching ---
+
+function setSort(type, el) {
+    currentSort = type;
+    document.querySelectorAll('.sort-chip').forEach(c => c.classList.remove('active'));
     el.classList.add('active');
-    document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-    document.getElementById(view + 'Section').classList.add('active');
-    if(view === 'history') renderHistory('day');
-}
-
-function openModal(m) {
-    mode = m;
-    document.getElementById('designInput').value = '';
-    document.getElementById('modalTitle').innerText = mode === 'add' ? "Add Stock" : "Sale Item";
-    sizes.forEach((_, i) => document.getElementById(`m${i}`).innerHTML = getOpts(mode === 'add' ? 200 : 0));
-    document.getElementById('entryModal').classList.add('active');
-}
-
-function getOpts(max) {
-    let h = '<option value="0">0</option>';
-    for(let i=1; i<=max; i++) h += `<option value="${i}">${i}</option>`;
-    return h;
-}
-
-function syncPreview(val) {
-    const item = inventory.find(it => it.design.toUpperCase() === val.trim().toUpperCase());
-    const area = document.getElementById('previewArea');
-    if(item) {
-        area.style.display = 'block';
-        area.innerHTML = `<div style="padding:10px; background:#2c2c2e; border-radius:10px; font-size:12px;">Stock: ${item.stock.map((s,i)=>sizes[i]+': '+(s-item.sold[i])).join(' | ')}</div>`;
-        if(mode==='sell') sizes.forEach((_, i) => document.getElementById(`m${i}`).innerHTML = getOpts(item.stock[i]-item.sold[i]));
-    } else { area.style.display = 'none'; }
-}
-
-async function processEntry() {
-    const dNo = document.getElementById('designInput').value.trim().toUpperCase();
-    const qtys = [ +m0.value, +m1.value, +m2.value, +m3.value ];
-    if(!dNo || qtys.every(v=>v===0)) return;
-
-    let target = inventory.find(it => it.design === dNo);
-    const trans = { id: crypto.randomUUID(), design: dNo, type: mode, qtys: [...qtys], created_at: new Date().toISOString() };
-
-    if(mode === 'add') {
-        if(target) target.stock = target.stock.map((v,i)=>v+qtys[i]);
-        else inventory.unshift({ id: crypto.randomUUID(), design: dNo, stock: qtys, sold: [0,0,0,0] });
-    } else {
-        if(!target) return alert("Not in stock");
-        target.sold = target.sold.map((v,i)=>v+qtys[i]);
-    }
-
-    transactions.unshift(trans);
-    addToQueue(trans);
-    closeModal(); render();
-}
-
-function addToQueue(trans) {
-    syncQueue.push({ type: 'transaction', data: trans });
-    // Also push the inventory update
-    const target = inventory.find(it => it.design === trans.design);
-    syncQueue.push({ type: 'inventory', data: target });
-    localStorage.setItem('syncQueue', JSON.stringify(syncQueue));
-    localStorage.setItem('inventoryCache', JSON.stringify(inventory));
-    localStorage.setItem('transactionCache', JSON.stringify(transactions));
-}
-
-function render() {
-    const list = document.getElementById('inventoryList');
-    list.innerHTML = '';
-    let ts=0, tr=0;
-    inventory.forEach(item => {
-        let rows = '';
-        item.stock.forEach((s, i) => {
-            const left = s - item.sold[i];
-            ts += s; tr += left;
-            rows += `<div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:5px; margin-bottom:5px; font-size:12px;">
-                <div style="color:var(--text-secondary)">${sizes[i]}</div><div>${s}</div><div>${item.sold[i]}</div><div style="font-weight:bold; color:${left<5?'var(--danger)':'var(--success)'}">${left}</div>
-            </div>`;
-        });
-        list.innerHTML += `<div class="item-card"><div style="font-weight:800; color:var(--primary); margin-bottom:10px;"># ${item.design}</div>${rows}</div>`;
-    });
-    document.getElementById('totalStock').innerText = ts;
-    document.getElementById('totalRemaining').innerText = tr;
-}
-
-function renderHistory(range) {
-    const list = document.getElementById('historyList');
-    list.innerHTML = '';
-    const now = new Date();
-    const filtered = transactions.filter(t => {
-        const tDate = new Date(t.created_at);
-        if(range === 'day') return tDate.toDateString() === now.toDateString();
-        return (now - tDate) / (1000*60*60*24) <= 7;
-    });
-
-    filtered.forEach(t => {
-        list.innerHTML += `<div class="history-item history-${t.type}">
-            <div style="display:flex; justify-content:space-between; font-size:13px; font-weight:bold;">
-                <span>${t.type.toUpperCase()}: #${t.design}</span>
-                <span style="color:var(--text-secondary); font-weight:normal;">${new Date(t.created_at).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</span>
-            </div>
-            <div style="font-size:11px; margin-top:5px; opacity:0.8;">${t.qtys.map((q,i)=>q>0?sizes[i]+': '+q : '').filter(v=>v).join(' | ')}</div>
-        </div>`;
-    });
-}
-
-async function syncNow() {
-    if(!navigator.onLine || syncQueue.length === 0) return;
-    const task = syncQueue[0];
-    try {
-        if(task.type === 'transaction') await supabaseClient.from('transactions').insert(task.data);
-        if(task.type === 'inventory') await supabaseClient.from('inventory').upsert(task.data);
-        syncQueue.shift();
-        localStorage.setItem('syncQueue', JSON.stringify(syncQueue));
-    } catch(e) {}
-}
-
-async function fetchData() {
-    const {data: inv} = await supabaseClient.from('inventory').select('*');
-    const {data: trans} = await supabaseClient.from('transactions').select('*').order('created_at', {ascending:false}).limit(100);
-    if(inv) inventory = inv;
-    if(trans) transactions = trans;
     render();
 }
 
-function closeModal() { document.getElementById('entryModal').classList.remove('active'); }
+function render() {
+    const term = document.getElementById('searchInput').value.toUpperCase();
+    const list = document.getElementById('inventoryList');
+    list.innerHTML = '';
+
+    // 1. Filter
+    let filtered = inventory.filter(it => !it.deleted_at && it.design.toUpperCase().includes(term));
+
+    // 2. Sort
+    filtered.sort((a, b) => {
+        if(currentSort === 'new') return new Date(b.created_at) - new Date(a.created_at);
+        if(currentSort === 'old') return new Date(a.created_at) - new Date(b.created_at);
+        if(currentSort === 'asc') return a.design.localeCompare(b.design, undefined, {numeric: true});
+        if(currentSort === 'desc') return b.design.localeCompare(a.design, undefined, {numeric: true});
+    });
+
+    // 3. Display
+    filtered.forEach(item => {
+        const isSelected = selectedIds.has(item.id);
+        const card = document.createElement('div');
+        card.className = `item-card ${isSelected ? 'selected' : ''}`;
+        card.onclick = () => isSelectionMode ? toggleSelect(item.id) : null;
+        card.oncontextmenu = (e) => { e.preventDefault(); enterSelection(item.id); };
+        
+        card.innerHTML = `
+            <div style="display:flex; align-items:center;">
+                <div class="select-circle"></div>
+                <div style="flex:1">
+                    <div style="display:flex; justify-content:space-between; margin-bottom:12px">
+                        <span style="font-weight:800; color:var(--primary); font-size:18px"># ${item.design}</span>
+                        <span style="font-size:10px; color:var(--text-secondary)">${new Date(item.created_at).toLocaleDateString()}</span>
+                    </div>
+                    <div style="display:grid; grid-template-columns: repeat(4, 1fr); gap:8px; text-align:center">
+                        ${item.stock.map((s, i) => `
+                            <div>
+                                <div style="font-size:9px; color:var(--text-secondary); margin-bottom:2px">${sizes[i]}</div>
+                                <div style="font-weight:bold; font-size:14px; color:${(s-item.sold[i]) < 5 ? 'var(--danger)' : 'var(--text)'}">${s - item.sold[i]}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            </div>
+        `;
+        list.appendChild(card);
+    });
+}
+
+// Selection & Context Logic
+function enterSelection(id) {
+    isSelectionMode = true;
+    document.getElementById('body').classList.add('selection-active');
+    document.getElementById('selectionBar').classList.add('active');
+    document.getElementById('bottomDock').style.display = 'none';
+    document.getElementById('deleteDock').style.display = 'grid';
+    toggleSelect(id);
+}
+
+function exitSelection() {
+    isSelectionMode = false;
+    selectedIds.clear();
+    document.getElementById('body').classList.remove('selection-active');
+    document.getElementById('selectionBar').classList.remove('active');
+    document.getElementById('bottomDock').style.display = 'grid';
+    document.getElementById('deleteDock').style.display = 'none';
+    render();
+}
+
+function toggleSelect(id) {
+    if(selectedIds.has(id)) selectedIds.delete(id);
+    else selectedIds.add(id);
+    document.getElementById('selectCount').innerText = `${selectedIds.size} Selected`;
+    render();
+}
+
+function selectAll() {
+    inventory.filter(it => !it.deleted_at).forEach(it => selectedIds.add(it.id));
+    document.getElementById('selectCount').innerText = `${selectedIds.size} Selected`;
+    render();
+}
+
+function confirmMultiDelete() {
+    if(confirm(`Move ${selectedIds.size} items to Trash?`)) {
+        const now = new Date().toISOString();
+        inventory.forEach(it => { if(selectedIds.has(it.id)) it.deleted_at = now; });
+        localStorage.setItem('inventoryCache', JSON.stringify(inventory));
+        exitSelection();
+    }
+}
+
+async function fetchData() {
+    const {data} = await supabaseClient.from('inventory').select('*');
+    if(data) { inventory = data; render(); }
+}
+
 fetchData();
-setInterval(syncNow, 5000);
 </script>
 </body>
 </html>
