@@ -2,105 +2,346 @@
 <html lang="en">
 <head>
   <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#0ea5e9">
+  <meta name="theme-color" content="#000000">
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <title>Metiabruz Stock</title>
 
 <style>
-:root{
-  --bg:#0f172a;--card:#1e293b;--text:#f1f5f9;--muted:#94a3b8;
-  --border:#334155;--primary:#0ea5e9;--danger:#ef4444;--remain:#10b981;
-  --input-bg:#020617;
-}
-*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{
-  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;
-  background:var(--bg);color:var(--text);
-  padding:12px;padding-bottom:120px;
-}
-.header,.search-box,.item-card,.modal-content{
-  background:var(--card);border-radius:12px;padding:16px;
-  box-shadow:0 4px 6px -1px rgba(0,0,0,.1)
-}
-.summary{display:grid;grid-template-columns:repeat(2,1fr);gap:8px;margin-top:12px}
-.summary-card{background:var(--input-bg);padding:10px;border-radius:8px;border:1px solid var(--border);text-align:center}
-.summary-card label{font-size:10px;color:var(--muted);text-transform:uppercase}
-.summary-card .value{font-size:20px;font-weight:700;color:var(--primary)}
-.summary-card.green .value{color:var(--remain)}
-
-.search-box{margin:16px 0;display:flex;gap:8px}
-.search-box input, .search-box select{
-  flex:1;
-  padding:12px;border-radius:8px;border:1px solid var(--border);
-  background:var(--input-bg);color:var(--text);font-size:16px
+:root {
+  --bg: #000000;
+  --card: #1c1c1e;
+  --card-highlight: #2c2c2e;
+  --text: #ffffff;
+  --muted: #8e8e93;
+  --border: #38383a;
+  --primary: #0a84ff;
+  --danger: #ff453a;
+  --success: #30d158;
+  --glass: rgba(28, 28, 30, 0.85);
 }
 
-.inventory-list{display:flex;flex-direction:column;gap:16px}
-.item-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;border-bottom:1px solid var(--border);padding-bottom:8px}
-.design-name{font-size:18px;font-weight:800;color:var(--primary)}
-.col-headers,.size-row{display:grid;grid-template-columns:60px 1fr 1fr 1fr;gap:8px;align-items:center}
-.col-headers{font-size:10px;color:var(--muted);margin-bottom:5px;text-align:center}
-.size-label{font-size:13px;font-weight:600;color:var(--muted)}
-.qty-input{text-align:center;font-weight:600}
-.input-remain{background:rgba(16,185,129,.1);color:var(--remain);font-weight:700;text-align:center;border:none}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; outline: none; }
 
-.bulk-actions{display:flex;gap:8px;margin-bottom:12px}
-
-.action-buttons{
-  position:fixed;bottom:0;left:0;right:0;
-  background:var(--card);padding:12px;
-  display:grid;grid-template-columns:repeat(4,1fr);gap:8px;
-  border-top:1px solid var(--border)
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  padding: 0;
+  padding-bottom: 140px; /* Space for bottom bar */
+  -webkit-font-smoothing: antialiased;
 }
-.btn{padding:10px;border:none;border-radius:8px;font-weight:600;font-size:11px}
-.btn-primary{background:var(--primary);color:#fff}
-.btn-secondary{background:var(--bg);color:var(--muted);border:1px solid var(--border)}
-.btn-danger{background:var(--danger);color:#fff;border-radius:6px;padding:4px 12px}
 
-.modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);align-items:center;justify-content:center;z-index:99}
-.modal.active{display:flex}
-.modal-content{width:90%;max-width:400px}
-.size-inputs{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+/* --- iOS Header & Stats --- */
+.header-container {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: var(--glass);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 16px 12px 16px;
+  padding-top: max(16px, env(safe-area-inset-top));
+}
 
-@media print{
-  body{background:#fff!important;color:#000!important}
-  .header,.search-box,.action-buttons,.btn-danger,.bulk-actions,input[type=checkbox]{display:none!important}
-  .item-card{page-break-inside:avoid;border:1px solid #000;background:#fff}
-  input{border:none!important;background:transparent!important;color:#000!important;text-align:center}
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
+
+#statusIndicator {
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  background: var(--card-highlight);
+  border-radius: 20px;
+  color: var(--muted);
+}
+
+.summary {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.summary-card {
+  background: var(--card-highlight);
+  padding: 10px 4px;
+  border-radius: 10px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.summary-card label {
+  font-size: 9px;
+  color: var(--muted);
+  text-transform: uppercase;
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.summary-card .value {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.summary-card.green .value { color: var(--success); }
+
+/* --- Search Area --- */
+.controls-area { padding: 16px; }
+
+.search-box {
+  background: var(--card-highlight);
+  border-radius: 10px;
+  padding: 8px;
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.search-box input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  font-size: 17px;
+  padding: 8px;
+}
+
+.search-box select {
+  background: var(--card);
+  color: var(--primary);
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.bulk-actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 12px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.bulk-actions::-webkit-scrollbar { display: none; }
+
+/* --- Inventory List --- */
+.inventory-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 0 16px;
+}
+
+.item-card {
+  background: var(--card);
+  border-radius: 14px;
+  padding: 16px;
+  position: relative;
+  transition: transform 0.1s active;
+}
+
+.item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--border);
+}
+
+.design-name {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text);
+  letter-spacing: 0.5px;
+}
+
+.col-headers {
+  display: grid;
+  grid-template-columns: 60px 1fr 1fr 1fr;
+  gap: 8px;
+  margin-bottom: 8px;
+  opacity: 0.5;
+  font-size: 10px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.size-row {
+  display: grid;
+  grid-template-columns: 60px 1fr 1fr 1fr;
+  gap: 10px;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.size-row:last-child { margin-bottom: 0; }
+
+.size-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--muted);
+  text-align: left;
+}
+
+/* Styled Inputs inside cards */
+.qty-input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  color: var(--text);
+  border-radius: 8px;
+  padding: 8px 0;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 600;
+  -moz-appearance: textfield;
+}
+
+.input-remain {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--success);
+  text-align: center;
+}
+
+/* --- Bottom Floating Action Bar --- */
+.action-buttons {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: var(--glass);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  padding: 12px 16px;
+  padding-bottom: max(12px, env(safe-area-inset-bottom));
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  border-top: 1px solid rgba(255,255,255,0.1);
+  z-index: 100;
+}
+
+/* Button Styles */
+.btn {
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.2s;
+}
+.btn:active { opacity: 0.7; }
+
+.btn-primary { background: var(--primary); color: #fff; box-shadow: 0 2px 10px rgba(10, 132, 255, 0.3); }
+.btn-secondary { background: var(--card-highlight); color: var(--primary); }
+.btn-danger { background: rgba(255, 69, 58, 0.15); color: var(--danger); font-size: 11px; padding: 6px 12px; border-radius: 6px; border:none; }
+
+/* --- Modal --- */
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  align-items: flex-end; /* Bottom sheet style */
+  justify-content: center;
+  z-index: 200;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+.modal.active { display: flex; opacity: 1; }
+
+.modal-content {
+  background: var(--card);
+  width: 100%;
+  max-width: 100%;
+  border-radius: 20px 20px 0 0;
+  padding: 24px;
+  padding-bottom: max(24px, env(safe-area-inset-bottom));
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+.modal h3 { margin-bottom: 20px; font-size: 20px; }
+.modal input {
+  width: 100%;
+  padding: 14px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: #fff;
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+.size-inputs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+
+/* Checkbox Style */
+input[type="checkbox"] {
+  width: 20px; height: 20px; accent-color: var(--primary); margin-right: 10px;
+}
+
+/* Print */
+@media print {
+  body { background: #fff !important; color: #000 !important; padding: 0; }
+  .header-container, .controls-area, .action-buttons, .btn-danger, .bulk-actions { display: none !important; }
+  .item-card { border: 1px solid #ddd; background: #fff; break-inside: avoid; color: #000; box-shadow: none; margin-bottom: 10px; }
+  .qty-input { border: none !important; color: #000 !important; }
 }
 </style>
 </head>
 
 <body>
 
-<div class="header">
-  <div style="display:flex;justify-content:space-between">
+<div class="header-container">
+  <div class="top-bar">
     <h2>📦 Stock</h2>
-    <div id="statusIndicator" style="font-size:12px;color:var(--muted)">Offline</div>
+    <div id="statusIndicator">Offline</div>
   </div>
   <div class="summary">
-    <div class="summary-card"><label>Total Stock</label><div class="value" id="totalStock">0</div></div>
-    <div class="summary-card"><label>Total Sold</label><div class="value" id="totalSold">0</div></div>
-    <div class="summary-card green"><label>Remaining</label><div class="value" id="totalRemaining">0</div></div>
-    <div class="summary-card"><label>Designs</label><div class="value" id="designCount">0</div></div>
+    <div class="summary-card"><label>Stock</label><div class="value" id="totalStock">0</div></div>
+    <div class="summary-card"><label>Sold</label><div class="value" id="totalSold">0</div></div>
+    <div class="summary-card green"><label>Left</label><div class="value" id="totalRemaining">0</div></div>
+    <div class="summary-card"><label>Items</label><div class="value" id="designCount">0</div></div>
   </div>
 </div>
 
-<div class="search-box">
-  <input id="searchInput" placeholder="🔍 Search Design No..." onkeyup="render()">
-  <select onchange="setSort(this.value)">
-    <option value="recent">Recent</option>
-    <option value="asc">A → Z</option>
-    <option value="desc">Z → A</option>
-  </select>
-</div>
+<div class="controls-area">
+  <div class="search-box">
+    <span>🔍</span>
+    <input id="searchInput" placeholder="Search Design No..." onkeyup="render()">
+    <select onchange="setSort(this.value)">
+      <option value="recent">Recent</option>
+      <option value="asc">A → Z</option>
+      <option value="desc">Z → A</option>
+    </select>
+  </div>
 
-<div class="bulk-actions">
-  <button class="btn btn-secondary" onclick="toggleSelect()">Select</button>
-  <button class="btn btn-danger" onclick="deleteSelected()">Delete Selected</button>
-  <button class="btn btn-danger" onclick="resetAll()">Reset All</button>
+  <div class="bulk-actions">
+    <button class="btn btn-secondary" style="flex:1; height:36px; padding:0" onclick="toggleSelect()">Select</button>
+    <button class="btn btn-danger" style="flex:1; height:36px; padding:0" onclick="deleteSelected()">Delete</button>
+    <button class="btn btn-danger" style="flex:1; height:36px; padding:0" onclick="resetAll()">Reset</button>
+  </div>
 </div>
 
 <div class="inventory-list" id="inventoryList"></div>
@@ -114,15 +355,16 @@ body{
 
 <div class="modal" id="addModal" onclick="if(event.target===this)closeAdd()">
   <div class="modal-content">
-    <h3>Add New Design</h3><br>
-    <input id="designInput" placeholder="Design Number">
+    <div style="width:40px;height:4px;background:#38383a;margin:0 auto 20px auto;border-radius:2px;"></div>
+    <h3>New Design</h3>
+    <input id="designInput" placeholder="Design Number (e.g., 501)">
     <div class="size-inputs">
       <input id="s0" placeholder="22x32" type="number">
       <input id="s1" placeholder="34x36" type="number">
       <input id="s2" placeholder="16x18" type="number">
       <input id="s3" placeholder="26x30" type="number">
-    </div><br>
-    <button class="btn btn-primary" onclick="addDesign()">Save Design</button>
+    </div>
+    <button class="btn btn-primary" style="width:100%; margin-top:12px" onclick="addDesign()">Save Design</button>
   </div>
 </div>
 
@@ -168,17 +410,18 @@ function render(){
       rows+=`
       <div class="size-row">
         <div class="size-label">${s}</div>
-        <input class="qty-input" value="${item.stock[i]}" onchange="upd('${item.id}',${i},this.value,'stock')">
-        <input class="qty-input" value="${item.sold[i]}" onchange="upd('${item.id}',${i},this.value,'sold')">
+        <input type="tel" class="qty-input" value="${item.stock[i]}" onchange="upd('${item.id}',${i},this.value,'stock')">
+        <input type="tel" class="qty-input" value="${item.sold[i]}" onchange="upd('${item.id}',${i},this.value,'sold')">
         <div class="input-remain">${item.stock[i]-item.sold[i]}</div>
       </div>`;
     });
 
+    // UPDATED RENDER HTML FOR NEW UI
     inventoryList.innerHTML+=`
     <div class="item-card">
       <div class="item-header">
-        <div style="display:flex;gap:6px;align-items:center">
-          ${selectMode?`<input type="checkbox" onchange="togglePick('${item.id}')">`:''}
+        <div style="display:flex;gap:12px;align-items:center">
+          ${selectMode?`<input type="checkbox" onchange="togglePick('${item.id}')" ${selected.has(item.id)?'checked':''}>`:''}
           <span class="design-name"># ${item.design}</span>
         </div>
         ${!selectMode?`<button class="btn-danger" onclick="del('${item.id}')">Delete</button>`:''}
@@ -239,7 +482,8 @@ function del(id){
 
 async function syncNow(){
   if(!navigator.onLine){statusIndicator.textContent="Offline";return;}
-  statusIndicator.textContent="Syncing";
+  statusIndicator.textContent="Syncing...";
+  statusIndicator.style.color = "var(--primary)";
   const q=[...syncQueue]; syncQueue=[]; saveCache();
   for(const j of q){
     if(j.type==='add')await supabaseClient.from('inventory').insert(j.item);
@@ -247,6 +491,7 @@ async function syncNow(){
     if(j.type==='delete')await supabaseClient.from('inventory').delete().eq('design',j.design);
   }
   statusIndicator.textContent="Online";
+  statusIndicator.style.color = "var(--success)";
 }
 
 async function fetchData(){
