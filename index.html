@@ -108,14 +108,14 @@ body { background: var(--bg); color: var(--text); padding-bottom: 50px; }
            placeholder="Design Number" oninput="syncAvailableStock(this.value)">
     <datalist id="designSuggestions"></datalist>
 
+    <div id="availabilityNotice" style="margin-bottom:20px; padding:12px; border-radius:12px; font-size:13px; display:none;"></div>
+
     <div class="select-grid" id="inputGrid">
-        <div><label class="label-style" id="l0">22x32</label><select id="m0" class="select-box" style="width:100%"></select></div>
-        <div><label class="label-style" id="l1">34x36</label><select id="m1" class="select-box" style="width:100%"></select></div>
-        <div><label class="label-style" id="l2">16x18</label><select id="m2" class="select-box" style="width:100%"></select></div>
-        <div><label class="label-style" id="l3">26x30</label><select id="m3" class="select-box" style="width:100%"></select></div>
+        <div><label class="label-style">22x32</label><select id="m0" class="select-box" style="width:100%"></select></div>
+        <div><label class="label-style">34x36</label><select id="m1" class="select-box" style="width:100%"></select></div>
+        <div><label class="label-style">16x18</label><select id="m2" class="select-box" style="width:100%"></select></div>
+        <div><label class="label-style">26x30</label><select id="m3" class="select-box" style="width:100%"></select></div>
     </div>
-    
-    <div id="availabilityNotice" style="margin-top:15px; padding:10px; border-radius:8px; font-size:13px; display:none;"></div>
     
     <button id="modalSubmit" class="btn-action" style="width:100%; margin-top:20px; font-size:16px;" onclick="processEntry()">Confirm Action</button>
   </div>
@@ -131,7 +131,7 @@ let mode = 'add';
 const sizes = ["22x32", "34x36", "16x18", "26x30"];
 const LOW_STOCK_THRESHOLD = 5;
 
-function getOpts(max, label) {
+function getOpts(max) {
     let h = `<option value="0">Qty: 0</option>`;
     for(let i=1; i<=max; i++) h += `<option value="${i}">${i}</option>`;
     return h;
@@ -142,10 +142,11 @@ function openModal(m) {
     const notice = document.getElementById('availabilityNotice');
     document.getElementById('designInput').value = '';
     notice.style.display = 'none';
+    notice.innerHTML = '';
     
     document.getElementById('modalTitle').innerText = mode === 'add' ? "Add New Stock" : "Sell Item";
     document.getElementById('modalSubmit').className = mode === 'add' ? "btn-action btn-add" : "btn-action btn-sell";
-    document.getElementById('modalSubmit').innerText = mode === 'add' ? "Increase Inventory" : "Deduct Inventory";
+    document.getElementById('modalSubmit').innerText = mode === 'add' ? "Update Inventory" : "Record Sale";
     
     sizes.forEach((s, i) => {
         document.getElementById(`m${i}`).innerHTML = getOpts(mode === 'add' ? 200 : 0);
@@ -158,33 +159,41 @@ function openModal(m) {
 }
 
 function syncAvailableStock(val) {
-    const existing = inventory.find(it => it.design.toUpperCase() === val.trim().toUpperCase());
+    const term = val.trim().toUpperCase();
+    const existing = inventory.find(it => it.design.toUpperCase() === term);
     const notice = document.getElementById('availabilityNotice');
     
-    if (mode === 'sell') {
-        if (existing) {
-            notice.style.display = 'block';
-            notice.style.background = "rgba(50, 215, 75, 0.1)";
-            notice.style.color = "var(--success)";
-            notice.innerText = "✓ Design in stock. Choose quantity to deduct.";
+    if (existing) {
+        notice.style.display = 'block';
+        notice.style.background = "var(--card-elevated)";
+        notice.style.border = "1px solid var(--primary)";
+        
+        let previewHTML = `<div style="margin-bottom:8px; font-weight:bold; color:var(--primary); text-align:center;">Design #${existing.design} - Live Balance</div>`;
+        previewHTML += `<div style="display:grid; grid-template-columns:repeat(4, 1fr); gap:5px; text-align:center;">`;
+        
+        sizes.forEach((s, i) => {
+            const left = existing.stock[i] - existing.sold[i];
+            previewHTML += `<div>
+                <div style="font-size:9px; color:var(--text-secondary)">${s}</div>
+                <div style="font-weight:bold; color:${left <= LOW_STOCK_THRESHOLD ? 'var(--danger)' : 'var(--success)'}">${left}</div>
+            </div>`;
+        });
+        previewHTML += `</div>`;
+        notice.innerHTML = previewHTML;
+
+        if (mode === 'sell') {
             sizes.forEach((s, i) => {
                 const left = existing.stock[i] - existing.sold[i];
                 document.getElementById(`m${i}`).innerHTML = getOpts(left);
             });
-        } else {
-            notice.style.display = 'block';
-            notice.style.background = "rgba(255, 69, 58, 0.1)";
-            notice.style.color = "var(--danger)";
-            notice.innerText = "⚠ ERROR: Design not found in inventory.";
-            sizes.forEach((s, i) => document.getElementById(`m${i}`).innerHTML = getOpts(0));
         }
     } else {
-        sizes.forEach((s, i) => document.getElementById(`m${i}`).innerHTML = getOpts(200));
-        if (existing) {
+        if (mode === 'sell' && term.length > 0) {
             notice.style.display = 'block';
-            notice.style.background = "rgba(10, 132, 255, 0.1)";
-            notice.style.color = "var(--primary)";
-            notice.innerText = "Note: Adding to existing design stock.";
+            notice.style.background = "rgba(255, 69, 58, 0.1)";
+            notice.style.border = "1px solid var(--danger)";
+            notice.innerHTML = `<div style="color:var(--danger); text-align:center; font-weight:bold;">⚠ Design Not Found</div>`;
+            sizes.forEach((s, i) => document.getElementById(`m${i}`).innerHTML = getOpts(0));
         } else {
             notice.style.display = 'none';
         }
@@ -193,10 +202,10 @@ function syncAvailableStock(val) {
 
 async function processEntry() {
     const dNo = document.getElementById('designInput').value.trim().toUpperCase();
-    if(!dNo) return alert("Missing Design Number");
+    if(!dNo) return alert("Enter Design Number");
     
     const inputQtys = [ +m0.value, +m1.value, +m2.value, +m3.value ];
-    if(inputQtys.every(v => v === 0)) return alert("Quantity cannot be zero");
+    if(inputQtys.every(v => v === 0)) return alert("Select a quantity first");
 
     let target = inventory.find(it => it.design.toUpperCase() === dNo);
 
@@ -210,7 +219,7 @@ async function processEntry() {
             addToQueue('add', newItem);
         }
     } else {
-        if (!target) return alert("Cannot sell: Design does not exist.");
+        if (!target) return alert("Error: Design missing from stock.");
         target.sold = target.sold.map((v, i) => v + inputQtys[i]);
         addToQueue('update', target);
     }
@@ -221,7 +230,7 @@ async function processEntry() {
 }
 
 function addToQueue(type, data) {
-    syncQueue.push({ type, data, timestamp: Date.now() });
+    syncQueue.push({ type, data });
     localStorage.setItem('syncQueue', JSON.stringify(syncQueue));
 }
 
@@ -230,28 +239,22 @@ function render() {
     const listEl = document.getElementById('inventoryList');
     listEl.innerHTML = '';
     
-    // Summary logic must always calculate based on FULL inventory
     let ts=0, td=0;
-    inventory.forEach(item => {
-        item.stock.forEach((v, i) => { ts += v; td += item.sold[i]; });
-    });
+    inventory.forEach(item => { item.stock.forEach((v, i) => { ts += v; td += item.sold[i]; }); });
 
     inventory.filter(it => it.design.toUpperCase().includes(term)).forEach(item => {
         let rows = '';
         item.stock.forEach((sVal, i) => {
             const rem = sVal - item.sold[i];
             const lowClass = rem <= LOW_STOCK_THRESHOLD ? 'stock-low' : 'stock-ok';
-            rows += `
-            <div class="grid-row">
+            rows += `<div class="grid-row">
                 <div class="label-style">${sizes[i]}</div>
                 <div class="qty-display">${sVal}</div>
                 <div class="qty-display">${item.sold[i]}</div>
                 <div class="remain-pill ${lowClass}">${rem}</div>
             </div>`;
         });
-
-        listEl.innerHTML += `
-        <div class="item-card">
+        listEl.innerHTML += `<div class="item-card">
             <div class="item-header">
                 <span class="design-badge"># ${item.design}</span>
                 <button onclick="del('${item.id}')" style="color:var(--danger); background:none; border:none; font-size:11px; font-weight:bold;">DELETE</button>
@@ -271,7 +274,7 @@ function render() {
 }
 
 function del(id) { 
-    if(confirm("Permanent Delete? This cannot be undone.")) { 
+    if(confirm("Permanently delete this design?")) { 
         inventory = inventory.filter(x => x.id !== id); 
         addToQueue('delete', {id}); 
         render(); 
@@ -281,45 +284,34 @@ function del(id) {
 
 async function syncNow() {
     if(!navigator.onLine || syncQueue.length === 0) return;
-    document.getElementById('statusIndicator').innerText = "Syncing...";
-    document.getElementById('statusIndicator').style.color = "var(--warning)";
+    const status = document.getElementById('statusIndicator');
+    status.innerText = "Syncing...";
+    status.style.color = "var(--warning)";
 
     while(syncQueue.length > 0) {
         const task = syncQueue[0];
         try {
             let error;
-            if(task.type === 'add') {
-                const { error: err } = await supabaseClient.from('inventory').insert(task.data);
-                error = err;
-            } else if(task.type === 'update') {
-                const { error: err } = await supabaseClient.from('inventory').update({stock: task.data.stock, sold: task.data.sold}).eq('id', task.data.id);
-                error = err;
-            } else if(task.type === 'delete') {
-                const { error: err } = await supabaseClient.from('inventory').delete().eq('id', task.data.id);
-                error = err;
-            }
+            if(task.type === 'add') ({ error } = await supabaseClient.from('inventory').insert(task.data));
+            else if(task.type === 'update') ({ error } = await supabaseClient.from('inventory').update({stock: task.data.stock, sold: task.data.sold}).eq('id', task.data.id));
+            else if(task.type === 'delete') ({ error } = await supabaseClient.from('inventory').delete().eq('id', task.data.id));
 
             if(error) throw error;
-
             syncQueue.shift();
             localStorage.setItem('syncQueue', JSON.stringify(syncQueue));
         } catch(e) {
-            console.error("Sync failed:", e);
-            document.getElementById('statusIndicator').innerText = "Offline (Retry)";
-            document.getElementById('statusIndicator').style.color = "var(--danger)";
+            status.innerText = "Offline/Retry";
+            status.style.color = "var(--danger)";
             return;
         }
     }
-    document.getElementById('statusIndicator').innerText = "Online";
-    document.getElementById('statusIndicator').style.color = "var(--success)";
+    status.innerText = "Online";
+    status.style.color = "var(--success)";
 }
 
 async function fetchData() {
     const {data, error} = await supabaseClient.from('inventory').select('*').order('created_at', {ascending:false});
-    if(!error && data) { 
-        inventory = data; 
-        render(); 
-    }
+    if(!error && data) { inventory = data; render(); }
 }
 
 function closeModal() { document.getElementById('entryModal').classList.remove('active'); }
