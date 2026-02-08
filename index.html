@@ -288,7 +288,7 @@ h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
 .modal h3 { margin-bottom: 20px; font-size: 20px; }
 
 /* Custom Select for Modal */
-.modal select, .modal input {
+.modal select, .modal input[type="text"] {
   width: 100%;
   padding: 14px;
   background: var(--bg);
@@ -302,8 +302,20 @@ h2 { font-size: 28px; font-weight: 700; letter-spacing: -0.5px; }
 }
 .size-inputs { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
 
-/* Checkbox Style */
+/* Toggle Box Style */
+.toggle-wrapper {
+  display: flex;
+  align-items: center;
+  margin-bottom: 15px;
+  font-size: 14px;
+  color: var(--primary);
+  font-weight: 500;
+  cursor: pointer;
+}
 input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--primary); margin-right: 10px; }
+
+/* Hidden Custom Input */
+#customDesignInput { display: none; border-color: var(--primary); }
 
 /* Print */
 @media print {
@@ -364,6 +376,11 @@ input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--primary)
     <div style="width:40px;height:4px;background:#38383a;margin:0 auto 20px auto;border-radius:2px;"></div>
     <h3>New Design</h3>
     
+    <label class="toggle-wrapper">
+      <input type="checkbox" id="customToggle" onchange="toggleCustomInput()">
+      Enter Custom Design Number
+    </label>
+
     <select id="designInput">
       <option value="" disabled selected>Select Design Number</option>
       <option value="1001">Design 1001</option>
@@ -377,6 +394,8 @@ input[type="checkbox"] { width: 20px; height: 20px; accent-color: var(--primary)
       <option value="2003">Design 2003</option>
       <option value="3001">Design 3001</option>
     </select>
+
+    <input type="text" id="customDesignInput" placeholder="Type Design Number...">
 
     <div class="size-inputs">
       <select id="s0"><option value="" disabled selected>22x32 Qty</option></select>
@@ -403,9 +422,8 @@ let selectMode = false;
 let sortMode = 'recent';
 
 const sizes=["22x32","34x36","16x18","26x30"];
-const MAX_QTY = 50; // Maximum number in dropdown
+const MAX_QTY = 50; 
 
-// Helper to generate options 0-50
 function getQtyOptions(selectedVal) {
   let opts = '';
   for(let i=0; i<=MAX_QTY; i++) {
@@ -414,9 +432,8 @@ function getQtyOptions(selectedVal) {
   return opts;
 }
 
-// Populate Add Modal Dropdowns on load
 function initModalDropdowns() {
-  const opts = getQtyOptions(0); // Default to 0
+  const opts = getQtyOptions(0);
   ['s0','s1','s2','s3'].forEach(id => {
     document.getElementById(id).innerHTML = `<option value="" disabled selected>${document.getElementById(id).children[0].textContent}</option>` + opts;
   });
@@ -447,7 +464,6 @@ function render(){
 
     let rows='';
     sizes.forEach((s,i)=>{
-      // Generate dropdowns for Stock and Sold
       const stockOpts = getQtyOptions(item.stock[i]);
       const soldOpts = getQtyOptions(item.sold[i]);
 
@@ -505,10 +521,37 @@ function resetAll(){
 function openAdd(){addModal.classList.add('active')}
 function closeAdd(){addModal.classList.remove('active')}
 
+// --- Toggle Logic for Input vs Select ---
+function toggleCustomInput() {
+  const isCustom = document.getElementById('customToggle').checked;
+  const selectBox = document.getElementById('designInput');
+  const inputBox = document.getElementById('customDesignInput');
+
+  if(isCustom) {
+    selectBox.style.display = 'none';
+    inputBox.style.display = 'block';
+    selectBox.value = ""; // clear select
+    inputBox.focus();
+  } else {
+    selectBox.style.display = 'block';
+    inputBox.style.display = 'none';
+    inputBox.value = ""; // clear input
+  }
+}
+
 function addDesign(){
-  const dVal = designInput.value;
+  // Determine which input to read from
+  const isCustom = document.getElementById('customToggle').checked;
+  let dVal;
+  
+  if (isCustom) {
+    dVal = document.getElementById('customDesignInput').value.trim();
+  } else {
+    dVal = document.getElementById('designInput').value;
+  }
+
   if(!dVal||inventory.find(x=>x.design===dVal)) {
-    if(!dVal) alert("Please select a design number");
+    if(!dVal) alert("Please select or type a design number");
     else alert("Design already exists");
     return;
   }
@@ -517,8 +560,12 @@ function addDesign(){
     stock:[+s0.value||0,+s1.value||0,+s2.value||0,+s3.value||0],sold:[0,0,0,0]};
   inventory.unshift(item); syncQueue.push({type:'add',item});
   
-  // Reset selects
-  designInput.selectedIndex = 0;
+  // Reset all inputs
+  document.getElementById('designInput').selectedIndex = 0;
+  document.getElementById('customDesignInput').value = "";
+  document.getElementById('customToggle').checked = false; 
+  toggleCustomInput(); // Reset UI state
+
   s0.selectedIndex = 0;
   s1.selectedIndex = 0;
   s2.selectedIndex = 0;
