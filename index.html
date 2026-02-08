@@ -23,27 +23,27 @@
   --border: rgba(255, 255, 255, 0.1);
 }
 
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; }
-body { background: var(--bg); color: var(--text); padding-bottom: 120px; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: -apple-system, sans-serif; }
+body { background: var(--bg); color: var(--text); padding-bottom: 50px; }
 
-/* --- Mobile UI --- */
 .header-container {
   position: sticky; top: 0; z-index: 100;
-  background: rgba(0, 0, 0, 0.85); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
+  background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid var(--border); padding: 20px 16px 12px;
 }
-.quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px; margin-top: 10px; }
-.btn-action { padding: 14px; border-radius: 12px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; }
+.quick-actions { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 15px 0; }
+.btn-action { padding: 16px; border-radius: 12px; border: none; font-weight: 700; font-size: 14px; cursor: pointer; transition: opacity 0.2s; }
+.btn-action:active { opacity: 0.7; }
 .btn-add { background: var(--primary); color: white; }
 .btn-sell { background: var(--warning); color: black; }
 
 .summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .summary-card { background: var(--card); border: 1px solid var(--border); padding: 10px 4px; border-radius: 10px; text-align: center; }
-.summary-card label { font-size: 8px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; display: block; }
+.summary-card label { font-size: 9px; color: var(--text-secondary); text-transform: uppercase; display: block; margin-bottom: 4px; }
 .summary-card .value { font-size: 15px; font-weight: 700; }
 
 .controls-area { padding: 16px; }
-.search-wrapper { background: var(--card-elevated); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; }
+.search-wrapper { background: var(--card-elevated); border-radius: 12px; padding: 12px; display: flex; align-items: center; gap: 10px; border: 1px solid var(--border); }
 .search-wrapper input { flex: 1; background: transparent; border: none; color: var(--text); font-size: 16px; outline: none; }
 
 .inventory-list { padding: 0 16px; display: flex; flex-direction: column; gap: 16px; }
@@ -51,69 +51,73 @@ body { background: var(--bg); color: var(--text); padding-bottom: 120px; }
 .item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .design-badge { background: var(--card-elevated); color: var(--primary); padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 16px; border: 1px solid var(--primary); }
 
-.grid-row { display: grid; grid-template-columns: 1.2fr 1fr 1fr 0.8fr; gap: 8px; align-items: center; margin-bottom: 8px; }
-.label-style { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+.grid-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 8px; align-items: center; margin-bottom: 8px; text-align: center; }
+.label-style { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
 
-.qty-input { background: var(--card-elevated); border: 1px solid var(--border); color: var(--text); padding: 8px 4px; border-radius: 8px; font-size: 14px; font-weight: 600; text-align: center; width: 100%; }
-.remain-pill { background: rgba(50, 215, 75, 0.1); color: var(--success); padding: 6px; border-radius: 8px; font-weight: 700; text-align: center; font-size: 14px; }
+.qty-display { background: var(--card-elevated); padding: 8px 4px; border-radius: 8px; font-size: 13px; font-weight: 600; }
+.remain-pill { padding: 8px 4px; border-radius: 8px; font-weight: 800; font-size: 13px; }
+.stock-low { background: rgba(255, 69, 58, 0.2); color: var(--danger); border: 1px solid var(--danger); }
+.stock-ok { background: rgba(50, 215, 75, 0.1); color: var(--success); }
 
-/* --- Modal --- */
-.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; align-items: flex-end; opacity: 0; transition: 0.2s; }
-.modal.active { display: flex; opacity: 1; }
-.modal-content { background: var(--card); width: 100%; border-radius: 24px 24px 0 0; padding: 24px; padding-bottom: 40px; animation: slideUp 0.3s ease-out; }
+/* Modal Styles */
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; align-items: flex-end; }
+.modal.active { display: flex; }
+.modal-content { background: var(--card); width: 100%; border-radius: 24px 24px 0 0; padding: 24px; padding-bottom: env(safe-area-inset-bottom, 40px); animation: slideUp 0.3s cubic-bezier(0.1, 0.7, 0.1, 1); }
 @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+.qty-input-large { background: var(--card-elevated); border: 1px solid var(--border); color: var(--text); padding: 16px; border-radius: 12px; font-size: 18px; width: 100%; margin-bottom: 15px; }
+.select-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.select-box { background: var(--card-elevated); border: 1px solid var(--border); color: var(--text); padding: 12px; border-radius: 10px; font-size: 14px; }
 </style>
 </head>
 <body>
 
 <div class="header-container">
   <div style="display:flex; justify-content:space-between; align-items:center;">
-    <h2 style="font-size: 24px;">📦 Stock Pro</h2>
-    <div id="statusIndicator" style="font-size:12px; color:var(--text-secondary)">Online</div>
+    <h2 style="font-size: 22px;">📦 Metiabruz Stock</h2>
+    <div id="statusIndicator" style="font-size:11px; font-weight:bold; color:var(--text-secondary)">Online</div>
   </div>
 
   <div class="quick-actions">
-    <button class="btn-action btn-add" onclick="openModal('add')">➕ ADD STOCK</button>
-    <button class="btn-action btn-sell" onclick="openModal('sell')">➖ SELL ITEM</button>
+    <button class="btn-action btn-add" onclick="openModal('add')">+ ADD STOCK</button>
+    <button class="btn-action btn-sell" onclick="openModal('sell')">- SELL ITEM</button>
   </div>
 
   <div class="summary">
-    <div class="summary-card"><label>Stock</label><div class="value" id="totalStock">0</div></div>
-    <div class="summary-card"><label>Sold</label><div class="value" id="totalSold">0</div></div>
-    <div class="summary-card"><label>Left</label><div class="value" id="totalRemaining" style="color:var(--success)">0</div></div>
-    <div class="summary-card"><label>Items</label><div class="value" id="designCount">0</div></div>
+    <div class="summary-card"><label>Total In</label><div class="value" id="totalStock">0</div></div>
+    <div class="summary-card"><label>Total Out</label><div class="value" id="totalSold">0</div></div>
+    <div class="summary-card"><label>Balance</label><div class="value" id="totalRemaining" style="color:var(--success)">0</div></div>
+    <div class="summary-card"><label>Designs</label><div class="value" id="designCount">0</div></div>
   </div>
 </div>
 
 <div class="controls-area">
   <div class="search-wrapper">
     <span>🔍</span>
-    <input id="searchInput" placeholder="Search Design No..." onkeyup="render()">
+    <input id="searchInput" placeholder="Search Design Number..." onkeyup="render()">
   </div>
 </div>
 
 <div class="inventory-list" id="inventoryList"></div>
 
 <div class="modal" id="entryModal" onclick="if(event.target===this)closeModal()">
-  <div class="modal-content">
-    <div style="width:40px;height:5px;background:rgba(255,255,255,0.2);margin:0 auto 20px auto;border-radius:5px;"></div>
-    <h3 id="modalTitle" style="margin-bottom:15px">Entry</h3>
+  <div class="modal-content" onclick="event.stopPropagation()">
+    <div style="width:40px;height:4px;background:rgba(255,255,255,0.2);margin:0 auto 20px auto;border-radius:2px;"></div>
+    <h3 id="modalTitle" style="margin-bottom:15px">Action</h3>
     
-    <input type="text" id="designInput" list="designSuggestions" class="qty-input" 
-           style="text-align:left; padding:14px; font-size:16px; margin-bottom:15px;" 
-           placeholder="Search/Enter Design Number..." oninput="syncAvailableStock(this.value)">
+    <input type="text" id="designInput" list="designSuggestions" class="qty-input-large" 
+           placeholder="Design Number" oninput="syncAvailableStock(this.value)">
     <datalist id="designSuggestions"></datalist>
 
-    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;" id="inputGrid">
-        <select id="m0" class="qty-input"></select>
-        <select id="m1" class="qty-input"></select>
-        <select id="m2" class="qty-input"></select>
-        <select id="m3" class="qty-input"></select>
+    <div class="select-grid" id="inputGrid">
+        <div><label class="label-style" id="l0">22x32</label><select id="m0" class="select-box" style="width:100%"></select></div>
+        <div><label class="label-style" id="l1">34x36</label><select id="m1" class="select-box" style="width:100%"></select></div>
+        <div><label class="label-style" id="l2">16x18</label><select id="m2" class="select-box" style="width:100%"></select></div>
+        <div><label class="label-style" id="l3">26x30</label><select id="m3" class="select-box" style="width:100%"></select></div>
     </div>
     
-    <div id="availabilityNotice" style="margin-top:15px; font-size:12px; color:var(--warning); display:none;"></div>
+    <div id="availabilityNotice" style="margin-top:15px; padding:10px; border-radius:8px; font-size:13px; display:none;"></div>
     
-    <button id="modalSubmit" class="btn-action" style="width:100%; margin-top:20px" onclick="processEntry()">Confirm Action</button>
+    <button id="modalSubmit" class="btn-action" style="width:100%; margin-top:20px; font-size:16px;" onclick="processEntry()">Confirm Action</button>
   </div>
 </div>
 
@@ -121,101 +125,94 @@ body { background: var(--bg); color: var(--text); padding-bottom: 120px; }
 <script>
 const supabaseClient = supabase.createClient('https://yhlfqpiwevsehlgbhxtk.supabase.co','sb_publishable_CkKk1cjkoS1XvBv8zldlcw_1gjt6Y2S');
 
-let inventory = JSON.parse(localStorage.getItem('inventoryCache')||'[]');
-let syncQueue = JSON.parse(localStorage.getItem('syncQueue')||'[]');
-let mode = 'add'; 
-const sizes=["22x32","34x36","16x18","26x30"];
+let inventory = JSON.parse(localStorage.getItem('inventoryCache') || '[]');
+let syncQueue = JSON.parse(localStorage.getItem('syncQueue') || '[]');
+let mode = 'add';
+const sizes = ["22x32", "34x36", "16x18", "26x30"];
+const LOW_STOCK_THRESHOLD = 5;
 
-// --- Logic Implementation ---
-
-function getOpts(max, labelPrefix = "") {
-    let h = '';
-    for(let i=0; i<=max; i++) h += `<option value="${i}">${labelPrefix}: ${i}</option>`;
+function getOpts(max, label) {
+    let h = `<option value="0">Qty: 0</option>`;
+    for(let i=1; i<=max; i++) h += `<option value="${i}">${i}</option>`;
     return h;
-}
-
-function updateSuggestions() {
-    const list = document.getElementById('designSuggestions');
-    list.innerHTML = inventory.map(it => `<option value="${it.design}">`).join('');
 }
 
 function openModal(m) {
     mode = m;
-    const title = document.getElementById('modalTitle');
-    const btn = document.getElementById('modalSubmit');
-    const input = document.getElementById('designInput');
     const notice = document.getElementById('availabilityNotice');
-    
-    input.value = '';
+    document.getElementById('designInput').value = '';
     notice.style.display = 'none';
-    title.innerText = mode === 'add' ? "Add Stock" : "Sell Item (From Inventory)";
-    btn.className = mode === 'add' ? "btn-action btn-add" : "btn-action btn-sell";
-    btn.innerText = mode === 'add' ? "Add to Stock" : "Deduct from Stock";
     
-    // Default 0-100 for Add, 0 for Sell until design picked
+    document.getElementById('modalTitle').innerText = mode === 'add' ? "Add New Stock" : "Sell Item";
+    document.getElementById('modalSubmit').className = mode === 'add' ? "btn-action btn-add" : "btn-action btn-sell";
+    document.getElementById('modalSubmit').innerText = mode === 'add' ? "Increase Inventory" : "Deduct Inventory";
+    
     sizes.forEach((s, i) => {
-        document.getElementById(`m${i}`).innerHTML = getOpts(mode === 'add' ? 100 : 0, s);
+        document.getElementById(`m${i}`).innerHTML = getOpts(mode === 'add' ? 200 : 0);
     });
     
-    updateSuggestions();
-    entryModal.classList.add('active');
+    const list = document.getElementById('designSuggestions');
+    list.innerHTML = inventory.map(it => `<option value="${it.design}">`).join('');
+    
+    document.getElementById('entryModal').classList.add('active');
 }
 
 function syncAvailableStock(val) {
-    const existing = inventory.find(it => it.design.toLowerCase() === val.trim().toLowerCase());
+    const existing = inventory.find(it => it.design.toUpperCase() === val.trim().toUpperCase());
     const notice = document.getElementById('availabilityNotice');
     
     if (mode === 'sell') {
         if (existing) {
             notice.style.display = 'block';
-            notice.innerText = "✓ Design found. Select quantity to sell.";
+            notice.style.background = "rgba(50, 215, 75, 0.1)";
+            notice.style.color = "var(--success)";
+            notice.innerText = "✓ Design in stock. Choose quantity to deduct.";
             sizes.forEach((s, i) => {
-                const available = existing.stock[i] - existing.sold[i];
-                document.getElementById(`m${i}`).innerHTML = getOpts(available, s);
+                const left = existing.stock[i] - existing.sold[i];
+                document.getElementById(`m${i}`).innerHTML = getOpts(left);
             });
         } else {
             notice.style.display = 'block';
-            notice.innerText = "⚠ Design NOT in inventory.";
-            sizes.forEach((s, i) => document.getElementById(`m${i}`).innerHTML = getOpts(0, s));
+            notice.style.background = "rgba(255, 69, 58, 0.1)";
+            notice.style.color = "var(--danger)";
+            notice.innerText = "⚠ ERROR: Design not found in inventory.";
+            sizes.forEach((s, i) => document.getElementById(`m${i}`).innerHTML = getOpts(0));
         }
     } else {
-        // Add Mode: If design exists, show current levels as context
+        sizes.forEach((s, i) => document.getElementById(`m${i}`).innerHTML = getOpts(200));
         if (existing) {
             notice.style.display = 'block';
-            notice.innerText = "Note: Design already exists. Adding to current levels.";
+            notice.style.background = "rgba(10, 132, 255, 0.1)";
+            notice.style.color = "var(--primary)";
+            notice.innerText = "Note: Adding to existing design stock.";
         } else {
             notice.style.display = 'none';
         }
-        sizes.forEach((s, i) => document.getElementById(`m${i}`).innerHTML = getOpts(100, s));
     }
 }
 
-function processEntry() {
-    const dNo = document.getElementById('designInput').value.trim();
-    if(!dNo) return alert("Enter Design Number");
+async function processEntry() {
+    const dNo = document.getElementById('designInput').value.trim().toUpperCase();
+    if(!dNo) return alert("Missing Design Number");
     
-    const inputQtys = [+m0.value, +m1.value, +m2.value, +m3.value];
-    let target = inventory.find(it => it.design.toLowerCase() === dNo.toLowerCase());
+    const inputQtys = [ +m0.value, +m1.value, +m2.value, +m3.value ];
+    if(inputQtys.every(v => v === 0)) return alert("Quantity cannot be zero");
+
+    let target = inventory.find(it => it.design.toUpperCase() === dNo);
 
     if (mode === 'add') {
         if (target) {
             target.stock = target.stock.map((v, i) => v + inputQtys[i]);
-            syncQueue.push({type:'update', data: target});
+            addToQueue('update', target);
         } else {
             const newItem = { id: crypto.randomUUID(), design: dNo, stock: inputQtys, sold: [0,0,0,0], created_at: new Date().toISOString() };
             inventory.unshift(newItem);
-            syncQueue.push({type:'add', item: newItem});
+            addToQueue('add', newItem);
         }
     } else {
-        // SELL MODE
-        if (!target) return alert("Error: Design not found in inventory!");
-        
-        // Ensure not selling 0
-        if(inputQtys.every(v => v === 0)) return alert("Please select quantity to sell.");
-
-        // Deduct logic (Add to sold count)
+        if (!target) return alert("Cannot sell: Design does not exist.");
         target.sold = target.sold.map((v, i) => v + inputQtys[i]);
-        syncQueue.push({type:'update', data: target});
+        addToQueue('update', target);
     }
 
     closeModal();
@@ -223,67 +220,109 @@ function processEntry() {
     syncNow();
 }
 
-function closeModal() { entryModal.classList.remove('active'); }
+function addToQueue(type, data) {
+    syncQueue.push({ type, data, timestamp: Date.now() });
+    localStorage.setItem('syncQueue', JSON.stringify(syncQueue));
+}
 
 function render() {
-    const term = searchInput.value.toLowerCase();
-    inventoryList.innerHTML = '';
+    const term = document.getElementById('searchInput').value.toUpperCase();
+    const listEl = document.getElementById('inventoryList');
+    listEl.innerHTML = '';
+    
+    // Summary logic must always calculate based on FULL inventory
     let ts=0, td=0;
+    inventory.forEach(item => {
+        item.stock.forEach((v, i) => { ts += v; td += item.sold[i]; });
+    });
 
-    inventory.filter(it => it.design.toLowerCase().includes(term)).forEach(item => {
+    inventory.filter(it => it.design.toUpperCase().includes(term)).forEach(item => {
         let rows = '';
         item.stock.forEach((sVal, i) => {
             const rem = sVal - item.sold[i];
-            ts += sVal; td += item.sold[i];
+            const lowClass = rem <= LOW_STOCK_THRESHOLD ? 'stock-low' : 'stock-ok';
             rows += `
             <div class="grid-row">
                 <div class="label-style">${sizes[i]}</div>
-                <div class="qty-input">${sVal}</div>
-                <div class="qty-input">${item.sold[i]}</div>
-                <div class="remain-pill">${rem}</div>
+                <div class="qty-display">${sVal}</div>
+                <div class="qty-display">${item.sold[i]}</div>
+                <div class="remain-pill ${lowClass}">${rem}</div>
             </div>`;
         });
 
-        inventoryList.innerHTML += `
+        listEl.innerHTML += `
         <div class="item-card">
             <div class="item-header">
                 <span class="design-badge"># ${item.design}</span>
-                <button onclick="del('${item.id}')" style="color:var(--danger); background:none; border:none; font-weight:700; font-size:11px;">DELETE</button>
+                <button onclick="del('${item.id}')" style="color:var(--danger); background:none; border:none; font-size:11px; font-weight:bold;">DELETE</button>
             </div>
-            <div class="grid-row" style="margin-bottom:4px; opacity:0.6">
-                <div class="label-style">Size</div><div class="label-style">In</div><div class="label-style">Out</div><div class="label-style">Left</div>
+            <div class="grid-row" style="margin-bottom:5px; opacity:0.5; font-size:10px;">
+                <div>SIZE</div><div>IN</div><div>OUT</div><div>LEFT</div>
             </div>
             ${rows}
         </div>`;
     });
 
-    totalStock.innerText = ts; 
-    totalSold.innerText = td; 
-    totalRemaining.innerText = ts-td;
-    designCount.innerText = inventory.length;
+    document.getElementById('totalStock').innerText = ts; 
+    document.getElementById('totalSold').innerText = td; 
+    document.getElementById('totalRemaining').innerText = ts-td;
+    document.getElementById('designCount').innerText = inventory.length;
     localStorage.setItem('inventoryCache', JSON.stringify(inventory));
 }
 
-function del(id) { if(confirm("Permanently remove this design?")) { inventory = inventory.filter(x => x.id !== id); syncQueue.push({type:'delete', id}); render(); syncNow(); } }
+function del(id) { 
+    if(confirm("Permanent Delete? This cannot be undone.")) { 
+        inventory = inventory.filter(x => x.id !== id); 
+        addToQueue('delete', {id}); 
+        render(); 
+        syncNow(); 
+    } 
+}
 
 async function syncNow() {
     if(!navigator.onLine || syncQueue.length === 0) return;
-    statusIndicator.innerText = "Syncing...";
-    const q = [...syncQueue]; syncQueue = [];
-    for(const t of q) {
+    document.getElementById('statusIndicator').innerText = "Syncing...";
+    document.getElementById('statusIndicator').style.color = "var(--warning)";
+
+    while(syncQueue.length > 0) {
+        const task = syncQueue[0];
         try {
-            if(t.type==='add') await supabaseClient.from('inventory').insert(t.item);
-            if(t.type==='update') await supabaseClient.from('inventory').update({stock: t.data.stock, sold: t.data.sold}).eq('id', t.data.id);
-            if(t.type==='delete') await supabaseClient.from('inventory').delete().eq('id', t.id);
-        } catch(e) {}
+            let error;
+            if(task.type === 'add') {
+                const { error: err } = await supabaseClient.from('inventory').insert(task.data);
+                error = err;
+            } else if(task.type === 'update') {
+                const { error: err } = await supabaseClient.from('inventory').update({stock: task.data.stock, sold: task.data.sold}).eq('id', task.data.id);
+                error = err;
+            } else if(task.type === 'delete') {
+                const { error: err } = await supabaseClient.from('inventory').delete().eq('id', task.data.id);
+                error = err;
+            }
+
+            if(error) throw error;
+
+            syncQueue.shift();
+            localStorage.setItem('syncQueue', JSON.stringify(syncQueue));
+        } catch(e) {
+            console.error("Sync failed:", e);
+            document.getElementById('statusIndicator').innerText = "Offline (Retry)";
+            document.getElementById('statusIndicator').style.color = "var(--danger)";
+            return;
+        }
     }
-    statusIndicator.innerText = "Online";
+    document.getElementById('statusIndicator').innerText = "Online";
+    document.getElementById('statusIndicator').style.color = "var(--success)";
 }
 
 async function fetchData() {
-    const {data} = await supabaseClient.from('inventory').select('*').order('created_at', {ascending:false});
-    if(data) { inventory = data; render(); }
+    const {data, error} = await supabaseClient.from('inventory').select('*').order('created_at', {ascending:false});
+    if(!error && data) { 
+        inventory = data; 
+        render(); 
+    }
 }
+
+function closeModal() { document.getElementById('entryModal').classList.remove('active'); }
 
 fetchData();
 setInterval(syncNow, 10000);
