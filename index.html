@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Metiabruz Pro Offline</title>
+<title>Metiabruz Pro V3.1</title>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
 /* --- CSS STYLES --- */
@@ -100,9 +100,12 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
 <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
 <div class="sidebar" id="sidebar">
     <div class="sb-head">Menu <button onclick="toggleSidebar()" style="background:none;border:none;color:#FFF;font-size:20px">✕</button></div>
+    
     <div class="sb-section">
-        <button class="btn btn-primary" style="width:100%; height:44px; font-size:14px" onclick="printStock()">Print Stock</button>
+        <button class="btn btn-primary" style="width:100%; height:44px; font-size:14px; margin-bottom:10px" onclick="printStock()">Print Stock</button>
+        <button class="btn" style="width:100%; height:44px; font-size:14px; background:#333; color:#FFF" onclick="forceReset()">⚠️ Reset Sync</button>
     </div>
+
     <div class="sb-section"><div class="sb-title">Recent Adds (Last 5)</div><div id="recent-adds"></div></div>
     <div class="sb-section"><div class="sb-title">Top Sellers</div><div id="top-sellers"></div></div>
 </div>
@@ -171,7 +174,7 @@ const sizes = ["22x32","34x36","16x18","26x30"];
 
 // APP STATE
 let inventory = [];
-let pendingQueue = []; // Queue for offline actions
+let pendingQueue = []; 
 let isSelect = false;
 let selected = new Set();
 let modalMode = 'add';
@@ -179,63 +182,53 @@ let currentTab = 'active';
 
 // --- INITIALIZATION ---
 (async function init() {
-    // 1. Load Local Cache First (Instant Offline Load)
+    // 1. Load Local Cache
     const localData = localStorage.getItem('metia_inv');
     const localQueue = localStorage.getItem('metia_queue');
     if(localData) inventory = JSON.parse(localData);
     if(localQueue) pendingQueue = JSON.parse(localQueue);
     
-    // Render immediately using cache
+    // Render
     checkConnection();
     render();
     refreshSidebar();
     
+    // Dropdown Init
     const opts = `<option value="0">0</option>` + Array.from({length:100},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
     [0,1,2,3].forEach(i => document.getElementById('s'+i).innerHTML = opts);
 
-    // 2. Setup Listeners
+    // 2. Listeners
     window.addEventListener('online',  () => { checkConnection(); processQueue(); });
     window.addEventListener('offline', () => { checkConnection(); });
 
-    // 3. Connect to Supabase (if online)
-    await fetchLatest();
+    // 3. Kickstart Sync if Online
+    if(navigator.onLine) {
+        processQueue(); // TRY PROCESSING IMMEDIATELY
+        await fetchLatest();
+    }
     
-    // 4. Realtime Subscription
+    // 4. Realtime
     sbClient.channel('public:inventory')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, payload => {
             const { eventType, new: n, old: o } = payload;
-            
-            // Remove temp local items if a real item arrives
             if(eventType === 'INSERT') {
                 inventory = inventory.filter(x => x.design !== n.design); // Remove temp duplicate
                 inventory.unshift(n);
             }
-            if(eventType === 'UPDATE') { 
-                const i = inventory.findIndex(x=>x.id===n.id); 
-                if(i>-1) inventory[i]=n; 
-            }
-            if(eventType === 'DELETE') { 
-                inventory = inventory.filter(x=>x.id!==o.id); 
-            }
+            if(eventType === 'UPDATE') { const i = inventory.findIndex(x=>x.id===n.id); if(i>-1) inventory[i]=n; }
+            if(eventType === 'DELETE') { inventory = inventory.filter(x=>x.id!==o.id); }
             saveLocal();
             render();
             refreshSidebar();
-        })
-        .subscribe();
+        }).subscribe();
 })();
 
 // --- SYNC ENGINE ---
 function checkConnection() {
     const isOnline = navigator.onLine;
-    const dot = document.getElementById('dot');
-    const status = document.getElementById('status');
-    
     if(isOnline) {
-        if(pendingQueue.length > 0) {
-            updateStatus('SYNCING...', 'warning', true);
-        } else {
-            updateStatus('ONLINE', 'success', false);
-        }
+        if(pendingQueue.length > 0) updateStatus('SYNCING...', 'warning', true);
+        else updateStatus('ONLINE', 'success', false);
     } else {
         updateStatus('OFFLINE MODE', 'danger', false);
     }
@@ -254,11 +247,17 @@ function saveLocal() {
     localStorage.setItem('metia_queue', JSON.stringify(pendingQueue));
 }
 
+function forceReset() {
+    if(!confirm("⚠️ This will clear pending syncs and reload from server. Use only if stuck.")) return;
+    pendingQueue = [];
+    localStorage.removeItem('metia_queue');
+    location.reload();
+}
+
 async function fetchLatest() {
     if(!navigator.onLine) return;
     const { data, error } = await sbClient.from('inventory').select('*').order('created_at', {ascending:false});
     if(!error && data) {
-        // Merge strategy: Keep local "pending" items (items with string IDs like 'temp_')
         const tempItems = inventory.filter(i => typeof i.id === 'string' && i.id.startsWith('temp_'));
         inventory = [...tempItems, ...data];
         saveLocal();
@@ -269,19 +268,24 @@ async function fetchLatest() {
 
 async function processQueue() {
     if(!navigator.onLine || pendingQueue.length === 0) return;
-    
     updateStatus('SYNCING...', 'warning', true);
     
-    // Process one by one
-    const op = pendingQueue[0]; // Peek
+    const op = pendingQueue[0];
     let success = false;
+
+    // Critical Error Check (Prevent Infinite Loops)
+    if(op.retryCount && op.retryCount > 3) {
+        console.error("Skipping stuck item", op);
+        pendingQueue.shift();
+        saveLocal();
+        return processQueue();
+    }
 
     try {
         if(op.type === 'INSERT') {
-            const { data, error } = await sbClient.from('inventory').insert(op.payload).select();
-            if(!error) success = true;
+            const { error } = await sbClient.from('inventory').insert(op.payload);
+            if(!error || error.code === '23505') success = true; // 23505 = duplicate, treat as success
         } else if (op.type === 'UPDATE') {
-            // Fetch latest to prevent overwrite, or just apply diff? For simplicity: blind update
             const { error } = await sbClient.from('inventory').update(op.payload).eq('id', op.id);
             if(!error) success = true;
         } else if (op.type === 'DELETE') {
@@ -291,12 +295,13 @@ async function processQueue() {
     } catch(e) { console.log(e); }
 
     if(success) {
-        pendingQueue.shift(); // Remove done
+        pendingQueue.shift(); 
         saveLocal();
-        if(pendingQueue.length > 0) processQueue(); // Next
-        else checkConnection(); // Done
+        if(pendingQueue.length > 0) processQueue(); else checkConnection();
     } else {
-        setTimeout(processQueue, 5000); // Retry later
+        op.retryCount = (op.retryCount || 0) + 1;
+        saveLocal();
+        setTimeout(processQueue, 3000);
     }
 }
 
@@ -305,7 +310,6 @@ function render() {
     const list = document.getElementById('list');
     const term = document.getElementById('search').value.toUpperCase();
     list.innerHTML = '';
-
     const filtered = inventory.filter(i => {
         const isTrash = !!i.deleted_at;
         if(currentTab === 'active' && isTrash) return false;
@@ -363,10 +367,8 @@ async function deleteSelected() {
     const ids = Array.from(selected);
     const now = new Date().toISOString();
     
-    // Local Update
     inventory.forEach(i => { if(selected.has(i.id)) i.deleted_at = now; });
     
-    // Add to Queue
     if(navigator.onLine) {
         await sbClient.from('inventory').update({ deleted_at: now }).in('id', ids);
     } else {
@@ -409,27 +411,41 @@ async function submitModal() {
     const existing = inventory.find(i => i.design === dNo && !i.deleted_at);
     let action = null;
 
-    // 1. Calculate New State Locally
     if(modalMode === 'add') {
         if(existing) {
+            // IF EXISTING IS TEMP, UPDATE THE INSERT, NOT ADD NEW ACTION
+            if(typeof existing.id === 'string' && existing.id.startsWith('temp_')) {
+                existing.stock = existing.stock.map((s,i) => s + qtys[i]);
+                const pendIdx = pendingQueue.findIndex(p => p.type==='INSERT' && p.payload.design===dNo);
+                if(pendIdx > -1) pendingQueue[pendIdx].payload.stock = existing.stock;
+                saveLocal();
+                closeModal();
+                return;
+            }
             existing.stock = existing.stock.map((s,i) => s + qtys[i]);
             action = { type: 'UPDATE', id: existing.id, payload: { stock: existing.stock } };
         } else {
             const tempId = 'temp_' + Date.now();
             const newItem = { id: tempId, design: dNo, stock: qtys, sold: [0,0,0,0], deleted_at: null, created_at: new Date().toISOString() };
             inventory.unshift(newItem);
-            // Payload for DB (remove ID so DB generates one)
             action = { type: 'INSERT', payload: { design: dNo, stock: qtys, sold: [0,0,0,0], deleted_at: null } };
         }
     } else {
         if(!existing) return alert("Not Found");
+        // IF EXISTING IS TEMP, UPDATE THE INSERT
+        if(typeof existing.id === 'string' && existing.id.startsWith('temp_')) {
+            existing.sold = existing.sold.map((s,i) => (s||0) + qtys[i]);
+            const pendIdx = pendingQueue.findIndex(p => p.type==='INSERT' && p.payload.design===dNo);
+            if(pendIdx > -1) pendingQueue[pendIdx].payload.sold = existing.sold;
+            saveLocal();
+            closeModal();
+            return;
+        }
         existing.sold = existing.sold.map((s,i) => (s||0) + qtys[i]);
         action = { type: 'UPDATE', id: existing.id, payload: { sold: existing.sold } };
     }
 
-    // 2. Queue or Send
     if(navigator.onLine) {
-        // We still use queue logic for simplicity (add to queue, trigger process)
         pendingQueue.push(action);
         processQueue();
     } else {
@@ -446,7 +462,6 @@ function closeModal() { document.getElementById('modal').classList.remove('open'
 function setTab(t) { currentTab=t; document.getElementById('tab-active').className=t==='active'?'tab active':'tab'; document.getElementById('tab-trash').className=t==='trash'?'tab active':'tab'; render(); }
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('open'); }
 
-// SIDEBAR REFRESH (Same as before)
 function refreshSidebar() {
     const active = inventory.filter(i=>!i.deleted_at);
     const adds = [...active].sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
