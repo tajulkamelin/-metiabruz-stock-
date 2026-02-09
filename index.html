@@ -125,7 +125,9 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
 const SB_URL = 'https://yhlfqpiwevsehlgbhxtk.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlobGZxcGl3ZXZzZWhsZ2JoeHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5Mjc1ODMsImV4cCI6MjA4NTUwMzU4M30.UX-6NXiJNg6EywD7gIPjla7l5_Koq0UbpuFyENIKOaM';
 
-const supabase = supabase.createClient(SB_URL, SB_KEY);
+// ✅ FIX: Renamed 'supabase' to 'sbClient' to avoid conflict with the library itself
+const sbClient = supabase.createClient(SB_URL, SB_KEY);
+
 const sizes = ["22x32","34x36","16x18","26x30"];
 let inventory = [];
 let isSelect = false;
@@ -138,19 +140,22 @@ let currentTab = 'active';
     updateStatus('CONNECTING...', 'danger');
     
     // 1. Fetch Data
-    const { data, error } = await supabase.from('inventory').select('*').order('created_at', {ascending:false});
+    // ✅ FIX: Using sbClient
+    const { data, error } = await sbClient.from('inventory').select('*').order('created_at', {ascending:false});
     
     if (error) {
-        alert("DB Error: " + error.message); // Should not happen with correct keys
+        updateStatus('ERROR', 'danger');
+        alert("DB Error: " + error.message);
         return;
     }
 
-    inventory = data;
+    inventory = data || [];
     updateStatus('ONLINE', 'success');
     render();
 
     // 2. Realtime Subscription
-    supabase.channel('public:inventory')
+    // ✅ FIX: Using sbClient
+    sbClient.channel('public:inventory')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, payload => {
             const { eventType, new: n, old: o } = payload;
             if(eventType === 'INSERT') inventory.unshift(n);
@@ -237,7 +242,8 @@ async function deleteSelected() {
     inventory.forEach(i => { if(selected.has(i.id)) i.deleted_at = now; }); // Optimistic
     render();
     
-    await supabase.from('inventory').update({ deleted_at: now }).in('id', ids);
+    // ✅ FIX: Using sbClient
+    await sbClient.from('inventory').update({ deleted_at: now }).in('id', ids);
     toggleSelect();
 }
 
@@ -278,14 +284,17 @@ async function submitModal() {
     if(modalMode === 'add') {
         if(existing) {
             const newStock = existing.stock.map((s,i) => s + qtys[i]);
-            await supabase.from('inventory').update({ stock: newStock }).eq('id', existing.id);
+            // ✅ FIX: Using sbClient
+            await sbClient.from('inventory').update({ stock: newStock }).eq('id', existing.id);
         } else {
-            await supabase.from('inventory').insert({ design: dNo, stock: qtys, sold: [0,0,0,0], deleted_at: null });
+            // ✅ FIX: Using sbClient
+            await sbClient.from('inventory').insert({ design: dNo, stock: qtys, sold: [0,0,0,0], deleted_at: null });
         }
     } else {
         if(!existing) return alert("Not Found");
         const newSold = existing.sold.map((s,i) => (s||0) + qtys[i]);
-        await supabase.from('inventory').update({ sold: newSold }).eq('id', existing.id);
+        // ✅ FIX: Using sbClient
+        await sbClient.from('inventory').update({ sold: newSold }).eq('id', existing.id);
     }
     closeModal();
 }
