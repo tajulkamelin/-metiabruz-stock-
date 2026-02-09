@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Metiabruz Pro V3.1</title>
+<title>Metiabruz Pro V3.2</title>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
 /* --- CSS STYLES --- */
@@ -193,7 +193,6 @@ let currentTab = 'active';
     render();
     refreshSidebar();
     
-    // Dropdown Init
     const opts = `<option value="0">0</option>` + Array.from({length:100},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
     [0,1,2,3].forEach(i => document.getElementById('s'+i).innerHTML = opts);
 
@@ -201,9 +200,8 @@ let currentTab = 'active';
     window.addEventListener('online',  () => { checkConnection(); processQueue(); });
     window.addEventListener('offline', () => { checkConnection(); });
 
-    // 3. Kickstart Sync if Online
     if(navigator.onLine) {
-        processQueue(); // TRY PROCESSING IMMEDIATELY
+        processQueue(); // FLUSH QUEUE
         await fetchLatest();
     }
     
@@ -212,7 +210,7 @@ let currentTab = 'active';
         .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, payload => {
             const { eventType, new: n, old: o } = payload;
             if(eventType === 'INSERT') {
-                inventory = inventory.filter(x => x.design !== n.design); // Remove temp duplicate
+                inventory = inventory.filter(x => x.design !== n.design); 
                 inventory.unshift(n);
             }
             if(eventType === 'UPDATE') { const i = inventory.findIndex(x=>x.id===n.id); if(i>-1) inventory[i]=n; }
@@ -248,7 +246,7 @@ function saveLocal() {
 }
 
 function forceReset() {
-    if(!confirm("⚠️ This will clear pending syncs and reload from server. Use only if stuck.")) return;
+    if(!confirm("⚠️ Reset Sync? This clears pending actions.")) return;
     pendingQueue = [];
     localStorage.removeItem('metia_queue');
     location.reload();
@@ -258,6 +256,7 @@ async function fetchLatest() {
     if(!navigator.onLine) return;
     const { data, error } = await sbClient.from('inventory').select('*').order('created_at', {ascending:false});
     if(!error && data) {
+        // PRESERVE TEMP ITEMS
         const tempItems = inventory.filter(i => typeof i.id === 'string' && i.id.startsWith('temp_'));
         inventory = [...tempItems, ...data];
         saveLocal();
@@ -273,9 +272,8 @@ async function processQueue() {
     const op = pendingQueue[0];
     let success = false;
 
-    // Critical Error Check (Prevent Infinite Loops)
+    // Safety: Skip bad items
     if(op.retryCount && op.retryCount > 3) {
-        console.error("Skipping stuck item", op);
         pendingQueue.shift();
         saveLocal();
         return processQueue();
@@ -284,7 +282,7 @@ async function processQueue() {
     try {
         if(op.type === 'INSERT') {
             const { error } = await sbClient.from('inventory').insert(op.payload);
-            if(!error || error.code === '23505') success = true; // 23505 = duplicate, treat as success
+            if(!error || error.code === '23505') success = true; 
         } else if (op.type === 'UPDATE') {
             const { error } = await sbClient.from('inventory').update(op.payload).eq('id', op.id);
             if(!error) success = true;
@@ -305,7 +303,7 @@ async function processQueue() {
     }
 }
 
-// --- CORE RENDER ---
+// --- RENDER ---
 function render() {
     const list = document.getElementById('list');
     const term = document.getElementById('search').value.toUpperCase();
@@ -320,7 +318,7 @@ function render() {
     filtered.forEach(item => {
         const el = document.createElement('div');
         const isSel = selected.has(item.id);
-        const isPending = (typeof item.id === 'string' && item.id.startsWith('temp_'));
+        const isPending = (typeof item.id === 'string' && item.id.startsWith('temp_')) || pendingQueue.some(p => p.id === item.id);
         
         el.className = `card ${isSel?'selected':''} ${isPending?'pending':''}`;
         el.onclick = () => handleTap(item.id);
@@ -346,7 +344,6 @@ function render() {
     });
 }
 
-// --- ACTIONS ---
 function toggleSelect() {
     isSelect = !isSelect; selected.clear();
     document.body.classList.toggle('selection-mode', isSelect);
@@ -382,7 +379,7 @@ async function deleteSelected() {
     checkConnection();
 }
 
-// --- MODAL ---
+// --- MODAL & LOGIC ---
 function openModal(m) {
     modalMode = m;
     document.getElementById('m-title').innerText = m==='add'?'Add Stock':'Sell Item';
@@ -403,61 +400,69 @@ function checkDup(val) {
         if(modalMode === 'sell') { alert.style.display = 'block'; alert.innerText = `New Design: Cannot sell.`; }
     }
 }
+
+// *** THE SMART MERGE LOGIC ***
 async function submitModal() {
     const dNo = document.getElementById('m-design').value.trim().toUpperCase();
     const qtys = [0,1,2,3].map(i => +document.getElementById('s'+i).value);
     if(!dNo || qtys.every(q=>q===0)) return alert("Invalid Entry");
 
     const existing = inventory.find(i => i.design === dNo && !i.deleted_at);
-    let action = null;
+    let actionType = 'UPDATE';
+    let targetId = existing ? existing.id : 'temp_' + Date.now();
+    let payload = {};
 
+    // 1. UPDATE LOCAL STATE (Memory is Truth)
     if(modalMode === 'add') {
         if(existing) {
-            // IF EXISTING IS TEMP, UPDATE THE INSERT, NOT ADD NEW ACTION
-            if(typeof existing.id === 'string' && existing.id.startsWith('temp_')) {
-                existing.stock = existing.stock.map((s,i) => s + qtys[i]);
-                const pendIdx = pendingQueue.findIndex(p => p.type==='INSERT' && p.payload.design===dNo);
-                if(pendIdx > -1) pendingQueue[pendIdx].payload.stock = existing.stock;
-                saveLocal();
-                closeModal();
-                return;
-            }
             existing.stock = existing.stock.map((s,i) => s + qtys[i]);
-            action = { type: 'UPDATE', id: existing.id, payload: { stock: existing.stock } };
+            payload = { stock: existing.stock };
         } else {
-            const tempId = 'temp_' + Date.now();
-            const newItem = { id: tempId, design: dNo, stock: qtys, sold: [0,0,0,0], deleted_at: null, created_at: new Date().toISOString() };
+            // New Item
+            actionType = 'INSERT';
+            const newItem = { id: targetId, design: dNo, stock: qtys, sold: [0,0,0,0], deleted_at: null, created_at: new Date().toISOString() };
             inventory.unshift(newItem);
-            action = { type: 'INSERT', payload: { design: dNo, stock: qtys, sold: [0,0,0,0], deleted_at: null } };
+            payload = { design: dNo, stock: qtys, sold: [0,0,0,0], deleted_at: null };
         }
     } else {
         if(!existing) return alert("Not Found");
-        // IF EXISTING IS TEMP, UPDATE THE INSERT
-        if(typeof existing.id === 'string' && existing.id.startsWith('temp_')) {
-            existing.sold = existing.sold.map((s,i) => (s||0) + qtys[i]);
-            const pendIdx = pendingQueue.findIndex(p => p.type==='INSERT' && p.payload.design===dNo);
-            if(pendIdx > -1) pendingQueue[pendIdx].payload.sold = existing.sold;
-            saveLocal();
-            closeModal();
-            return;
-        }
         existing.sold = existing.sold.map((s,i) => (s||0) + qtys[i]);
-        action = { type: 'UPDATE', id: existing.id, payload: { sold: existing.sold } };
+        payload = { sold: existing.sold };
     }
 
-    if(navigator.onLine) {
-        pendingQueue.push(action);
-        processQueue();
+    // 2. QUEUE MERGING LOGIC
+    // Check if this item is already waiting in line
+    const queueIdx = pendingQueue.findIndex(p => p.id === targetId || (p.type === 'INSERT' && p.payload.design === dNo));
+
+    if(queueIdx > -1) {
+        // MERGE: Item is already in queue. Don't add new ticket. Update the existing ticket.
+        console.log("Merging state for", targetId);
+        
+        // If it was an INSERT (Temp Item), we update the whole definition
+        if(pendingQueue[queueIdx].type === 'INSERT') {
+            if(existing) { // It should exist in memory now
+                pendingQueue[queueIdx].payload.stock = existing.stock;
+                pendingQueue[queueIdx].payload.sold = existing.sold;
+            }
+        } 
+        // If it was an UPDATE (Real Item), we merge the changes
+        else {
+             pendingQueue[queueIdx].payload = { ...pendingQueue[queueIdx].payload, ...payload };
+        }
     } else {
-        pendingQueue.push(action);
+        // NEW: Add to back of queue
+        pendingQueue.push({ type: actionType, id: targetId, payload: payload });
     }
 
     saveLocal();
     render();
     refreshSidebar();
     closeModal();
-    checkConnection();
+    
+    if(navigator.onLine) processQueue();
+    else checkConnection();
 }
+
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
 function setTab(t) { currentTab=t; document.getElementById('tab-active').className=t==='active'?'tab active':'tab'; document.getElementById('tab-trash').className=t==='trash'?'tab active':'tab'; render(); }
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('open'); }
@@ -466,7 +471,7 @@ function refreshSidebar() {
     const active = inventory.filter(i=>!i.deleted_at);
     const adds = [...active].sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
     document.getElementById('recent-adds').innerHTML = adds.map(i => 
-        `<div class="sb-item"><div><div style="font-weight:700">#${i.design}</div><div class="sb-sub">${new Date(i.created_at).toLocaleDateString()}</div></div><div class="sb-val" style="color:var(--success)">+${i.stock.reduce((a,b)=>a+b,0)}</div></div>`
+        `<div class="sb-item"><div><div style="font-weight:700">#${i.design}</div><div class="sb-val" style="color:var(--success)">+${i.stock.reduce((a,b)=>a+b,0)}</div></div><div class="sb-sub">${new Date(i.created_at).toLocaleDateString()}</div></div>`
     ).join('') || '<div class="sb-sub">No data</div>';
 
     const sells = [...active].sort((a,b) => b.sold.reduce((x,y)=>x+y,0) - a.sold.reduce((x,y)=>x+y,0)).slice(0, 5);
