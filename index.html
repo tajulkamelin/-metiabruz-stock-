@@ -16,7 +16,7 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
 .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 .logo { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
 .status-pill { font-size: 11px; font-weight: 700; background: #333; padding: 5px 10px; border-radius: 20px; color: #AAA; display: flex; align-items: center; gap: 6px; }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); }
+.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); transition: 0.3s; }
 
 /* TABS & SEARCH */
 .tabs { background: #2C2C2E; padding: 2px; border-radius: 9px; display: flex; margin-bottom: 12px; }
@@ -36,7 +36,6 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
 .selected .check-circle { background: var(--primary); border-color: var(--primary); }
 .check-icon { width: 14px; height: 14px; stroke: #FFF; stroke-width: 3; fill: none; display: none; }
 .selected .check-icon { display: block; }
-
 .size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
 .size-box { background: #2C2C2E; border-radius: 6px; padding: 6px 0; text-align: center; }
 .size-lbl { font-size: 10px; color: #888; font-weight: 700; }
@@ -50,15 +49,14 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
 .btn-glass { background: rgba(255,255,255,0.15); color: #FFF; }
 .btn-danger { background: var(--danger); color: #FFF; grid-column: span 2; }
 
-/* MODAL */
+/* MODAL & ALERTS */
 .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; display: none; align-items: flex-end; }
 .modal-bg.open { display: flex; }
 .modal { background: #1C1C1E; width: 100%; border-radius: 24px 24px 0 0; padding: 24px 20px 50px; }
 .inp-large { width: 100%; background: #2C2C2E; border: 1px solid #333; color: #FFF; padding: 16px; border-radius: 12px; font-size: 20px; outline: none; margin-bottom: 15px; user-select: text; }
 .alert-box { background: rgba(10,132,255,0.15); border: 1px solid var(--primary); color: var(--primary); padding: 12px; border-radius: 10px; font-size: 13px; margin-bottom: 20px; display: none; }
+#error-debug { display: none; background: rgba(255, 69, 58, 0.15); border: 1px solid var(--danger); color: var(--danger); padding: 15px; margin: 10px 16px; border-radius: 12px; font-size: 13px; font-family: monospace; }
 .dropdown { width: 100%; padding: 12px; background: #2C2C2E; color: #FFF; border: 1px solid #333; border-radius: 10px; font-size: 16px; appearance: none; }
-
-/* ICON SVG */
 .icon { width: 22px; height: 22px; stroke: currentColor; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 </style>
 </head>
@@ -72,12 +70,11 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
             <span id="status">CONNECTING...</span>
         </div>
     </div>
-    
+    <div id="error-debug"></div>
     <div class="tabs">
         <div class="tab active" id="tab-active" onclick="setTab('active')">Inventory</div>
         <div class="tab" id="tab-trash" onclick="setTab('trash')">Trash</div>
     </div>
-
     <div class="search-row">
         <div class="search-wrap">
             <svg class="icon" style="opacity:0.5; width:18px"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
@@ -90,8 +87,8 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
 <div class="list" id="list"></div>
 
 <div class="dock" id="dock-main">
-    <button class="btn btn-primary" onclick="openModal('add')"><svg class="icon"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Add Stock</button>
-    <button class="btn btn-glass" onclick="openModal('sell')"><svg class="icon"><line x1="5" y1="12" x2="19" y2="12"></line></svg> Sell Item</button>
+    <button class="btn btn-primary" onclick="openModal('add')"><svg class="icon"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Add</button>
+    <button class="btn btn-glass" onclick="openModal('sell')"><svg class="icon"><line x1="5" y1="12" x2="19" y2="12"></line></svg> Sell</button>
 </div>
 
 <div class="dock" id="dock-delete" style="display:none">
@@ -107,29 +104,28 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
         <div id="m-alert" class="alert-box"></div>
 
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
-            <div><label>22x32</label><select id="s0" class="dropdown"></select></div>
-            <div><label>34x36</label><select id="s1" class="dropdown"></select></div>
-            <div><label>16x18</label><select id="s2" class="dropdown"></select></div>
-            <div><label>26x30</label><select id="s3" class="dropdown"></select></div>
+            <div><label style="color:#888;font-size:11px">22x32</label><select id="s0" class="dropdown"></select></div>
+            <div><label style="color:#888;font-size:11px">34x36</label><select id="s1" class="dropdown"></select></div>
+            <div><label style="color:#888;font-size:11px">16x18</label><select id="s2" class="dropdown"></select></div>
+            <div><label style="color:#888;font-size:11px">26x30</label><select id="s3" class="dropdown"></select></div>
         </div>
-
         <button class="btn btn-primary" style="width:100%" onclick="submitModal()">Confirm</button>
         <button class="btn" style="width:100%; margin-top:10px; background:none; color:#888;" onclick="closeModal()">Cancel</button>
     </div>
 </div>
 
 <script>
-// --- YOUR KEYS (LOWERCASE FIX APPLIED) ---
+// --- YOUR KEYS (CORRECTED & HARDCODED) ---
 const SB_URL = 'https://yhlfqpiwevsehlgbhxtk.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlobGZxcGl3ZXZzZWhsZ2JoeHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5Mjc1ODMsImV4cCI6MjA4NTUwMzU4M30.UX-6NXiJNg6EywD7gIPjla7l5_Koq0UbpuFyENIKOaM';
 
 const supabase = supabase.createClient(SB_URL, SB_KEY);
 const sizes = ["22x32","34x36","16x18","26x30"];
 let inventory = [];
-let currentTab = 'active';
-let isSelectMode = false;
+let isSelect = false;
 let selected = new Set();
 let modalMode = 'add';
+let currentTab = 'active';
 
 // --- INIT ---
 (async function init() {
@@ -139,9 +135,7 @@ let modalMode = 'add';
     const { data, error } = await supabase.from('inventory').select('*').order('created_at', {ascending:false});
     
     if (error) {
-        updateStatus('DB ERROR', 'danger');
-        // Show detailed alert if table is missing
-        alert("Database Error: " + error.message + "\n\nDid you run the SQL code in Step 1?");
+        showError("DB ERROR: " + error.message);
         return;
     }
 
@@ -149,13 +143,18 @@ let modalMode = 'add';
     updateStatus('ONLINE', 'success');
     render();
 
-    // 2. Realtime
-    supabase.channel('public:inventory').on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, payload => {
-        const { eventType, new: n, old: o } = payload;
-        if(eventType === 'INSERT') inventory.unshift(n);
-        if(eventType === 'UPDATE') { const i = inventory.findIndex(x=>x.id===n.id); if(i>-1) inventory[i]=n; }
-        render();
-    }).subscribe();
+    // 2. Realtime Subscription
+    supabase.channel('public:inventory')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, payload => {
+            const { eventType, new: n, old: o } = payload;
+            if(eventType === 'INSERT') inventory.unshift(n);
+            if(eventType === 'UPDATE') { const i = inventory.findIndex(x=>x.id===n.id); if(i>-1) inventory[i]=n; }
+            if(eventType === 'DELETE') { inventory = inventory.filter(x=>x.id!==o.id); }
+            render();
+        })
+        .subscribe((status) => {
+            if (status === 'SUBSCRIBED') updateStatus('ONLINE', 'success');
+        });
 
     // 3. Dropdowns
     const opts = `<option value="0">0</option>` + Array.from({length:100},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
@@ -165,6 +164,12 @@ let modalMode = 'add';
 function updateStatus(msg, type) {
     document.getElementById('status').innerText = msg;
     document.getElementById('dot').style.background = `var(--${type})`;
+}
+
+function showError(msg) {
+    const el = document.getElementById('error-debug');
+    el.style.display = 'block';
+    el.innerText = msg;
 }
 
 // --- RENDER ---
@@ -194,8 +199,11 @@ function render() {
 
         el.innerHTML = `
             <div class="check-circle"><svg class="check-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
-            <div class="card-content">
-                <div class="card-header"><span class="design-id"># ${item.design}</span><span class="design-meta">${currentTab==='trash'?'DELETED':''}</span></div>
+            <div style="flex:1">
+                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
+                    <span style="font-weight:900; font-size:18px"># ${item.design}</span>
+                    <button style="background:none; border:none; color:var(--primary); font-weight:700" onclick="event.stopPropagation(); toggleSelect()">Select</button>
+                </div>
                 <div class="size-grid">${grid}</div>
             </div>
         `;
@@ -203,22 +211,21 @@ function render() {
     });
 }
 
-// --- ACTIONS ---
-function toggleSelect() {
-    isSelectMode = !isSelectMode; selected.clear();
-    document.body.classList.toggle('selection-mode', isSelectMode);
-    document.getElementById('selBtn').innerText = isSelectMode ? 'Done' : 'Select';
-    document.getElementById('dock-main').style.display = isSelectMode ? 'none' : 'grid';
-    document.getElementById('dock-delete').style.display = isSelectMode ? 'grid' : 'none';
-    render();
-}
-
 function handleTap(id) {
-    if(isSelectMode) {
+    if(isSelect) {
         if(selected.has(id)) selected.delete(id); else selected.add(id);
         document.getElementById('selCount').innerText = selected.size;
         render();
     }
+}
+
+function toggleSelect() {
+    isSelect = !isSelect; selected.clear();
+    document.body.classList.toggle('selection-mode', isSelect);
+    document.getElementById('selBtn').innerText = isSelect ? 'Done' : 'Select';
+    document.getElementById('dock-main').style.display = isSelect ? 'none' : 'grid';
+    document.getElementById('dock-delete').style.display = isSelect ? 'grid' : 'none';
+    render();
 }
 
 async function deleteSelected() {
@@ -226,16 +233,15 @@ async function deleteSelected() {
     const ids = Array.from(selected);
     const now = new Date().toISOString();
     
-    // UI Instant
+    // UI Update
     inventory.forEach(i => { if(selected.has(i.id)) i.deleted_at = now; });
     render();
-
-    // DB
+    
+    // DB Update
     await supabase.from('inventory').update({ deleted_at: now }).in('id', ids);
     toggleSelect();
 }
 
-// --- MODAL ---
 function openModal(m) {
     modalMode = m;
     document.getElementById('m-title').innerText = m==='add'?'Add Stock':'Sell Item';
@@ -246,18 +252,16 @@ function openModal(m) {
 }
 
 function checkDup(val) {
-    const term = val.trim().toUpperCase();
-    const found = inventory.find(i => i.design === term && !i.deleted_at);
+    const found = inventory.find(i => i.design === val.trim().toUpperCase() && !i.deleted_at);
     const alert = document.getElementById('m-alert');
-    
     if(found) {
         alert.style.display = 'block';
-        alert.innerHTML = `<strong>Found Existing:</strong> Adding to #${found.design}`;
+        alert.innerText = `Adding to existing: #${found.design}`;
     } else {
         alert.style.display = 'none';
         if(modalMode === 'sell') {
             alert.style.display = 'block';
-            alert.innerHTML = `<strong>New Design:</strong> Cannot sell.`;
+            alert.innerText = `New Design: Cannot sell.`;
         }
     }
 }
