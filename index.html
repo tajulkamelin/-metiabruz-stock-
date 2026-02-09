@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Metiabruz Pro</title>
+<title>Metiabruz Inventory</title>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
 /* --- CSS STYLES --- */
 :root { --bg: #000; --card: #1C1C1E; --primary: #0A84FF; --danger: #FF453A; --success: #32D74B; --text: #FFF; --border: rgba(255,255,255,0.15); }
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, system-ui, sans-serif; user-select: none; }
-body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140px; }
+body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140px; overflow-x: hidden; }
 
 /* LAYOUT */
 .header { position: sticky; top: 0; z-index: 50; background: rgba(28,28,30,0.95); backdrop-filter: blur(20px); border-bottom: 0.5px solid var(--border); padding: 50px 16px 12px; }
@@ -17,6 +17,9 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
 .logo { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
 .status-pill { font-size: 11px; font-weight: 700; background: #333; padding: 5px 10px; border-radius: 20px; color: #AAA; display: flex; align-items: center; gap: 6px; }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); transition: 0.3s; }
+
+/* MENU BTN */
+.menu-btn { background: none; border: none; color: var(--primary); font-size: 24px; cursor: pointer; padding: 0; margin-right: 10px; }
 
 /* TABS */
 .tabs { background: #2C2C2E; padding: 2px; border-radius: 9px; display: flex; margin-bottom: 12px; }
@@ -60,15 +63,68 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
 .alert-box { background: rgba(10,132,255,0.15); border: 1px solid var(--primary); color: var(--primary); padding: 12px; border-radius: 10px; font-size: 13px; margin-bottom: 20px; display: none; }
 .dropdown { width: 100%; padding: 12px; background: #2C2C2E; color: #FFF; border: 1px solid #333; border-radius: 10px; font-size: 16px; appearance: none; }
 
+/* SIDEBAR (New) */
+.sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 150; display: none; }
+.sidebar-overlay.open { display: block; }
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 85%; max-width: 320px; background: #1C1C1E; z-index: 160; transform: translateX(-100%); transition: 0.3s; padding: 50px 20px 20px; border-right: 1px solid var(--border); overflow-y: auto; }
+.sidebar.open { transform: translateX(0); }
+.sb-head { font-size: 22px; font-weight: 800; margin-bottom: 20px; display: flex; justify-content: space-between; align-items: center; }
+.sb-section { margin-bottom: 30px; }
+.sb-title { font-size: 13px; font-weight: 700; color: #888; text-transform: uppercase; margin-bottom: 10px; border-bottom: 1px solid #333; padding-bottom: 5px; }
+.sb-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #2C2C2E; font-size: 14px; }
+.sb-val { font-weight: 700; color: var(--text); }
+.sb-sub { font-size: 12px; color: #666; }
+
+/* PRINT STYLES (New) */
+.print-area { display: none; background: white; color: black; padding: 20px; }
+@media print {
+    body { background: white; color: black; padding: 0; }
+    .header, .list, .dock, .modal-bg, .sidebar, .sidebar-overlay, .check-circle, .btn-select { display: none !important; }
+    .print-area { display: block; position: absolute; top: 0; left: 0; width: 100%; }
+    @page { size: landscape; margin: 10mm; }
+    table { width: 100%; border-collapse: collapse; font-size: 10px; font-family: monospace; }
+    th, td { border: 1px solid #000; padding: 4px; text-align: center; }
+    th { background: #eee; font-weight: bold; }
+    .txt-left { text-align: left; }
+}
+
 /* ICONS */
 .icon { width: 22px; height: 22px; stroke: currentColor; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
 </style>
 </head>
 <body>
 
+<div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+<div class="sidebar" id="sidebar">
+    <div class="sb-head">
+        Menu 
+        <button onclick="toggleSidebar()" style="background:none;border:none;color:#FFF;font-size:20px">✕</button>
+    </div>
+
+    <div class="sb-section">
+        <button class="btn btn-primary" style="width:100%; height:44px; font-size:14px" onclick="printStock()">
+            <svg class="icon" style="width:18px; margin-right:5px"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+            Print Stock Summary
+        </button>
+    </div>
+
+    <div class="sb-section">
+        <div class="sb-title">Recent Adds (Last 5)</div>
+        <div id="recent-adds"></div>
+    </div>
+
+    <div class="sb-section">
+        <div class="sb-title">Top Sellers</div>
+        <div id="top-sellers"></div>
+    </div>
+</div>
+
 <div class="header">
     <div class="top-row">
-        <div class="logo">Metiabruz Pro</div>
+        <div style="display:flex; align-items:center;">
+            <button class="menu-btn" onclick="toggleSidebar()">☰</button>
+            <div class="logo">Metiabruz Pro</div>
+        </div>
         <div class="status-pill">
             <div class="dot" id="dot"></div>
             <span id="status">CONNECTING...</span>
@@ -120,14 +176,13 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
     </div>
 </div>
 
+<div id="print-area" class="print-area"></div>
+
 <script>
-// --- CORRECT CREDENTIALS ---
 const SB_URL = 'https://yhlfqpiwevsehlgbhxtk.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlobGZxcGl3ZXZzZWhsZ2JoeHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5Mjc1ODMsImV4cCI6MjA4NTUwMzU4M30.UX-6NXiJNg6EywD7gIPjla7l5_Koq0UbpuFyENIKOaM';
 
-// ✅ FIX: Renamed 'supabase' to 'sbClient' to avoid conflict with the library itself
 const sbClient = supabase.createClient(SB_URL, SB_KEY);
-
 const sizes = ["22x32","34x36","16x18","26x30"];
 let inventory = [];
 let isSelect = false;
@@ -138,23 +193,15 @@ let currentTab = 'active';
 // --- INIT ---
 (async function init() {
     updateStatus('CONNECTING...', 'danger');
-    
-    // 1. Fetch Data
-    // ✅ FIX: Using sbClient
     const { data, error } = await sbClient.from('inventory').select('*').order('created_at', {ascending:false});
     
-    if (error) {
-        updateStatus('ERROR', 'danger');
-        alert("DB Error: " + error.message);
-        return;
-    }
+    if (error) { updateStatus('ERROR', 'danger'); alert("DB Error: " + error.message); return; }
 
     inventory = data || [];
     updateStatus('ONLINE', 'success');
     render();
+    refreshSidebar(); // Load sidebar data
 
-    // 2. Realtime Subscription
-    // ✅ FIX: Using sbClient
     sbClient.channel('public:inventory')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, payload => {
             const { eventType, new: n, old: o } = payload;
@@ -162,12 +209,10 @@ let currentTab = 'active';
             if(eventType === 'UPDATE') { const i = inventory.findIndex(x=>x.id===n.id); if(i>-1) inventory[i]=n; }
             if(eventType === 'DELETE') { inventory = inventory.filter(x=>x.id!==o.id); }
             render();
+            refreshSidebar(); // Refresh sidebar on updates
         })
-        .subscribe((status) => {
-            if (status === 'SUBSCRIBED') updateStatus('ONLINE', 'success');
-        });
+        .subscribe((status) => { if (status === 'SUBSCRIBED') updateStatus('ONLINE', 'success'); });
 
-    // 3. Dropdowns
     const opts = `<option value="0">0</option>` + Array.from({length:100},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
     [0,1,2,3].forEach(i => document.getElementById('s'+i).innerHTML = opts);
 })();
@@ -177,7 +222,7 @@ function updateStatus(msg, type) {
     document.getElementById('dot').style.background = `var(--${type})`;
 }
 
-// --- RENDER ---
+// --- RENDER MAIN LIST ---
 function render() {
     const list = document.getElementById('list');
     const term = document.getElementById('search').value.toUpperCase();
@@ -216,6 +261,100 @@ function render() {
     });
 }
 
+// --- SIDEBAR & PRINT LOGIC ---
+function toggleSidebar() {
+    const sb = document.getElementById('sidebar');
+    const ov = document.querySelector('.sidebar-overlay');
+    const isOpen = sb.classList.contains('open');
+    if(isOpen) { sb.classList.remove('open'); ov.classList.remove('open'); }
+    else { sb.classList.add('open'); ov.classList.add('open'); }
+}
+
+function refreshSidebar() {
+    // Recent Adds: Sort by created_at desc (already default order of 'inventory' usually, but ensure)
+    const adds = [...inventory].filter(i=>!i.deleted_at).sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
+    const addsHtml = adds.map(i => `
+        <div class="sb-item">
+            <div>
+                <div style="font-weight:700">#${i.design}</div>
+                <div class="sb-sub">${new Date(i.created_at).toLocaleDateString()}</div>
+            </div>
+            <div class="sb-val" style="color:var(--success)">+${i.stock.reduce((a,b)=>a+b,0)}</div>
+        </div>`).join('');
+    document.getElementById('recent-adds').innerHTML = addsHtml || '<div class="sb-sub">No data</div>';
+
+    // Top Sellers: Sort by total sold
+    const sells = [...inventory].filter(i=>!i.deleted_at).sort((a,b) => b.sold.reduce((x,y)=>x+y,0) - a.sold.reduce((x,y)=>x+y,0)).slice(0, 5);
+    const sellsHtml = sells.map(i => {
+        const tot = i.sold.reduce((a,b)=>a+b,0);
+        if(tot === 0) return '';
+        return `
+        <div class="sb-item">
+            <div>
+                <div style="font-weight:700">#${i.design}</div>
+            </div>
+            <div class="sb-val" style="color:var(--primary)">${tot} Sold</div>
+        </div>`;
+    }).join('');
+    document.getElementById('top-sellers').innerHTML = sellsHtml || '<div class="sb-sub">No sales yet</div>';
+}
+
+function printStock() {
+    // 1. Calculate Grand Totals
+    const active = inventory.filter(i => !i.deleted_at);
+    let totalStock = 0, totalSold = 0, totalRem = 0;
+    
+    // 2. Generate Table Rows
+    const rows = active.map(i => {
+        const iStock = i.stock.reduce((a,b)=>a+b,0);
+        const iSold = i.sold.reduce((a,b)=>a+b,0);
+        const rems = i.stock.map((s, idx) => s - (i.sold[idx]||0));
+        const iRem = rems.reduce((a,b)=>a+b,0);
+
+        totalStock += iStock; totalSold += iSold; totalRem += iRem;
+
+        return `<tr>
+            <td class="txt-left">#${i.design}</td>
+            <td>${i.stock[0]}</td><td>${i.stock[1]}</td><td>${i.stock[2]}</td><td>${i.stock[3]}</td>
+            <td>${i.sold[0]}</td><td>${i.sold[1]}</td><td>${i.sold[2]}</td><td>${i.sold[3]}</td>
+            <td>${rems[0]}</td><td>${rems[1]}</td><td>${rems[2]}</td><td>${rems[3]}</td>
+            <td style="font-weight:bold">${iRem}</td>
+        </tr>`;
+    }).join('');
+
+    // 3. Build Print HTML
+    const dateStr = new Date().toLocaleString();
+    const html = `
+        <div style="text-align:center; margin-bottom:10px;">
+            <h1 style="margin:0; font-size:24px;">Metiabruz Stock List</h1>
+            <div style="font-size:12px; color:#555; margin-bottom:10px;">Printed on: ${dateStr}</div>
+            <div style="font-weight:bold; font-size:14px; border:1px solid #000; display:inline-block; padding:5px 15px;">
+                Total Stock: ${totalStock} &nbsp;|&nbsp; Total Sold: ${totalSold} &nbsp;|&nbsp; Remaining: ${totalRem} &nbsp;|&nbsp; Designs: ${active.length}
+            </div>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th rowspan="2">Design</th>
+                    <th colspan="4">Stock</th>
+                    <th colspan="4">Sold</th>
+                    <th colspan="4">Remaining</th>
+                    <th rowspan="2">Total Rem</th>
+                </tr>
+                <tr>
+                    <th>22x32</th><th>34x36</th><th>16x18</th><th>26x30</th>
+                    <th>22x32</th><th>34x36</th><th>16x18</th><th>26x30</th>
+                    <th>22x32</th><th>34x36</th><th>16x18</th><th>26x30</th>
+                </tr>
+            </thead>
+            <tbody>${rows}</tbody>
+        </table>
+    `;
+
+    document.getElementById('print-area').innerHTML = html;
+    window.print();
+}
+
 // --- ACTIONS ---
 function toggleSelect() {
     isSelect = !isSelect; selected.clear();
@@ -238,11 +377,9 @@ async function deleteSelected() {
     if(!confirm("Delete items?")) return;
     const ids = Array.from(selected);
     const now = new Date().toISOString();
-    
-    inventory.forEach(i => { if(selected.has(i.id)) i.deleted_at = now; }); // Optimistic
+    inventory.forEach(i => { if(selected.has(i.id)) i.deleted_at = now; }); 
     render();
-    
-    // ✅ FIX: Using sbClient
+    refreshSidebar();
     await sbClient.from('inventory').update({ deleted_at: now }).in('id', ids);
     toggleSelect();
 }
@@ -284,16 +421,13 @@ async function submitModal() {
     if(modalMode === 'add') {
         if(existing) {
             const newStock = existing.stock.map((s,i) => s + qtys[i]);
-            // ✅ FIX: Using sbClient
             await sbClient.from('inventory').update({ stock: newStock }).eq('id', existing.id);
         } else {
-            // ✅ FIX: Using sbClient
             await sbClient.from('inventory').insert({ design: dNo, stock: qtys, sold: [0,0,0,0], deleted_at: null });
         }
     } else {
         if(!existing) return alert("Not Found");
         const newSold = existing.sold.map((s,i) => (s||0) + qtys[i]);
-        // ✅ FIX: Using sbClient
         await sbClient.from('inventory').update({ sold: newSold }).eq('id', existing.id);
     }
     closeModal();
