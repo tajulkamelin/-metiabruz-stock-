@@ -1,296 +1,303 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Metiabruz Pro</title>
-<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#000000">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Metiabruz Stock Pro</title>
+
 <style>
-/* CSS STYLES */
-:root { --bg: #000; --card: #1C1C1E; --primary: #0A84FF; --danger: #FF453A; --success: #32D74B; --text: #FFF; --border: rgba(255,255,255,0.15); }
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: -apple-system, system-ui, sans-serif; user-select: none; }
-body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140px; }
+:root {
+  --bg: #000000;
+  --card: #1c1c1e;
+  --card-elevated: #2c2c2e;
+  --text: #ffffff;
+  --text-secondary: #8e8e93;
+  --primary: #0a84ff;
+  --danger: #ff453a;
+  --success: #32d74b;
+  --border: rgba(255, 255, 255, 0.1);
+}
 
-/* LAYOUT */
-.header { position: sticky; top: 0; z-index: 50; background: rgba(28,28,30,0.95); backdrop-filter: blur(20px); border-bottom: 0.5px solid var(--border); padding: 50px 16px 12px; }
-.top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
-.logo { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
-.status-pill { font-size: 11px; font-weight: 700; background: #333; padding: 5px 10px; border-radius: 20px; color: #AAA; display: flex; align-items: center; gap: 6px; }
-.dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); transition: 0.3s; }
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif; }
+body { background: var(--bg); color: var(--text); padding-bottom: 120px; }
 
-/* TABS & SEARCH */
-.tabs { background: #2C2C2E; padding: 2px; border-radius: 9px; display: flex; margin-bottom: 12px; }
-.tab { flex: 1; padding: 8px; text-align: center; font-size: 13px; font-weight: 600; color: #8E8E93; border-radius: 7px; }
-.tab.active { background: #636366; color: #FFF; }
-.search-row { display: flex; gap: 10px; align-items: center; }
-.search-wrap { flex: 1; background: rgba(255,255,255,0.1); border-radius: 10px; height: 40px; display: flex; align-items: center; padding: 0 10px; }
-.search-wrap input { flex: 1; background: transparent; border: none; color: #FFF; font-size: 17px; margin-left: 8px; outline: none; user-select: text; }
-.btn-select { color: var(--primary); font-weight: 600; font-size: 17px; background: none; border: none; }
+/* --- Mobile UI Styles --- */
+.header-container {
+  position: sticky; top: 0; z-index: 100;
+  background: rgba(0, 0, 0, 0.75);
+  backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px);
+  border-bottom: 1px solid var(--border);
+  padding: 20px 16px 12px; padding-top: max(20px, env(safe-area-inset-top));
+}
+.top-bar { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+h2 { font-size: 28px; font-weight: 800; letter-spacing: -0.5px; }
+#statusIndicator { font-size: 12px; font-weight: 600; color: var(--text-secondary); background: var(--card-elevated); padding: 4px 12px; border-radius: 20px; }
 
-/* CARDS */
-.list { padding: 10px 16px; min-height: 50vh; }
-.card { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 0.5px solid var(--border); display: flex; align-items: center; gap: 14px; }
-.card.selected { border-color: var(--primary); background: rgba(10, 132, 255, 0.15); }
-.check-circle { width: 24px; height: 24px; border-radius: 50%; border: 2px solid #555; display: none; align-items: center; justify-content: center; }
-.selection-mode .check-circle { display: flex; }
-.selected .check-circle { background: var(--primary); border-color: var(--primary); }
-.check-icon { width: 14px; height: 14px; stroke: #FFF; stroke-width: 3; fill: none; display: none; }
-.selected .check-icon { display: block; }
-.size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; margin-top: 10px; }
-.size-box { background: #2C2C2E; border-radius: 6px; padding: 6px 0; text-align: center; }
-.size-lbl { font-size: 10px; color: #888; font-weight: 700; }
-.size-val { font-size: 15px; font-weight: 700; }
-.val-low { color: var(--danger); } .val-ok { color: var(--success); }
+.summary { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.summary-card { background: var(--card); border: 1px solid var(--border); padding: 12px 4px; border-radius: 12px; text-align: center; }
+.summary-card label { font-size: 9px; color: var(--text-secondary); text-transform: uppercase; font-weight: 700; display: block; margin-bottom: 2px; }
+.summary-card .value { font-size: 16px; font-weight: 700; }
 
-/* DOCK */
-.dock { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(28,28,30,0.9); backdrop-filter: blur(30px); border-top: 0.5px solid var(--border); padding: 12px 16px 35px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; z-index: 100; }
-.btn { height: 52px; border-radius: 14px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
-.btn-primary { background: var(--primary); color: #FFF; }
-.btn-glass { background: rgba(255,255,255,0.15); color: #FFF; }
-.btn-danger { background: var(--danger); color: #FFF; grid-column: span 2; }
+.controls-area { padding: 16px; }
+.search-wrapper {
+  background: var(--card-elevated); border-radius: 12px;
+  padding: 12px; display: flex; align-items: center; gap: 10px;
+}
+.search-wrapper input { flex: 1; background: transparent; border: none; color: var(--text); font-size: 17px; outline: none; }
 
-/* MODAL & ALERTS */
-.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; display: none; align-items: flex-end; }
-.modal-bg.open { display: flex; }
-.modal { background: #1C1C1E; width: 100%; border-radius: 24px 24px 0 0; padding: 24px 20px 50px; }
-.inp-large { width: 100%; background: #2C2C2E; border: 1px solid #333; color: #FFF; padding: 16px; border-radius: 12px; font-size: 20px; outline: none; margin-bottom: 15px; user-select: text; }
-.alert-box { background: rgba(10,132,255,0.15); border: 1px solid var(--primary); color: var(--primary); padding: 12px; border-radius: 10px; font-size: 13px; margin-bottom: 20px; display: none; }
-#error-debug { display: none; background: rgba(255, 69, 58, 0.15); border: 1px solid var(--danger); color: var(--danger); padding: 15px; margin: 10px 16px; border-radius: 12px; font-size: 13px; font-family: monospace; }
-.dropdown { width: 100%; padding: 12px; background: #2C2C2E; color: #FFF; border: 1px solid #333; border-radius: 10px; font-size: 16px; appearance: none; }
-.icon { width: 22px; height: 22px; stroke: currentColor; stroke-width: 2.5; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.inventory-list { padding: 0 16px; display: flex; flex-direction: column; gap: 16px; }
+.item-card { background: var(--card); border-radius: 18px; padding: 16px; border: 1px solid var(--border); }
+.item-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+.design-badge { background: var(--primary); color: white; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 16px; }
+
+.grid-row { display: grid; grid-template-columns: 1.2fr 1fr 1fr 0.8fr; gap: 8px; align-items: center; margin-bottom: 8px; }
+.label-style { font-size: 13px; font-weight: 600; color: var(--text-secondary); }
+
+.qty-input {
+    background: var(--card-elevated); border: 1px solid var(--border);
+    color: var(--text); padding: 8px 4px; border-radius: 8px;
+    font-size: 14px; font-weight: 600; text-align: center; appearance: none; width: 100%;
+}
+.remain-pill { background: rgba(50, 215, 75, 0.1); color: var(--success); padding: 6px; border-radius: 8px; font-weight: 700; text-align: center; font-size: 14px; }
+
+.bottom-nav {
+    position: fixed; bottom: 0; left: 0; right: 0;
+    background: rgba(28, 28, 30, 0.8); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    padding: 12px 16px calc(12px + env(safe-area-inset-bottom));
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 10px;
+    border-top: 1px solid var(--border); z-index: 100;
+}
+.btn-main { background: var(--primary); color: white; border: none; border-radius: 12px; font-weight: 700; font-size: 15px; cursor: pointer; }
+.btn-icon { background: var(--card-elevated); color: var(--text); border: none; border-radius: 12px; padding: 12px; font-size: 18px; cursor: pointer; }
+
+/* --- Modal --- */
+.modal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 200; align-items: flex-end; opacity: 0; transition: 0.2s; }
+.modal.active { display: flex; opacity: 1; }
+.modal-content { 
+    background: var(--card); width: 100%; border-radius: 24px 24px 0 0; padding: 24px; 
+    padding-bottom: max(24px, env(safe-area-inset-bottom)); animation: slideUp 0.3s ease-out; 
+}
+@keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+
+/* --- Print Styles (Table Layout) --- */
+#printArea { display: none; }
+@media print {
+  .header-container, .controls-area, .bottom-nav, .inventory-list, .modal { display: none !important; }
+  body { background: white; color: black; padding: 0; }
+  #printArea { display: block !important; padding: 20px; }
+  .print-header { text-align: center; margin-bottom: 20px; }
+  .print-summary { display: flex; justify-content: space-around; margin-bottom: 20px; border: 1px solid #000; padding: 10px; font-family: sans-serif; }
+  table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+  th, td { border: 1px solid #333; padding: 8px 4px; text-align: center; font-size: 12px; color: black; }
+  th { background-color: #f2f2f2; font-weight: bold; }
+  .bg-gray { background-color: #f9f9f9; }
+}
 </style>
 </head>
 <body>
 
-<div class="header">
-    <div class="top-row">
-        <div class="logo">Metiabruz Pro</div>
-        <div class="status-pill">
-            <div class="dot" id="dot"></div>
-            <span id="status">CONNECTING...</span>
-        </div>
-    </div>
-    <div id="error-debug"></div>
-    <div class="tabs">
-        <div class="tab active" id="tab-active" onclick="setTab('active')">Inventory</div>
-        <div class="tab" id="tab-trash" onclick="setTab('trash')">Trash</div>
-    </div>
-    <div class="search-row">
-        <div class="search-wrap">
-            <svg class="icon" style="opacity:0.5; width:18px"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
-            <input id="search" placeholder="Search Design..." oninput="render()">
-        </div>
-        <button class="btn-select" id="selBtn" onclick="toggleSelect()">Select</button>
-    </div>
+<div id="printArea">
+  <div class="print-header">
+    <h1 style="font-size: 24px;">Metiabruz Stock List</h1>
+    <p id="printDate" style="font-size: 12px;"></p>
+  </div>
+  <div class="print-summary">
+    <span>Total Stock: <b id="pTotalStock">0</b></span>
+    <span>Total Sold: <b id="pTotalSold">0</b></span>
+    <span>Remaining: <b id="pTotalRem">0</b></span>
+    <span>Designs: <b id="pDesignCount">0</b></span>
+  </div>
+  <table>
+    <thead>
+      <tr>
+        <th rowspan="2">Design</th>
+        <th colspan="4">Stock</th>
+        <th colspan="4">Sold</th>
+        <th colspan="4">Remaining</th>
+        <th rowspan="2">Total Rem</th>
+      </tr>
+      <tr>
+        <th>22Ã32</th><th>34Ã36</th><th>16Ã18</th><th>26Ã30</th>
+        <th>22Ã32</th><th>34Ã36</th><th>16Ã18</th><th>26Ã30</th>
+        <th>22Ã32</th><th>34Ã36</th><th>16Ã18</th><th>26Ã30</th>
+      </tr>
+    </thead>
+    <tbody id="printTableBody"></tbody>
+  </table>
 </div>
 
-<div class="list" id="list"></div>
-
-<div class="dock" id="dock-main">
-    <button class="btn btn-primary" onclick="openModal('add')"><svg class="icon"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg> Add</button>
-    <button class="btn btn-glass" onclick="openModal('sell')"><svg class="icon"><line x1="5" y1="12" x2="19" y2="12"></line></svg> Sell</button>
+<div class="header-container">
+  <div class="top-bar">
+    <h2>ð¦ Stock</h2>
+    <div id="statusIndicator">Offline</div>
+  </div>
+  <div class="summary">
+    <div class="summary-card"><label>Stock</label><div class="value" id="totalStock">0</div></div>
+    <div class="summary-card"><label>Sold</label><div class="value" id="totalSold">0</div></div>
+    <div class="summary-card"><label>Left</label><div class="value" id="totalRemaining" style="color:var(--success)">0</div></div>
+    <div class="summary-card"><label>Items</label><div class="value" id="designCount">0</div></div>
+  </div>
 </div>
 
-<div class="dock" id="dock-delete" style="display:none">
-    <button class="btn btn-danger" onclick="deleteSelected()">Delete Selected (<span id="selCount">0</span>)</button>
+<div class="controls-area">
+  <div class="search-wrapper">
+    <span>ð</span>
+    <input id="searchInput" placeholder="Search Design No..." onkeyup="render()">
+    <select id="sortSelect" onchange="setSort(this.value)" style="background:none; border:none; color:var(--primary); font-weight:700;">
+      <option value="recent">Recent</option>
+      <option value="asc">AâZ</option>
+      <option value="desc">ZâA</option>
+    </select>
+  </div>
 </div>
 
-<div class="modal-bg" id="modal">
-    <div class="modal" onclick="event.stopPropagation()">
-        <div style="width:40px;height:5px;background:#444;border-radius:3px;margin:0 auto 20px;"></div>
-        <h2 id="m-title" style="margin:0 0 15px 0;">Entry</h2>
-        
-        <input id="m-design" class="inp-large" placeholder="Design No." oninput="checkDup(this.value)">
-        <div id="m-alert" class="alert-box"></div>
+<div class="inventory-list" id="inventoryList"></div>
 
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
-            <div><label style="color:#888;font-size:11px">22x32</label><select id="s0" class="dropdown"></select></div>
-            <div><label style="color:#888;font-size:11px">34x36</label><select id="s1" class="dropdown"></select></div>
-            <div><label style="color:#888;font-size:11px">16x18</label><select id="s2" class="dropdown"></select></div>
-            <div><label style="color:#888;font-size:11px">26x30</label><select id="s3" class="dropdown"></select></div>
-        </div>
-        <button class="btn btn-primary" style="width:100%" onclick="submitModal()">Confirm</button>
-        <button class="btn" style="width:100%; margin-top:10px; background:none; color:#888;" onclick="closeModal()">Cancel</button>
+<div class="bottom-nav">
+  <button class="btn-main" onclick="openAdd()">+ ADD DESIGN</button>
+  <button class="btn-icon" onclick="fetchData()">ð</button>
+  <button class="btn-icon" onclick="window.print()">ð¨ï¸</button>
+  <button class="btn-icon" onclick="toggleSelect()">ð ï¸</button>
+</div>
+
+<div class="modal" id="addModal" onclick="if(event.target===this)closeAdd()">
+  <div class="modal-content">
+    <div style="width:40px;height:5px;background:rgba(255,255,255,0.2);margin:0 auto 20px auto;border-radius:5px;"></div>
+    <h3 style="margin-bottom:15px">New Design Entry</h3>
+    <input type="text" id="manualDesignInput" class="qty-input" style="text-align:left; padding:14px; font-size:16px; margin-bottom:15px;" placeholder="Design Number...">
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+        <select id="s0" class="qty-input"></select>
+        <select id="s1" class="qty-input"></select>
+        <select id="s2" class="qty-input"></select>
+        <select id="s3" class="qty-input"></select>
     </div>
+    <button class="btn-main" style="width:100%; padding:16px; margin-top:20px" onclick="handleAdd()">Save Design</button>
+  </div>
 </div>
 
+<script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script>
-// --- YOUR KEYS (CORRECTED & HARDCODED) ---
-const SB_URL = 'https://yhlfqpiwevsehlgbhxtk.supabase.co';
-const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlobGZxcGl3ZXZzZWhsZ2JoeHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5Mjc1ODMsImV4cCI6MjA4NTUwMzU4M30.UX-6NXiJNg6EywD7gIPjla7l5_Koq0UbpuFyENIKOaM';
+const supabaseClient = supabase.createClient('https://yhlfqpiwevsehlgbhxtk.supabase.co','sb_publishable_CkKk1cjkoS1XvBv8zldlcw_1gjt6Y2S');
 
-const supabase = supabase.createClient(SB_URL, SB_KEY);
-const sizes = ["22x32","34x36","16x18","26x30"];
-let inventory = [];
-let isSelect = false;
-let selected = new Set();
-let modalMode = 'add';
-let currentTab = 'active';
+let inventory = JSON.parse(localStorage.getItem('inventoryCache')||'[]');
+let syncQueue = JSON.parse(localStorage.getItem('syncQueue')||'[]');
+let selectMode = false, sortMode = 'recent';
+const sizes=["22x32","34x36","16x18","26x30"];
 
-// --- INIT ---
-(async function init() {
-    updateStatus('CONNECTING...', 'danger');
-    
-    // 1. Fetch Data
-    const { data, error } = await supabase.from('inventory').select('*').order('created_at', {ascending:false});
-    
-    if (error) {
-        showError("DB ERROR: " + error.message);
-        return;
-    }
+function initQtys() {
+    let opts = ''; for(let i=0; i<=100; i++) opts += `<option value="${i}">${i}</option>`;
+    ['s0','s1','s2','s3'].forEach((id, idx) => {
+        document.getElementById(id).innerHTML = `<option value="0" selected>${sizes[idx]}: 0</option>` + opts;
+    });
+}
+initQtys();
 
-    inventory = data;
-    updateStatus('ONLINE', 'success');
+function handleAdd() {
+    const dVal = document.getElementById('manualDesignInput').value.trim();
+    if(!dVal) return alert("Enter Design Number");
+    const newQtys = [+s0.value, +s1.value, +s2.value, +s3.value];
+    const item = { id: crypto.randomUUID(), design: dVal, stock: newQtys, sold: [0,0,0,0] };
+    inventory.unshift(item);
+    syncQueue.push({type:'add', item});
+    closeAdd(); render(); syncNow();
+}
+
+function openAdd() { addModal.classList.add('active'); }
+function closeAdd() { addModal.classList.remove('active'); }
+
+function upd(id, idx, val, type) {
+    const it = inventory.find(x => x.id === id);
+    if(!it) return;
+    if(type === 'stock') it.stock[idx] = +val;
+    if(type === 'sold') it.sold[idx] = +val;
+    syncQueue.push({type:'update', data: it});
     render();
-
-    // 2. Realtime Subscription
-    supabase.channel('public:inventory')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, payload => {
-            const { eventType, new: n, old: o } = payload;
-            if(eventType === 'INSERT') inventory.unshift(n);
-            if(eventType === 'UPDATE') { const i = inventory.findIndex(x=>x.id===n.id); if(i>-1) inventory[i]=n; }
-            if(eventType === 'DELETE') { inventory = inventory.filter(x=>x.id!==o.id); }
-            render();
-        })
-        .subscribe((status) => {
-            if (status === 'SUBSCRIBED') updateStatus('ONLINE', 'success');
-        });
-
-    // 3. Dropdowns
-    const opts = `<option value="0">0</option>` + Array.from({length:100},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
-    [0,1,2,3].forEach(i => document.getElementById('s'+i).innerHTML = opts);
-})();
-
-function updateStatus(msg, type) {
-    document.getElementById('status').innerText = msg;
-    document.getElementById('dot').style.background = `var(--${type})`;
+    syncNow();
 }
 
-function showError(msg) {
-    const el = document.getElementById('error-debug');
-    el.style.display = 'block';
-    el.innerText = msg;
-}
-
-// --- RENDER ---
 function render() {
-    const list = document.getElementById('list');
-    const term = document.getElementById('search').value.toUpperCase();
-    list.innerHTML = '';
+    let list = [...inventory];
+    const term = searchInput.value.toLowerCase();
+    if(sortMode==='asc') list.sort((a,b)=>a.design.localeCompare(b.design, undefined, {numeric: true}));
+    if(sortMode==='desc') list.sort((a,b)=>b.design.localeCompare(a.design, undefined, {numeric: true}));
 
-    const filtered = inventory.filter(i => {
-        const isTrash = !!i.deleted_at;
-        if(currentTab === 'active' && isTrash) return false;
-        if(currentTab === 'trash' && !isTrash) return false;
-        return i.design.toUpperCase().includes(term);
-    });
+    inventoryList.innerHTML = '';
+    let printRows = '';
+    let ts=0, td=0;
 
-    filtered.forEach(item => {
-        const el = document.createElement('div');
-        const isSel = selected.has(item.id);
-        el.className = `card ${isSel?'selected':''}`;
-        el.onclick = () => handleTap(item.id);
-
-        let grid = '';
-        item.stock.forEach((s, idx) => {
-            const left = s - (item.sold[idx]||0);
-            grid += `<div class="size-box"><div class="size-lbl">${sizes[idx]}</div><div class="size-val ${left<5?'val-low':'val-ok'}">${left}</div></div>`;
+    list.filter(i => i.design.toLowerCase().includes(term)).forEach(item => {
+        let rows = '';
+        let itemRemTotal = 0;
+        item.stock.forEach((sVal, i) => {
+            const rem = sVal - item.sold[i];
+            ts += sVal; td += item.sold[i]; itemRemTotal += rem;
+            rows += `
+            <div class="grid-row">
+                <div class="label-style">${sizes[i]}</div>
+                <select class="qty-input" onchange="upd('${item.id}',${i},this.value,'stock')">${getOpts(sVal)}</select>
+                <select class="qty-input" onchange="upd('${item.id}',${i},this.value,'sold')">${getOpts(item.sold[i])}</select>
+                <div class="remain-pill">${rem}</div>
+            </div>`;
         });
 
-        el.innerHTML = `
-            <div class="check-circle"><svg class="check-icon" viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg></div>
-            <div style="flex:1">
-                <div style="display:flex; justify-content:space-between; margin-bottom:5px;">
-                    <span style="font-weight:900; font-size:18px"># ${item.design}</span>
-                    <button style="background:none; border:none; color:var(--primary); font-weight:700" onclick="event.stopPropagation(); toggleSelect()">Select</button>
-                </div>
-                <div class="size-grid">${grid}</div>
-            </div>
-        `;
-        list.appendChild(el);
+        inventoryList.innerHTML += `<div class="item-card"><div class="item-header"><span class="design-badge"># ${item.design}</span><button style="background:none; border:none; color:var(--danger); font-size:12px;" onclick="del('${item.id}')">DELETE</button></div>${rows}</div>`;
+
+        printRows += `<tr><td><b>${item.design}</b></td><td>${item.stock[0]}</td><td>${item.stock[1]}</td><td>${item.stock[2]}</td><td>${item.stock[3]}</td><td class="bg-gray">${item.sold[0]}</td><td class="bg-gray">${item.sold[1]}</td><td class="bg-gray">${item.sold[2]}</td><td class="bg-gray">${item.sold[3]}</td><td>${item.stock[0]-item.sold[0]}</td><td>${item.stock[1]-item.sold[1]}</td><td>${item.stock[2]-item.sold[2]}</td><td>${item.stock[3]-item.sold[3]}</td><td><b>${itemRemTotal}</b></td></tr>`;
     });
+
+    totalStock.innerText = ts; totalSold.innerText = td; totalRemaining.innerText = ts-td;
+    designCount.innerText = inventory.length;
+    pTotalStock.innerText = ts; pTotalSold.innerText = td; pTotalRem.innerText = ts-td; pDesignCount.innerText = inventory.length;
+    printTableBody.innerHTML = printRows;
+    printDate.innerText = "Printed on " + new Date().toLocaleString();
+    saveCache();
 }
 
-function handleTap(id) {
-    if(isSelect) {
-        if(selected.has(id)) selected.delete(id); else selected.add(id);
-        document.getElementById('selCount').innerText = selected.size;
-        render();
+function getOpts(sel) {
+    let h = ''; for(let i=0; i<=100; i++) h += `<option value="${i}" ${i==sel?'selected':''}>${i}</option>`;
+    return h;
+}
+
+function saveCache() {
+    localStorage.setItem('inventoryCache', JSON.stringify(inventory));
+    localStorage.setItem('syncQueue', JSON.stringify(syncQueue));
+}
+
+function del(id) {
+    if(!confirm("Delete?")) return;
+    const it = inventory.find(x => x.id === id);
+    inventory = inventory.filter(x => x.id !== id);
+    syncQueue.push({type:'delete', design: it.design});
+    render(); syncNow();
+}
+
+async function syncNow() {
+    if(!navigator.onLine) { statusIndicator.innerText="Offline"; return; }
+    statusIndicator.innerText="Syncing...";
+    const q = [...syncQueue]; syncQueue = []; saveCache();
+    for(const j of q) {
+        if(j.type==='add') await supabaseClient.from('inventory').insert(j.item);
+        if(j.type==='update') await supabaseClient.from('inventory').update({stock:j.data.stock, sold:j.data.sold}).eq('id', j.data.id);
+        if(j.type==='delete') await supabaseClient.from('inventory').delete().eq('design', j.design);
     }
+    statusIndicator.innerText="Online";
 }
 
-function toggleSelect() {
-    isSelect = !isSelect; selected.clear();
-    document.body.classList.toggle('selection-mode', isSelect);
-    document.getElementById('selBtn').innerText = isSelect ? 'Done' : 'Select';
-    document.getElementById('dock-main').style.display = isSelect ? 'none' : 'grid';
-    document.getElementById('dock-delete').style.display = isSelect ? 'grid' : 'none';
-    render();
+async function fetchData() {
+    if(!navigator.onLine) return;
+    const {data} = await supabaseClient.from('inventory').select('*').order('created_at', {ascending:false});
+    if(data) { inventory = data; render(); }
 }
 
-async function deleteSelected() {
-    if(!confirm("Delete selected items?")) return;
-    const ids = Array.from(selected);
-    const now = new Date().toISOString();
-    
-    // UI Update
-    inventory.forEach(i => { if(selected.has(i.id)) i.deleted_at = now; });
-    render();
-    
-    // DB Update
-    await supabase.from('inventory').update({ deleted_at: now }).in('id', ids);
-    toggleSelect();
-}
+function setSort(v) { sortMode = v; render(); }
 
-function openModal(m) {
-    modalMode = m;
-    document.getElementById('m-title').innerText = m==='add'?'Add Stock':'Sell Item';
-    document.getElementById('m-design').value = '';
-    document.getElementById('m-alert').style.display = 'none';
-    [0,1,2,3].forEach(i => document.getElementById('s'+i).value=0);
-    document.getElementById('modal').classList.add('open');
-}
-
-function checkDup(val) {
-    const found = inventory.find(i => i.design === val.trim().toUpperCase() && !i.deleted_at);
-    const alert = document.getElementById('m-alert');
-    if(found) {
-        alert.style.display = 'block';
-        alert.innerText = `Adding to existing: #${found.design}`;
-    } else {
-        alert.style.display = 'none';
-        if(modalMode === 'sell') {
-            alert.style.display = 'block';
-            alert.innerText = `New Design: Cannot sell.`;
-        }
-    }
-}
-
-async function submitModal() {
-    const dNo = document.getElementById('m-design').value.trim().toUpperCase();
-    const qtys = [0,1,2,3].map(i => +document.getElementById('s'+i).value);
-    
-    if(!dNo || qtys.every(q=>q===0)) return alert("Invalid Entry");
-
-    const existing = inventory.find(i => i.design === dNo && !i.deleted_at);
-
-    if(modalMode === 'add') {
-        if(existing) {
-            const newStock = existing.stock.map((s,i) => s + qtys[i]);
-            await supabase.from('inventory').update({ stock: newStock }).eq('id', existing.id);
-        } else {
-            await supabase.from('inventory').insert({ design: dNo, stock: qtys, sold: [0,0,0,0], deleted_at: null });
-        }
-    } else {
-        if(!existing) return alert("Not Found");
-        const newSold = existing.sold.map((s,i) => (s||0) + qtys[i]);
-        await supabase.from('inventory').update({ sold: newSold }).eq('id', existing.id);
-    }
-    closeModal();
-}
-
-function closeModal() { document.getElementById('modal').classList.remove('open'); }
-function setTab(t) { currentTab=t; document.getElementById('tab-active').className=t==='active'?'tab active':'tab'; document.getElementById('tab-trash').className=t==='trash'?'tab active':'tab'; render(); }
+render();
+fetchData();
+setInterval(syncNow, 15000);
 </script>
 </body>
 </html>
