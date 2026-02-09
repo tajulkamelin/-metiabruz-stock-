@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Metiabruz Pro V3.3</title>
+<title>Metiabruz Pro V3.4</title>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
 /* --- CSS STYLES --- */
@@ -15,16 +15,26 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
 .header { position: sticky; top: 0; z-index: 50; background: rgba(28,28,30,0.95); backdrop-filter: blur(20px); border-bottom: 0.5px solid var(--border); padding: 50px 16px 12px; }
 .top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
 .logo { font-size: 24px; font-weight: 800; letter-spacing: -0.5px; }
-.status-pill { font-size: 11px; font-weight: 700; background: #333; padding: 5px 10px; border-radius: 20px; color: #AAA; display: flex; align-items: center; gap: 6px; }
+
+/* DASHBOARD (NEW) */
+.dash-container { background: #151517; padding: 16px; margin: 10px 16px 20px; border-radius: 16px; border: 1px solid var(--border); }
+.dash-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+.dash-title { font-size: 22px; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+.status-pill { font-size: 11px; font-weight: 700; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 20px; color: #AAA; display: flex; align-items: center; gap: 6px; }
 .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--danger); transition: 0.3s; }
 .pulsing { animation: pulse 1.5s infinite; }
 @keyframes pulse { 0% { opacity: 1; } 50% { opacity: 0.4; } 100% { opacity: 1; } }
+
+.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.stat-card { background: #000; border: 1px solid #333; border-radius: 10px; padding: 12px; text-align: center; }
+.stat-lbl { font-size: 10px; color: #888; font-weight: 700; letter-spacing: 0.5px; margin-bottom: 4px; text-transform: uppercase; }
+.stat-val { font-size: 20px; font-weight: 800; color: #FFF; }
 
 /* MENU BTN */
 .menu-btn { background: none; border: none; color: var(--primary); font-size: 24px; cursor: pointer; padding: 0; margin-right: 10px; }
 
 /* TABS */
-.tabs { background: #2C2C2E; padding: 2px; border-radius: 9px; display: flex; margin-bottom: 12px; }
+.tabs { background: #2C2C2E; padding: 2px; border-radius: 9px; display: flex; margin-bottom: 12px; margin-top: 10px; }
 .tab { flex: 1; padding: 8px; text-align: center; font-size: 13px; font-weight: 600; color: #8E8E93; border-radius: 7px; }
 .tab.active { background: #636366; color: #FFF; }
 
@@ -35,7 +45,7 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
 .btn-select { color: var(--primary); font-weight: 600; font-size: 17px; background: none; border: none; }
 
 /* CARDS */
-.list { padding: 10px 16px; min-height: 50vh; }
+.list { padding: 0 16px; min-height: 50vh; }
 .card { background: var(--card); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 0.5px solid var(--border); display: flex; align-items: center; gap: 14px; position: relative; overflow: hidden; }
 .card.selected { border-color: var(--primary); background: rgba(10, 132, 255, 0.15); }
 .pending-stripe { position: absolute; top: 0; right: 0; width: 0; height: 0; border-style: solid; border-width: 0 20px 20px 0; border-color: transparent var(--warning) transparent transparent; opacity: 0; }
@@ -60,29 +70,26 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
 .btn-glass { background: rgba(255,255,255,0.15); color: #FFF; }
 .btn-danger { background: var(--danger); color: #FFF; grid-column: span 2; }
 
-/* MODAL */
+/* MODAL & OTHERS */
 .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 200; display: none; align-items: flex-end; }
 .modal-bg.open { display: flex; }
 .modal { background: #1C1C1E; width: 100%; border-radius: 24px 24px 0 0; padding: 24px 20px 50px; transition: 0.3s; }
 .inp-large { width: 100%; background: #2C2C2E; border: 1px solid #333; color: #FFF; padding: 16px; border-radius: 12px; font-size: 20px; outline: none; margin-bottom: 15px; user-select: text; }
+.dropdown { width: 100%; padding: 12px; background: #2C2C2E; color: #FFF; border: 1px solid #333; border-radius: 10px; font-size: 16px; appearance: none; }
 
-/* EXISTING ITEM ALERT */
+/* REVIEW & ALERT STYLES */
 .exist-box { background: rgba(255, 159, 10, 0.15); border: 1px solid var(--warning); color: var(--warning); padding: 12px; border-radius: 12px; margin-bottom: 20px; display: none; }
 .exist-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; margin-top: 8px; }
 .exist-item { background: rgba(0,0,0,0.3); padding: 4px; border-radius: 4px; text-align: center; }
 .exist-lbl { font-size: 10px; opacity: 0.7; }
 .exist-val { font-weight: 800; font-size: 14px; }
-
-/* REVIEW TABLE */
 .review-box { display: none; background: #2C2C2E; border-radius: 12px; padding: 15px; margin-bottom: 20px; }
 .review-row { display: flex; justify-content: space-between; border-bottom: 1px solid #444; padding: 8px 0; font-size: 14px; }
 .review-row:last-child { border: none; }
 .r-add { color: var(--success); font-weight: 700; }
 .r-new { color: #FFF; font-weight: 700; }
 
-.dropdown { width: 100%; padding: 12px; background: #2C2C2E; color: #FFF; border: 1px solid #333; border-radius: 10px; font-size: 16px; appearance: none; }
-
-/* SIDEBAR */
+/* SIDEBAR & PRINT */
 .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 150; display: none; }
 .sidebar-overlay.open { display: block; }
 .sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 85%; max-width: 320px; background: #1C1C1E; z-index: 160; transform: translateX(-100%); transition: 0.3s; padding: 50px 20px 20px; border-right: 1px solid var(--border); overflow-y: auto; }
@@ -93,12 +100,10 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
 .sb-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #2C2C2E; font-size: 14px; }
 .sb-val { font-weight: 700; color: var(--text); }
 .sb-sub { font-size: 12px; color: #666; }
-
-/* PRINT */
 .print-area { display: none; background: white; color: black; padding: 20px; }
 @media print {
     body { background: white; color: black; padding: 0; }
-    .header, .list, .dock, .modal-bg, .sidebar, .sidebar-overlay, .check-circle, .btn-select { display: none !important; }
+    .header, .list, .dock, .modal-bg, .sidebar, .sidebar-overlay, .check-circle, .btn-select, .dash-container { display: none !important; }
     .print-area { display: block; position: absolute; top: 0; left: 0; width: 100%; }
     @page { size: landscape; margin: 10mm; }
     table { width: 100%; border-collapse: collapse; font-size: 10px; font-family: monospace; }
@@ -128,14 +133,34 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
             <button class="menu-btn" onclick="toggleSidebar()">☰</button>
             <div class="logo">Metiabruz Pro</div>
         </div>
-        <div class="status-pill">
-            <div class="dot" id="dot"></div>
-            <span id="status">CONNECTING...</span>
-        </div>
     </div>
-    <div class="tabs">
-        <div class="tab active" id="tab-active" onclick="setTab('active')">Inventory</div>
-        <div class="tab" id="tab-trash" onclick="setTab('trash')">Trash</div>
+
+    <div class="dash-container">
+        <div class="dash-head">
+            <div class="dash-title">📦 Stock</div>
+            <div class="status-pill">
+                <div class="dot" id="dot"></div>
+                <span id="status">CONNECTING...</span>
+            </div>
+        </div>
+        <div class="dash-grid">
+            <div class="stat-card">
+                <div class="stat-lbl">Total Stock</div>
+                <div class="stat-val" id="d-stock" style="color:var(--primary)">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-lbl">Total Sold</div>
+                <div class="stat-val" id="d-sold">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-lbl">Remaining</div>
+                <div class="stat-val" id="d-rem" style="color:var(--success)">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-lbl">Designs</div>
+                <div class="stat-val" id="d-des" style="color:#0A84FF">0</div>
+            </div>
+        </div>
     </div>
     <div class="search-row">
         <div class="search-wrap">
@@ -143,6 +168,11 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
             <input id="search" placeholder="Search Design..." oninput="render()">
         </div>
         <button class="btn-select" id="selBtn" onclick="toggleSelect()">Select</button>
+    </div>
+
+    <div class="tabs">
+        <div class="tab active" id="tab-active" onclick="setTab('active')">Inventory</div>
+        <div class="tab" id="tab-trash" onclick="setTab('trash')">Trash</div>
     </div>
 </div>
 
@@ -163,13 +193,11 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
         
         <div id="view-input">
             <input id="m-design" class="inp-large" placeholder="Design No." oninput="checkDup(this.value)">
-            
             <div id="exist-alert" class="exist-box">
                 <div style="font-weight:700; font-size:12px; margin-bottom:5px;">⚠️ EXISTING DESIGN FOUND</div>
                 <div style="font-size:11px; opacity:0.8">Current Stock Level:</div>
                 <div class="exist-grid" id="exist-grid"></div>
             </div>
-
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
                 <div><label style="color:#888;font-size:11px">22x32</label><select id="s0" class="dropdown"></select></div>
                 <div><label style="color:#888;font-size:11px">34x36</label><select id="s1" class="dropdown"></select></div>
@@ -184,9 +212,7 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
                 <div style="font-size:18px; font-weight:700">Review Update</div>
                 <div style="color:#888; font-size:13px">You are updating an existing design.</div>
             </div>
-            
             <div class="review-box" id="review-list"></div>
-
             <button class="btn btn-success" style="width:100%; background:var(--success)" onclick="finalSubmit()">✅ Save Update</button>
             <button class="btn" style="width:100%; margin-top:10px; background:#333;" onclick="backToInput()">Back</button>
         </div>
@@ -210,9 +236,9 @@ let isSelect = false;
 let selected = new Set();
 let modalMode = 'add';
 let currentTab = 'active';
-let foundItem = null; // Stores duplicated item for confirmation
+let foundItem = null;
 
-// --- INITIALIZATION ---
+// --- INIT ---
 (async function init() {
     const localData = localStorage.getItem('metia_inv');
     const localQueue = localStorage.getItem('metia_queue');
@@ -232,11 +258,11 @@ let foundItem = null; // Stores duplicated item for confirmation
     if(navigator.onLine) { processQueue(); await fetchLatest(); }
     
     sbClient.channel('public:inventory').on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, payload => {
-            const { eventType, new: n, old: o } = payload;
-            if(eventType === 'INSERT') { inventory = inventory.filter(x => x.design !== n.design); inventory.unshift(n); }
-            if(eventType === 'UPDATE') { const i = inventory.findIndex(x=>x.id===n.id); if(i>-1) inventory[i]=n; }
-            if(eventType === 'DELETE') { inventory = inventory.filter(x=>x.id!==o.id); }
-            saveLocal(); render(); refreshSidebar();
+        const { eventType, new: n, old: o } = payload;
+        if(eventType === 'INSERT') { inventory = inventory.filter(x => x.design !== n.design); inventory.unshift(n); }
+        if(eventType === 'UPDATE') { const i = inventory.findIndex(x=>x.id===n.id); if(i>-1) inventory[i]=n; }
+        if(eventType === 'DELETE') { inventory = inventory.filter(x=>x.id!==o.id); }
+        saveLocal(); render(); refreshSidebar();
     }).subscribe();
 })();
 
@@ -270,8 +296,7 @@ async function fetchLatest() {
 async function processQueue() {
     if(!navigator.onLine || pendingQueue.length === 0) return;
     updateStatus('SYNCING...', 'warning', true);
-    const op = pendingQueue[0];
-    let success = false;
+    const op = pendingQueue[0]; let success = false;
     if(op.retryCount && op.retryCount > 3) { pendingQueue.shift(); saveLocal(); return processQueue(); }
     try {
         if(op.type === 'INSERT') { const { error } = await sbClient.from('inventory').insert(op.payload); if(!error || error.code === '23505') success = true; } 
@@ -282,15 +307,33 @@ async function processQueue() {
     else { op.retryCount = (op.retryCount || 0) + 1; saveLocal(); setTimeout(processQueue, 3000); }
 }
 
+// --- RENDER & DASHBOARD ---
 function render() {
     const list = document.getElementById('list'); const term = document.getElementById('search').value.toUpperCase();
     list.innerHTML = '';
+    const activeInv = inventory.filter(i => !i.deleted_at); // For Stats
+    
+    // --- UPDATE DASHBOARD STATS ---
+    const totalStock = activeInv.reduce((acc, i) => acc + i.stock.reduce((a,b)=>a+b,0), 0);
+    const totalSold = activeInv.reduce((acc, i) => acc + i.sold.reduce((a,b)=>a+b,0), 0);
+    const totalRem = totalStock - totalSold; // Proper calculation
+    // Note: totalStock tracks cumulative entry. Remaining is what's left.
+    // If you prefer "Remaining" as the sum of current stock:
+    const calculatedRem = activeInv.reduce((acc, i) => acc + i.stock.reduce((a,b)=>a+b,0) - i.sold.reduce((a,b)=>a+b,0), 0);
+    
+    document.getElementById('d-stock').innerText = totalStock;
+    document.getElementById('d-sold').innerText = totalSold;
+    document.getElementById('d-rem').innerText = calculatedRem;
+    document.getElementById('d-des').innerText = activeInv.length;
+    // ----------------------------
+
     const filtered = inventory.filter(i => {
         const isTrash = !!i.deleted_at;
         if(currentTab === 'active' && isTrash) return false;
         if(currentTab === 'trash' && !isTrash) return false;
         return i.design && i.design.toUpperCase().includes(term);
     });
+
     filtered.forEach(item => {
         const el = document.createElement('div');
         const isSel = selected.has(item.id);
@@ -317,108 +360,56 @@ async function deleteSelected() {
     saveLocal(); render(); refreshSidebar(); toggleSelect(); checkConnection();
 }
 
-// --- MODAL & SMART DUPLICATE LOGIC ---
+// --- MODAL LOGIC ---
 function openModal(m) {
     modalMode = m; document.getElementById('m-title').innerText = m==='add'?'Add Stock':'Sell Item';
     document.getElementById('m-design').value = ''; foundItem = null;
-    document.getElementById('exist-alert').style.display = 'none';
-    backToInput();
+    document.getElementById('exist-alert').style.display = 'none'; backToInput();
     [0,1,2,3].forEach(i => document.getElementById('s'+i).value=0);
     document.getElementById('modal').classList.add('open');
 }
-
 function checkDup(val) {
     const term = val.trim().toUpperCase();
     foundItem = inventory.find(i => i.design === term && !i.deleted_at);
     const alertBox = document.getElementById('exist-alert');
-    
     if(foundItem) {
         alertBox.style.display = 'block';
         const grid = document.getElementById('exist-grid');
-        grid.innerHTML = foundItem.stock.map((s, i) => {
-            const left = s - (foundItem.sold[i]||0);
-            return `<div class="exist-item"><div class="exist-lbl">${sizes[i]}</div><div class="exist-val">${left}</div></div>`;
-        }).join('');
-    } else {
-        alertBox.style.display = 'none';
-        if(modalMode === 'sell') { alertBox.style.display = 'block'; alertBox.innerHTML = '⚠️ Design not found'; }
-    }
+        grid.innerHTML = foundItem.stock.map((s, i) => { const left = s - (foundItem.sold[i]||0); return `<div class="exist-item"><div class="exist-lbl">${sizes[i]}</div><div class="exist-val">${left}</div></div>`; }).join('');
+    } else { alertBox.style.display = 'none'; if(modalMode === 'sell') { alertBox.style.display = 'block'; alertBox.innerHTML = '⚠️ Design not found'; } }
 }
-
 function preSubmit() {
     const dNo = document.getElementById('m-design').value.trim().toUpperCase();
     const qtys = [0,1,2,3].map(i => +document.getElementById('s'+i).value);
     if(!dNo || qtys.every(q=>q===0)) return alert("Invalid Entry");
-
     if(modalMode === 'add' && foundItem) {
-        // Show Review Screen
-        document.getElementById('view-input').style.display = 'none';
-        document.getElementById('view-review').style.display = 'block';
-        
+        document.getElementById('view-input').style.display = 'none'; document.getElementById('view-review').style.display = 'block';
         let html = `<div class="review-row" style="color:#888; font-size:12px;"><span>Size</span><span>Old</span><span>Add</span><span>New</span></div>`;
-        
         qtys.forEach((add, i) => {
-            const old = foundItem.stock[i] - (foundItem.sold[i]||0); // Current visible stock
-            const realStock = foundItem.stock[i]; // Total accumulated stock
-            const newTotal = old + add;
-            if(add > 0) {
-                html += `<div class="review-row">
-                    <span>${sizes[i]}</span>
-                    <span>${old}</span>
-                    <span class="r-add">+${add}</span>
-                    <span class="r-new">${newTotal}</span>
-                </div>`;
-            }
+            const old = foundItem.stock[i] - (foundItem.sold[i]||0); const newTotal = old + add;
+            if(add > 0) { html += `<div class="review-row"><span>${sizes[i]}</span><span>${old}</span><span class="r-add">+${add}</span><span class="r-new">${newTotal}</span></div>`; }
         });
         document.getElementById('review-list').innerHTML = html;
-    } else {
-        finalSubmit();
-    }
+    } else { finalSubmit(); }
 }
-
-function backToInput() {
-    document.getElementById('view-input').style.display = 'block';
-    document.getElementById('view-review').style.display = 'none';
-}
-
+function backToInput() { document.getElementById('view-input').style.display = 'block'; document.getElementById('view-review').style.display = 'none'; }
 async function finalSubmit() {
     const dNo = document.getElementById('m-design').value.trim().toUpperCase();
     const qtys = [0,1,2,3].map(i => +document.getElementById('s'+i).value);
-    
-    let actionType = 'UPDATE';
-    let targetId = foundItem ? foundItem.id : 'temp_' + Date.now();
-    let payload = {};
-
+    let actionType = 'UPDATE'; let targetId = foundItem ? foundItem.id : 'temp_' + Date.now(); let payload = {};
     if(modalMode === 'add') {
-        if(foundItem) {
-            foundItem.stock = foundItem.stock.map((s,i) => s + qtys[i]);
-            payload = { stock: foundItem.stock };
-        } else {
-            actionType = 'INSERT';
-            const newItem = { id: targetId, design: dNo, stock: qtys, sold: [0,0,0,0], deleted_at: null, created_at: new Date().toISOString() };
-            inventory.unshift(newItem);
-            payload = { design: dNo, stock: qtys, sold: [0,0,0,0], deleted_at: null };
-        }
+        if(foundItem) { foundItem.stock = foundItem.stock.map((s,i) => s + qtys[i]); payload = { stock: foundItem.stock }; } 
+        else { actionType = 'INSERT'; const newItem = { id: targetId, design: dNo, stock: qtys, sold: [0,0,0,0], deleted_at: null, created_at: new Date().toISOString() }; inventory.unshift(newItem); payload = { design: dNo, stock: qtys, sold: [0,0,0,0], deleted_at: null }; }
     } else {
-        if(!foundItem) return alert("Not Found");
-        foundItem.sold = foundItem.sold.map((s,i) => (s||0) + qtys[i]);
-        payload = { sold: foundItem.sold };
+        if(!foundItem) return alert("Not Found"); foundItem.sold = foundItem.sold.map((s,i) => (s||0) + qtys[i]); payload = { sold: foundItem.sold };
     }
-
-    // Merge Logic
     const queueIdx = pendingQueue.findIndex(p => p.id === targetId || (p.type === 'INSERT' && p.payload.design === dNo));
     if(queueIdx > -1) {
-        if(pendingQueue[queueIdx].type === 'INSERT') {
-            if(foundItem) { pendingQueue[queueIdx].payload.stock = foundItem.stock; pendingQueue[queueIdx].payload.sold = foundItem.sold; }
-        } else { pendingQueue[queueIdx].payload = { ...pendingQueue[queueIdx].payload, ...payload }; }
-    } else {
-        pendingQueue.push({ type: actionType, id: targetId, payload: payload });
-    }
-
-    saveLocal(); render(); refreshSidebar(); closeModal();
-    if(navigator.onLine) processQueue(); else checkConnection();
+        if(pendingQueue[queueIdx].type === 'INSERT') { if(foundItem) { pendingQueue[queueIdx].payload.stock = foundItem.stock; pendingQueue[queueIdx].payload.sold = foundItem.sold; } } 
+        else { pendingQueue[queueIdx].payload = { ...pendingQueue[queueIdx].payload, ...payload }; }
+    } else { pendingQueue.push({ type: actionType, id: targetId, payload: payload }); }
+    saveLocal(); render(); refreshSidebar(); closeModal(); if(navigator.onLine) processQueue(); else checkConnection();
 }
-
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
 function setTab(t) { currentTab=t; document.getElementById('tab-active').className=t==='active'?'tab active':'tab'; document.getElementById('tab-trash').className=t==='trash'?'tab active':'tab'; render(); }
 function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); document.querySelector('.sidebar-overlay').classList.toggle('open'); }
