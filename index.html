@@ -17,8 +17,7 @@
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', system-ui, sans-serif; }
 body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 120px; overflow-x: hidden; height: 100vh; }
 
-/* DISABLE SELECTION */
-.card, .btn, .header, .stat-card, img { user-select: none !important; -webkit-user-select: none !important; -webkit-touch-callout: none !important; }
+.card, .btn, .header, .stat-card, img { user-select: none !important; -webkit-user-select: none !important; }
 
 #liquid-wave { position: fixed; inset: 0; background: var(--primary); z-index: 4000; clip-path: circle(0% at 50% 50%); transition: clip-path 0.8s cubic-bezier(0.77, 0, 0.175, 1); pointer-events: none; }
 #liquid-wave.active { clip-path: circle(150% at 50% 50%); }
@@ -49,7 +48,6 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 120
 .btn-primary { background: var(--primary); }
 .btn-glass { background: rgba(255,255,255,0.05); border: 1px solid var(--border); }
 
-/* PEEK OVERLAY */
 .peek-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
 .peek-overlay.active { display: flex !important; }
 .peek-card { background: var(--card); width: 90%; border-radius: 25px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); border: 1px solid var(--border); position: relative; text-align: center; }
@@ -60,7 +58,16 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 120
 .modal { background: #111113; width: 100%; border-radius: 25px 25px 0 0; padding: 20px 24px 50px; border-top: 1px solid var(--border); }
 .inp-large { width: 100%; background: #000; border: none; box-shadow: var(--inner-sh); color: #FFF; padding: 16px; border-radius: 12px; font-size: 18px; margin-bottom: 12px; outline: none; }
 
-@media print { .header, .dock, .dash-container, .list, #liquid-wave { display: none !important; } .print-area { display: block; color: #000; background: #FFF; } }
+/* PRINT STYLES */
+#print-area { display: none; }
+@media print {
+    body * { visibility: hidden; }
+    #print-area, #print-area * { visibility: visible; }
+    #print-area { display: block; position: absolute; left: 0; top: 0; width: 100%; color: #000; background: #fff; padding: 20px; }
+    table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+    th, td { border: 1px solid #000; padding: 8px; text-align: center; }
+    .no-print { display: none !important; }
+}
 </style>
 </head>
 <body>
@@ -132,7 +139,6 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 120
     <div class="modal" onclick="event.stopPropagation()">
         <h2 id="m-title">Action</h2>
         <input id="m-design" class="inp-large" placeholder="Design Number" oninput="checkDup(this.value)">
-        <div id="stock-hint" style="font-size:11px; color:var(--warning); margin-bottom:10px; display:none;"></div>
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
             <div><label style="font-size:10px">22x32</label><select id="s0" class="inp-large" style="padding:10px;"></select></div>
             <div><label style="font-size:10px">34x36</label><select id="s1" class="inp-large" style="padding:10px;"></select></div>
@@ -144,15 +150,14 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 120
     </div>
 </div>
 
-<div id="print-area" class="print-area"></div>
+<div id="print-area"></div>
 
 <script>
-/* --- CORE LOGIC (RESTORED & VERIFIED) --- */
 const SB_URL = 'https://yhlfqpiwevsehlgbhxtk.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlobGZxcGl3ZXZzZWhsZ2JoeHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5Mjc1ODMsImV4cCI6MjA4NTUwMzU4M30.UX-6NXiJNg6EywD7gIPjla7l5_Koq0UbpuFyENIKOaM';
 const sbClient = supabase.createClient(SB_URL, SB_KEY);
 const sizes = ["22x32","34x36","16x18","26x30"];
-let inventory = [], pendingQueue = [], currentTab = 'active', touchTimer, editingItem, foundItem;
+let inventory = [], pendingQueue = [], currentTab = 'active', touchTimer, editingItem, foundItem, modalMode = '';
 
 (async function init() {
     const localInv = localStorage.getItem('dilkhus_inv'), localQue = localStorage.getItem('dilkhus_que');
@@ -170,7 +175,12 @@ let inventory = [], pendingQueue = [], currentTab = 'active', touchTimer, editin
 
 async function fetchLatest() {
     const { data } = await sbClient.from('inventory').select('*').order('created_at', {ascending:false});
-    if(data) { inventory = data; saveLocal(); render(); }
+    // Fix: Only overwrite if we don't have pending local changes to prevent vanishing items
+    if(data && pendingQueue.length === 0) { 
+        inventory = data; 
+        saveLocal(); 
+        render(); 
+    }
 }
 
 function saveLocal() { 
@@ -216,10 +226,14 @@ function render() {
 
     filtered.forEach(item => {
         const el = document.createElement('div'); el.className = 'card';
-        el.addEventListener('touchstart', () => { touchTimer = setTimeout(() => openPeek(item), 600); });
-        el.addEventListener('touchend', () => clearTimeout(touchTimer));
-        el.addEventListener('mousedown', () => { touchTimer = setTimeout(() => openPeek(item), 600); });
-        el.addEventListener('mouseup', () => clearTimeout(touchTimer));
+        // Fix: Prevent auto-popups by checking for actual interaction
+        const trigger = () => { touchTimer = setTimeout(() => openPeek(item), 800); };
+        const cancel = () => { clearTimeout(touchTimer); };
+        
+        el.addEventListener('touchstart', trigger);
+        el.addEventListener('touchend', cancel);
+        el.addEventListener('mousedown', trigger);
+        el.addEventListener('mouseup', cancel);
 
         let grid = item.stock.map((s, idx) => {
             const rem = s-(item.sold[idx]||0);
@@ -228,6 +242,19 @@ function render() {
         el.innerHTML = `<div style="font-weight:800;font-size:16px;margin-bottom:12px;color:var(--primary)">#${item.design}</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">${grid}</div>`;
         list.appendChild(el);
     });
+}
+
+function printStock() {
+    const printArea = document.getElementById('print-area');
+    let tableHtml = `<h2>Stock Report - Dilkhus Fashion</h2><table><thead><tr><th>Design</th><th>22x32</th><th>34x36</th><th>16x18</th><th>26x30</th><th>Total</th></tr></thead><tbody>`;
+    inventory.filter(i => !i.deleted_at).forEach(item => {
+        const rems = item.stock.map((s, idx) => s - (item.sold[idx] || 0));
+        const total = rems.reduce((a, b) => a + b, 0);
+        tableHtml += `<tr><td>${item.design}</td><td>${rems[0]}</td><td>${rems[1]}</td><td>${rems[2]}</td><td>${rems[3]}</td><td><b>${total}</b></td></tr>`;
+    });
+    tableHtml += `</tbody></table>`;
+    printArea.innerHTML = tableHtml;
+    window.print();
 }
 
 function toggleSearch() { 
@@ -247,8 +274,9 @@ function openPeek(item) {
     document.getElementById('peekOverlay').classList.add('active');
     document.getElementById('edit-design-name').value = item.design;
     [0,1,2,3].forEach(i => document.getElementById('e'+i).value = item.stock[i]);
-    document.getElementById('deleteBtn').innerText = item.deleted_at ? "RESTORE" : "DELETE";
-    document.getElementById('deleteBtn').onclick = item.deleted_at ? restoreItem : deleteItem;
+    const dBtn = document.getElementById('deleteBtn');
+    dBtn.innerText = item.deleted_at ? "RESTORE" : "DELETE";
+    dBtn.onclick = item.deleted_at ? restoreItem : deleteItem;
 }
 
 function closePeek() { document.getElementById('peekOverlay').classList.remove('active'); }
@@ -274,7 +302,11 @@ async function restoreItem() {
     saveLocal(); render(); closePeek(); processQueue();
 }
 
-function openModal(m) { modalMode = m; document.getElementById('m-title').innerText = m === 'add' ? 'Add Stock' : 'Sell Stock'; document.getElementById('modal').classList.add('open'); }
+function openModal(m) { 
+    modalMode = m; 
+    document.getElementById('m-title').innerText = m === 'add' ? 'Add Stock' : 'Sell Stock'; 
+    document.getElementById('modal').classList.add('open'); 
+}
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
 
 function checkDup(val) { foundItem = inventory.find(i => i.design === val.trim().toUpperCase() && !i.deleted_at); }
@@ -288,8 +320,9 @@ async function finalSubmit() {
             foundItem.stock = foundItem.stock.map((s,i) => s + qtys[i]);
             pendingQueue.push({ type: 'UPDATE', id: foundItem.id, data: { stock: foundItem.stock } });
         } else {
-            const newItem = { id: Date.now(), design: dNo, stock: qtys, sold: [0,0,0,0], created_at: new Date() };
-            inventory.unshift(newItem); pendingQueue.push({ type: 'INSERT', data: newItem });
+            const newItem = { id: Date.now(), design: dNo, stock: qtys, sold: [0,0,0,0], created_at: new Date().toISOString() };
+            inventory.unshift(newItem); 
+            pendingQueue.push({ type: 'INSERT', data: newItem });
         }
     } else {
         if(!foundItem) return alert("Design not found!");
