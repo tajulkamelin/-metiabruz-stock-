@@ -42,26 +42,24 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .search-container { padding: 15px 20px; position: relative; flex-shrink: 0; }
 .search-inp { width: 100%; background: var(--surface); border: 1px solid var(--border); padding: 12px 12px 12px 40px; border-radius: 12px; color: white; outline: none; font-size: 14px; }
 
-/* SCROLLABLE LIST AREA */
+/* LIST & CARDS */
 .list-container { flex: 1; overflow-y: auto; padding: 0 20px 120px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
-
-/* Inventory Card */
-.inventory-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); }
+.inventory-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); transition: transform 0.2s, background 0.2s; user-select: none; -webkit-user-select: none; }
+.inventory-card:active { transform: scale(0.98); background: var(--surface-light); }
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .size-item { background: var(--bg); border-radius: 8px; padding: 8px 4px; text-align: center; border: 1px solid var(--border); }
-
-/* History Card */
+/* History */
 .history-date { font-size: 12px; font-weight: 800; color: var(--text-muted); margin: 20px 0 10px; text-transform: uppercase; letter-spacing: 1px; position: sticky; top: 0; background: var(--bg); padding: 5px 0; z-index: 10; }
 .history-card { background: var(--surface); border-radius: 12px; padding: 15px; margin-bottom: 10px; border-left: 4px solid var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
-.h-tag { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; margin-bottom: 5px; display: inline-block; }
-.h-sell { border-left-color: var(--success); } .h-sell .h-tag { background: rgba(16, 185, 129, 0.2); color: var(--success); }
-.h-add { border-left-color: var(--primary); } .h-add .h-tag { background: rgba(99, 102, 241, 0.2); color: var(--primary); }
+.h-sell { border-left-color: var(--success); }
+.h-add { border-left-color: var(--primary); }
 
 /* --- DOCK & MODAL --- */
 .dock { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--border); padding: 12px 20px calc(12px + var(--safe-bottom)); display: grid; grid-template-columns: 1fr 1fr; gap: 15px; z-index: 100; }
 .btn { border: none; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; color: white; }
 .btn-p { background: var(--primary); } .btn-s { background: var(--surface-light); }
+.btn-d { background: rgba(239, 68, 68, 0.15); color: var(--danger); border: 1px solid rgba(239, 68, 68, 0.3); }
 
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 950; display: none; opacity: 0; transition: opacity 0.3s; backdrop-filter: blur(4px); }
 .modal-overlay.open { display: block; opacity: 1; }
@@ -75,8 +73,6 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .suggestions-box { position: absolute; top: 75px; left: 24px; right: 24px; background: var(--surface-light); z-index: 960; max-height: 150px; overflow-y: auto; display: none; border-radius: 0 0 12px 12px; border: 1px solid var(--border); }
 .suggestions-box.active { display: block; }
 .s-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
-.s-item:hover { background: rgba(255,255,255,0.05); }
-
 .empty-state { text-align: center; color: var(--text-muted); padding: 40px 20px; font-size: 14px; }
 </style>
 </head>
@@ -116,7 +112,6 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
         <input type="text" class="search-inp" id="mainSearch" placeholder="Search Design..." oninput="renderInventory()">
     </div>
     <div id="list" class="list-container"></div>
-    <!-- DOCK ONLY VISIBLE ON HOME -->
     <div class="dock">
         <button class="btn btn-s" onclick="openModal('sell')">📉 SELL</button>
         <button class="btn btn-p" onclick="openModal('add')">＋ ADD STOCK</button>
@@ -135,20 +130,40 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
     <div class="bottom-sheet" onclick="event.stopPropagation()">
         <h2 id="m-title" style="margin:0 0 20px">Update Stock</h2>
-        
         <input id="m-design" class="inp-large" placeholder="Design No." oninput="handleDesignInput(this.value)" autocomplete="off">
         <div id="suggestions" class="suggestions-box"></div>
-        
         <input id="m-customer" class="inp-large" placeholder="Customer Name (Optional)" style="display:none">
-
         <div class="grid-inputs">
             <div><label style="font-size:10px">22x32</label><select id="s0" class="qty-select"></select><div id="l0" style="font-size:10px;text-align:center"></div></div>
             <div><label style="font-size:10px">34x36</label><select id="s1" class="qty-select"></select><div id="l1" style="font-size:10px;text-align:center"></div></div>
             <div><label style="font-size:10px">16x18</label><select id="s2" class="qty-select"></select><div id="l2" style="font-size:10px;text-align:center"></div></div>
             <div><label style="font-size:10px">26x30</label><select id="s3" class="qty-select"></select><div id="l3" style="font-size:10px;text-align:center"></div></div>
         </div>
-
         <button class="btn btn-p" style="width:100%" onclick="finalSubmit()">CONFIRM</button>
+    </div>
+</div>
+
+<!-- EDIT (MANAGE) MODAL -->
+<div class="modal-overlay" id="editOverlay" onclick="closeEdit()">
+    <div class="bottom-sheet" onclick="event.stopPropagation()">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px">
+            <h2 style="margin:0">Manage Item</h2>
+            <div onclick="closeEdit()" style="padding:10px;cursor:pointer">✕</div>
+        </div>
+        
+        <label style="font-size:11px; color:var(--text-muted)">DESIGN NAME</label>
+        <input id="e-design" class="inp-large" style="margin-top:5px">
+
+        <label style="font-size:11px; color:var(--text-muted)">CORRECT TOTAL STOCK</label>
+        <div class="grid-inputs" style="margin-top:5px">
+            <div><label style="font-size:10px">22x32</label><input type="number" id="e0" class="qty-select" style="font-size:18px"></div>
+            <div><label style="font-size:10px">34x36</label><input type="number" id="e1" class="qty-select" style="font-size:18px"></div>
+            <div><label style="font-size:10px">16x18</label><input type="number" id="e2" class="qty-select" style="font-size:18px"></div>
+            <div><label style="font-size:10px">26x30</label><input type="number" id="e3" class="qty-select" style="font-size:18px"></div>
+        </div>
+
+        <button class="btn btn-p" style="width:100%; margin-bottom:10px" onclick="saveEdit()">SAVE CHANGES</button>
+        <button class="btn btn-d" style="width:100%" onclick="deleteItem()">DELETE ITEM</button>
     </div>
 </div>
 
@@ -157,11 +172,10 @@ const SB_URL = 'https://yhlfqpiwevsehlgbhxtk.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlobGZxcGl3ZXZzZWhsZ2JoeHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5Mjc1ODMsImV4cCI6MjA4NTUwMzU4M30.UX-6NXiJNg6EywD7gIPjla7l5_Koq0UbpuFyENIKOaM';
 const sbClient = supabase.createClient(SB_URL, SB_KEY);
 const sizes = ["22x32","34x36","16x18","26x30"];
-
-// State
 let inventory = [], transactions = [], queue = [];
 let currentView = 'home'; 
 let foundItem, modalMode = '';
+let editingItem = null;
 
 // --- INIT ---
 (async function init() {
@@ -170,39 +184,24 @@ let foundItem, modalMode = '';
         transactions = JSON.parse(localStorage.getItem('df_tx') || '[]');
         queue = JSON.parse(localStorage.getItem('df_q') || '[]');
     } catch(e) { console.error("Storage corrupt", e); }
-    
-    renderInventory();
-    updateStatus();
-
-    if(navigator.onLine) {
-        syncData();
-        processQueue();
-    }
-    
+    renderInventory(); updateStatus();
+    if(navigator.onLine) { syncData(); processQueue(); }
     window.addEventListener('online', () => { updateStatus(); processQueue(); });
-    window.addEventListener('offline', updateStatus);
-
-    sbClient.channel('any')
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, syncData)
-        .subscribe();
+    sbClient.channel('any').on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, syncData).subscribe();
 })();
 
 async function syncData() {
-    // Sync Inventory
     const { data: invData } = await sbClient.from('inventory').select('*').order('created_at', {ascending:false});
     if(invData) {
-        // Merge logic: keep local if newer, otherwise use server
         const serverIds = invData.map(i => i.id);
-        const locals = inventory.filter(i => !serverIds.includes(i.id)); // Not on server yet
+        const locals = inventory.filter(i => !serverIds.includes(i.id));
         inventory = [...locals, ...invData];
         localStorage.setItem('df_inv', JSON.stringify(inventory));
         renderInventory();
     }
-
-    // Sync History
     const { data: txData } = await sbClient.from('transactions').select('*').order('created_at', {ascending:false}).limit(200);
     if(txData && txData.length > 0) {
-        transactions = txData; // Trust server for history
+        transactions = txData; 
         localStorage.setItem('df_tx', JSON.stringify(transactions));
         if(currentView !== 'home') renderHistory();
     }
@@ -218,7 +217,6 @@ function updateStatus() {
 async function processQueue() {
     if(!navigator.onLine || queue.length === 0) return;
     const op = queue[0];
-    
     let err;
     try {
         if(op.table === 'inventory') {
@@ -228,62 +226,20 @@ async function processQueue() {
             err = (await sbClient.from('transactions').insert(op.data)).error;
         }
     } catch(e) { err = e; }
-
-    if(!err) {
-        queue.shift();
-        localStorage.setItem('df_q', JSON.stringify(queue));
-        updateStatus();
-        processQueue(); // Loop
-    } else {
-        console.error("Sync Error:", err);
-        // If error is permanent (RLS), drop the item to prevent infinite loop
-        if(err.code === '42501' || err.code === 'PGRST301') {
-            alert("Database Error: Permissions denied. Please run the SQL Code.");
-            queue.shift(); 
-        } else {
-            setTimeout(processQueue, 5000);
-        }
-    }
+    if(!err) { queue.shift(); localStorage.setItem('df_q', JSON.stringify(queue)); updateStatus(); processQueue(); } 
+    else { console.error("Sync Error:", err); if(err.code === '42501') queue.shift(); else setTimeout(processQueue, 5000); }
 }
 
-// --- NAV ---
-function toggleSidebar() { document.getElementById('sidebarOverlay').classList.toggle('open'); }
-
-function switchView(view) {
-    currentView = view;
-    document.getElementById('sidebarOverlay').classList.remove('open');
-    
-    // UI Toggles
-    document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-    
-    if(view === 'home') {
-        document.getElementById('view-home').classList.add('active');
-        document.getElementById('nav-home').classList.add('active');
-        renderInventory();
-    } else {
-        document.getElementById('view-history').classList.add('active');
-        document.getElementById('nav-'+view).classList.add('active');
-        document.getElementById('history-title').innerText = view === 'history-add' ? 'Inward History' : 'Sales History';
-        renderHistory();
-    }
-}
-
-// --- RENDER ---
 function renderInventory() {
     if(currentView !== 'home') return;
     const list = document.getElementById('list');
     const term = document.getElementById('mainSearch').value.toUpperCase();
     list.innerHTML = '';
-
     const active = inventory.filter(i => !i.deleted_at);
-    
     document.getElementById('d-stock').innerText = active.reduce((a,c)=>a+c.stock.reduce((x,y)=>x+y,0),0);
     document.getElementById('d-rem').innerText = active.reduce((a,c)=>a+(c.stock.reduce((x,y)=>x+y,0)-c.sold.reduce((x,y)=>x+y,0)),0);
 
-    const filtered = active.filter(i => i.design.includes(term))
-          .sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-
+    const filtered = active.filter(i => i.design.includes(term)).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
     if(filtered.length === 0) list.innerHTML = '<div class="empty-state">No items found</div>';
 
     filtered.forEach(item => {
@@ -294,7 +250,17 @@ function renderInventory() {
           
           const el = document.createElement('div');
           el.className = 'inventory-card';
-          el.innerHTML = `<div class="card-header"><span style="background:rgba(99,102,241,0.2);color:#818cf8;padding:4px 8px;border-radius:6px;font-weight:700">#${item.design}</span></div><div class="size-grid">${grid}</div>`;
+          // Long Press Logic
+          let timer;
+          const startPress = () => { timer = setTimeout(() => openEdit(item), 800); };
+          const cancelPress = () => { clearTimeout(timer); };
+          el.addEventListener('touchstart', startPress);
+          el.addEventListener('touchend', cancelPress);
+          el.addEventListener('touchmove', cancelPress); // Cancel if scrolling
+          el.addEventListener('mousedown', startPress);
+          el.addEventListener('mouseup', cancelPress);
+
+          el.innerHTML = `<div class="card-header"><span style="background:rgba(99,102,241,0.2);color:#818cf8;padding:4px 8px;border-radius:6px;font-weight:700">#${item.design}</span><span style="font-size:12px;opacity:0.5">⋮</span></div><div class="size-grid">${grid}</div>`;
           list.appendChild(el);
     });
 }
@@ -303,14 +269,8 @@ function renderHistory() {
     const list = document.getElementById('history-list');
     list.innerHTML = '';
     const type = currentView === 'history-add' ? 'ADD' : 'SELL';
-    
-    // Local filter first
     const filtered = transactions.filter(t => t.type === type);
-    
-    if(filtered.length === 0) {
-        list.innerHTML = `<div class="empty-state">No history found. Try adding some stock or selling items.</div>`;
-        return;
-    }
+    if(filtered.length === 0) { list.innerHTML = `<div class="empty-state">No history found.</div>`; return; }
 
     const groups = {};
     filtered.forEach(t => {
@@ -322,26 +282,52 @@ function renderHistory() {
     Object.keys(groups).forEach(date => {
         list.innerHTML += `<div class="history-date">${date}</div>`;
         groups[date].forEach(t => {
-            const el = document.createElement('div');
-            el.className = `history-card ${type==='SELL'?'h-sell':'h-add'}`;
-            el.innerHTML = `
-                <div>
-                    <div class="h-tag">${type}</div>
-                    <div style="font-weight:800;font-size:16px">#${t.design}</div>
-                    ${t.customer ? `<div style="font-size:12px;color:#94a3b8;margin-top:2px">👤 ${t.customer}</div>` : ''}
-                </div>
-                <div style="text-align:right">
-                    <div style="font-size:20px;font-weight:800">${t.total_qty}</div>
-                    <div style="font-size:10px;color:#94a3b8">Total Qty</div>
-                    <button style="margin-top:5px;background:none;border:1px solid #ef4444;color:#ef4444;border-radius:4px;padding:4px 8px;font-size:10px" onclick="revertTransaction('${t.id}')">REVERT</button>
-                </div>
-            `;
-            list.appendChild(el);
+            list.innerHTML += `<div class="history-card ${type==='SELL'?'h-sell':'h-add'}"><div><div class="h-tag">${type}</div><div style="font-weight:800;font-size:16px">#${t.design}</div>${t.customer?`<div style="font-size:12px;color:#94a3b8;margin-top:2px">👤 ${t.customer}</div>`:''}</div><div style="text-align:right"><div style="font-size:20px;font-weight:800">${t.total_qty}</div><div style="font-size:10px;color:#94a3b8">Total Qty</div><button style="margin-top:5px;background:none;border:1px solid #ef4444;color:#ef4444;border-radius:4px;padding:4px 8px;font-size:10px" onclick="revertTransaction('${t.id}')">REVERT</button></div></div>`;
         });
     });
 }
 
-// --- MODAL ---
+// --- EDIT (MANAGE) LOGIC ---
+function openEdit(item) {
+    if(navigator.vibrate) navigator.vibrate(50); // Haptic feedback
+    editingItem = item;
+    document.getElementById('editOverlay').classList.add('open');
+    document.getElementById('e-design').value = item.design;
+    [0,1,2,3].forEach(i => document.getElementById('e'+i).value = item.stock[i]);
+}
+
+function closeEdit() { document.getElementById('editOverlay').classList.remove('open'); editingItem = null; }
+
+function saveEdit() {
+    if(!editingItem) return;
+    const newName = document.getElementById('e-design').value.trim().toUpperCase();
+    const newStock = [0,1,2,3].map(i => +document.getElementById('e'+i).value);
+    
+    // Update Local
+    editingItem.design = newName;
+    editingItem.stock = newStock;
+    
+    // Push to Queue
+    queue.push({ table:'inventory', type:'UPDATE', id:editingItem.id, data:{ design: newName, stock: newStock } });
+    
+    localStorage.setItem('df_inv', JSON.stringify(inventory));
+    localStorage.setItem('df_q', JSON.stringify(queue));
+    
+    renderInventory(); processQueue(); closeEdit();
+}
+
+function deleteItem() {
+    if(!confirm("Are you sure you want to delete this item?")) return;
+    editingItem.deleted_at = new Date().toISOString();
+    
+    queue.push({ table:'inventory', type:'UPDATE', id:editingItem.id, data:{ deleted_at: editingItem.deleted_at } });
+    localStorage.setItem('df_inv', JSON.stringify(inventory));
+    localStorage.setItem('df_q', JSON.stringify(queue));
+    
+    renderInventory(); processQueue(); closeEdit();
+}
+
+// --- ADD/SELL MODAL LOGIC (Existing) ---
 function openModal(mode) {
     modalMode = mode;
     document.getElementById('m-title').innerText = mode === 'add' ? 'Add Stock' : 'Sell Stock';
@@ -351,69 +337,43 @@ function openModal(mode) {
     updateDropdowns(null);
     document.getElementById('modalOverlay').classList.add('open');
 }
-
-function closeModal() {
-    document.getElementById('modalOverlay').classList.remove('open');
-    document.getElementById('suggestions').classList.remove('active');
-}
-
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); document.getElementById('suggestions').classList.remove('active'); }
 function handleDesignInput(val) {
     val = val.toUpperCase().trim();
     const box = document.getElementById('suggestions');
     const matches = inventory.filter(i => i.design.startsWith(val) && !i.deleted_at).slice(0,5);
-    
     if(val.length > 0 && matches.length > 0) {
         box.innerHTML = matches.map(m => `<div class="s-item" onclick="selectSuggestion('${m.design}')"><b>${m.design}</b> <span style="font-size:10px;color:#94a3b8">Stock: ${m.stock.reduce((a,b)=>a+b,0)}</span></div>`).join('');
         box.classList.add('active');
     } else box.classList.remove('active');
-
     foundItem = inventory.find(i => i.design === val && !i.deleted_at);
     updateDropdowns(foundItem);
 }
-
-function selectSuggestion(val) {
-    document.getElementById('m-design').value = val;
-    document.getElementById('suggestions').classList.remove('active');
-    handleDesignInput(val);
-}
-
+function selectSuggestion(val) { document.getElementById('m-design').value = val; document.getElementById('suggestions').classList.remove('active'); handleDesignInput(val); }
 function updateDropdowns(item) {
     [0,1,2,3].forEach(idx => {
         const s = document.getElementById('s'+idx);
         const l = document.getElementById('l'+idx);
         s.innerHTML = ''; s.disabled = false;
-
         if(modalMode === 'sell') {
             if(item) {
                 const av = item.stock[idx] - (item.sold[idx]||0);
                 l.innerText = `Avail: ${av}`;
                 if(av <= 0) { s.innerHTML='<option value="0">0</option>'; s.disabled=true; }
                 else for(let i=0;i<=av;i++) s.innerHTML+=`<option value="${i}">${i}</option>`;
-            } else {
-                l.innerText = '-'; s.innerHTML='<option value="0">0</option>'; s.disabled=true;
-            }
-        } else {
-            for(let i=0;i<=100;i++) s.innerHTML+=`<option value="${i}">${i}</option>`;
-            l.innerText = item ? `Cur: ${item.stock[idx]}` : 'New';
-        }
+            } else { l.innerText = '-'; s.innerHTML='<option value="0">0</option>'; s.disabled=true; }
+        } else { for(let i=0;i<=100;i++) s.innerHTML+=`<option value="${i}">${i}</option>`; l.innerText = item ? `Cur: ${item.stock[idx]}` : 'New'; }
     });
 }
-
 async function finalSubmit() {
-    // 1. Validate
     const dNo = document.getElementById('m-design').value.trim().toUpperCase();
     const cust = document.getElementById('m-customer').value.trim();
     const qtys = [0,1,2,3].map(i => +document.getElementById('s'+i).value);
     const total = qtys.reduce((a,b)=>a+b,0);
-
     if(!dNo) return alert("Please enter Design Number");
     if(total === 0) return alert("Please select quantity");
     if(modalMode === 'sell' && !foundItem) return alert("Design not found!");
-
-    // 2. CLOSE MODAL IMMEDIATELY to prevent freezing
     closeModal();
-
-    // 3. Logic
     setTimeout(() => {
         if(modalMode === 'add') {
             if(foundItem) {
@@ -429,68 +389,43 @@ async function finalSubmit() {
             foundItem.sold = foundItem.sold.map((s,i) => (foundItem.sold[i]||0) + qtys[i]);
             queue.push({ table:'inventory', type:'UPDATE', id:foundItem.id, data:{sold:foundItem.sold} });
         }
-
-        // Add Transaction
-        const tx = {
-            id: Date.now(),
-            created_at: new Date().toISOString(),
-            type: modalMode === 'add' ? 'ADD' : 'SELL',
-            design: dNo,
-            customer: cust,
-            quantities: qtys,
-            total_qty: total
-        };
+        const tx = { id: Date.now(), created_at: new Date().toISOString(), type: modalMode === 'add' ? 'ADD' : 'SELL', design: dNo, customer: cust, quantities: qtys, total_qty: total };
         transactions.unshift(tx);
         queue.push({ table:'transactions', type:'INSERT', data:tx });
-
-        // Save & Render
         localStorage.setItem('df_inv', JSON.stringify(inventory));
         localStorage.setItem('df_tx', JSON.stringify(transactions));
         localStorage.setItem('df_q', JSON.stringify(queue));
-        
-        renderInventory();
-        updateStatus();
-        processQueue();
-    }, 100); // Small delay to allow UI to close
+        renderInventory(); updateStatus(); processQueue();
+    }, 100);
 }
 
+// --- UTILS ---
+function toggleSidebar() { document.getElementById('sidebarOverlay').classList.toggle('open'); }
+function switchView(view) {
+    currentView = view; document.getElementById('sidebarOverlay').classList.remove('open');
+    document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+    if(view === 'home') { document.getElementById('view-home').classList.add('active'); document.getElementById('nav-home').classList.add('active'); renderInventory(); }
+    else { document.getElementById('view-history').classList.add('active'); document.getElementById('nav-'+view).classList.add('active'); document.getElementById('history-title').innerText = view === 'history-add' ? 'Inward History' : 'Sales History'; renderHistory(); }
+}
 function revertTransaction(txId) {
-    if(!confirm("Revert this transaction? Stocks will be adjusted.")) return;
-    
-    // Find TX
+    if(!confirm("Revert this transaction?")) return;
     const txIndex = transactions.findIndex(t => t.id == txId);
     if(txIndex === -1) return;
     const tx = transactions[txIndex];
-
-    // Revert Stock
     const invItem = inventory.find(i => i.design === tx.design && !i.deleted_at);
     if(invItem) {
-        if(tx.type === 'ADD') {
-            invItem.stock = invItem.stock.map((s,i) => Math.max(0, s - tx.quantities[i]));
-            queue.push({ table:'inventory', type:'UPDATE', id:invItem.id, data:{stock:invItem.stock} });
-        } else {
-            invItem.sold = invItem.sold.map((s,i) => Math.max(0, s - tx.quantities[i]));
-            queue.push({ table:'inventory', type:'UPDATE', id:invItem.id, data:{sold:invItem.sold} });
-        }
+        if(tx.type === 'ADD') { invItem.stock = invItem.stock.map((s,i) => Math.max(0, s - tx.quantities[i])); queue.push({ table:'inventory', type:'UPDATE', id:invItem.id, data:{stock:invItem.stock} }); }
+        else { invItem.sold = invItem.sold.map((s,i) => Math.max(0, s - tx.quantities[i])); queue.push({ table:'inventory', type:'UPDATE', id:invItem.id, data:{sold:invItem.sold} }); }
     }
-
-    // Remove TX
     transactions.splice(txIndex, 1);
     sbClient.from('transactions').delete().eq('id', txId).then(console.log);
-
     localStorage.setItem('df_inv', JSON.stringify(inventory));
     localStorage.setItem('df_tx', JSON.stringify(transactions));
     localStorage.setItem('df_q', JSON.stringify(queue));
-    
-    renderHistory();
-    renderInventory();
+    renderHistory(); renderInventory();
 }
-
-function resetApp() {
-    if(!confirm("Reset all local data? (Use if stuck)")) return;
-    localStorage.clear();
-    location.reload();
-}
+function resetApp() { if(confirm("Reset all local data?")) { localStorage.clear(); location.reload(); } }
 </script>
 </body>
 </html>
