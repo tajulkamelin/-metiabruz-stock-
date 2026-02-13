@@ -3,61 +3,56 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Dilkhus Fashion 3D Pro</title>
+<title>Dilkhus Fashion Pro</title>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
 :root { 
-    --bg: #121214; --card: #1c1c1e; --primary: #e91e63; 
-    --success: #22c55e; --danger: #ef4444; --text: #ffffff;
-    --text-muted: #8e8e93; --inner-sh: inset 2px 2px 5px rgba(0,0,0,0.5);
+    --bg: #09090b; --card: #18181b; --primary: #e91e63; 
+    --success: #22c55e; --danger: #ef4444; --warning: #f59e0b;
+    --text: #fafafa; --border: rgba(255,255,255,0.08); 
     --outer-sh: 8px 8px 16px rgba(0,0,0,0.4), -4px -4px 12px rgba(255,255,255,0.03);
+    --inner-sh: inset 2px 2px 5px rgba(0,0,0,0.5);
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', system-ui, sans-serif; }
-body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140px; overflow-x: hidden; }
+body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 120px; overflow: hidden; height: 100vh; }
 
-/* DISABLE TEXT SELECTION FOR 3D TOUCH */
-.card, .header, .stat-card, .btn { user-select: none !important; -webkit-user-select: none !important; -webkit-touch-callout: none !important; }
+/* DISABLE SELECTION FOR 3D TOUCH */
+.card, .btn { user-select: none !important; -webkit-user-select: none !important; -webkit-touch-callout: none !important; }
 
 /* LIQUID WAVE */
 #liquid-wave { position: fixed; inset: 0; background: var(--primary); z-index: 2000; clip-path: circle(0% at 50% 50%); transition: clip-path 0.8s cubic-bezier(0.77, 0, 0.175, 1); pointer-events: none; }
 #liquid-wave.active { clip-path: circle(150% at 50% 50%); }
 
-/* UI COMPONENTS */
-.header { position: sticky; top: 0; z-index: 50; background: rgba(18, 18, 20, 0.9); backdrop-filter: blur(20px); padding: 50px 20px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
-.search-container { margin-top: 15px; position: relative; }
-.search-input { width: 100%; background: #1c1c1f; border: none; box-shadow: var(--inner-sh); color: #FFF; padding: 12px 15px 12px 40px; border-radius: 12px; font-size: 15px; outline: none; }
-.stat-card { background: var(--card); border-radius: 18px; padding: 18px; box-shadow: var(--outer-sh); border: 1px solid rgba(255,255,255,0.03); }
-.card { background: var(--card); border-radius: 22px; padding: 22px; margin: 0 20px 20px; box-shadow: var(--outer-sh); transition: 0.2s; position: relative; }
-.size-box { background: #121214; border-radius: 12px; box-shadow: var(--inner-sh); padding: 12px 5px; text-align: center; }
+/* HEADER & STATUS */
+.header { position: sticky; top: 0; z-index: 50; background: rgba(9, 9, 11, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 45px 20px 15px; }
+.status-pill { font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.05); padding: 6px 12px; border-radius: 100px; display: flex; align-items: center; gap: 8px; border: 0.5px solid var(--border); }
+.dot { width: 8px; height: 8px; border-radius: 50%; transition: 0.3s; box-shadow: 0 0 8px currentColor; }
 
-.dock { position: fixed; bottom: 30px; left: 20px; right: 20px; background: rgba(28,28,30,0.8); backdrop-filter: blur(25px); border-radius: 25px; padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); z-index: 100; }
-.btn { height: 55px; border-radius: 18px; border: none; font-weight: 800; display: flex; align-items: center; justify-content: center; cursor: pointer; }
-.btn-primary { background: var(--primary); color: white; box-shadow: var(--outer-sh); }
-.btn-glass { background: rgba(255,255,255,0.05); color: white; }
+/* STATS & CARDS */
+.dash-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 15px 20px; }
+.stat-card { background: var(--card); border-radius: 15px; padding: 15px; box-shadow: var(--outer-sh); border: 1px solid var(--border); }
+.card { background: var(--card); border-radius: 20px; padding: 20px; margin: 0 20px 15px; box-shadow: var(--outer-sh); border: 1px solid var(--border); transition: 0.2s; }
+.size-box { background: #000; border-radius: 10px; box-shadow: var(--inner-sh); padding: 10px 5px; text-align: center; }
 
+/* ACTION DOCK */
+.dock { position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(24, 24, 27, 0.9); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 20px; padding: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; z-index: 100; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }
+.btn { height: 50px; border-radius: 14px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #FFF; }
+.btn-primary { background: var(--primary); }
+.btn-glass { background: rgba(255,255,255,0.05); border: 1px solid var(--border); }
+
+/* PEEK & MODALS */
 .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2100; display: none; align-items: flex-end; }
 .modal-bg.open { display: flex; }
-.modal { background: #111113; width: 100%; border-radius: 28px 28px 0 0; padding: 20px 24px 60px; border-top: 1px solid rgba(255,255,255,0.1); }
-.inp-large { width: 100%; background: #1c1c1f; border: none; box-shadow: var(--inner-sh); color: #FFF; padding: 18px; border-radius: 15px; font-size: 18px; margin-bottom: 15px; outline: none; }
+.modal { background: #111113; width: 100%; border-radius: 25px 25px 0 0; padding: 20px 24px 50px; border-top: 1px solid var(--border); }
+.inp-large { width: 100%; background: #000; border: none; box-shadow: var(--inner-sh); color: #FFF; padding: 16px; border-radius: 12px; font-size: 18px; margin-bottom: 12px; outline: none; }
 
 .peek-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
 .peek-overlay.active { display: flex; }
-.peek-card { background: var(--card); width: 90%; border-radius: 30px; padding: 25px; box-shadow: 0 30px 60px rgba(0,0,0,0.8); }
-
-.peek-edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
-.peek-edit-item { background: #121214; padding: 10px; border-radius: 12px; box-shadow: var(--inner-sh); }
-.peek-edit-item input { background: transparent; border: none; color: #FFF; width: 100%; font-weight: 800; text-align: center; outline: none; }
+.peek-card { background: var(--card); width: 90%; border-radius: 25px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); border: 1px solid var(--border); }
 
 /* PRINTING */
-.print-area { display: none; }
-@media print {
-    body { background: white !important; color: black !important; padding: 0 !important; }
-    .header, .dock, .dash-container, #list, #liquid-wave { display: none !important; }
-    .print-area { display: block !important; padding: 20px; width: 100%; }
-    table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 15px; }
-    th, td { border: 1px solid #000; padding: 6px; text-align: center; }
-}
+@media print { .header, .dock, .dash-container, #list, #liquid-wave { display: none !important; } .print-area { display: block; color: #000; background: #FFF; } }
 </style>
 </head>
 <body>
@@ -66,18 +61,18 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
 
 <div class="header">
     <div style="display:flex; justify-content:space-between; align-items:center;">
-        <div style="display:flex; align-items:center; gap:12px">
-            <img src="https://i.ibb.co/S76pM38S/image.png" style="width:35px; border-radius:50%; border:1px solid var(--primary)">
-            <span style="font-size:20px; font-weight:900;">Dilkhus Fashion</span>
+        <div style="display:flex; align-items:center; gap:10px">
+            <img src="https://i.ibb.co/S76pM38S/image.png" style="width:32px; border-radius:50%; border:1px solid var(--primary)">
+            <span style="font-size:18px; font-weight:800; letter-spacing:-0.5px">Dilkhus Fashion</span>
         </div>
-        <button class="btn btn-glass" style="height:35px; padding:0 15px; font-size:10px" onclick="printStock()">PRINT</button>
+        <div class="status-pill">
+            <div id="dot" class="dot"></div>
+            <span id="status">CONNECTING</span>
+        </div>
     </div>
-    <div class="search-container">
-        <input type="text" id="mainSearch" class="search-input" placeholder="🔍 Search Design Number..." oninput="render()">
-    </div>
-    <div style="display:flex; gap:10px; margin-top:15px;">
-        <button class="btn btn-glass" style="flex:1; height:40px; font-size:11px;" onclick="triggerLiquid('active')">INVENTORY</button>
-        <button class="btn btn-glass" style="flex:1; height:40px; font-size:11px; background:rgba(0,0,0,0.3)" onclick="triggerLiquid('trash')">TRASH</button>
+    <div style="display:flex; gap:10px; margin-top:20px;">
+        <button class="btn btn-glass" style="flex:1; height:38px; font-size:11px;" onclick="triggerLiquid('active')">INVENTORY</button>
+        <button class="btn btn-glass" style="flex:1; height:38px; font-size:11px;" onclick="triggerLiquid('trash')">TRASH</button>
     </div>
 </div>
 
@@ -86,7 +81,7 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
     <div class="stat-card"><div style="font-size:10px; color:var(--text-muted)">REM</div><div class="stat-val" id="d-rem" style="color:var(--success)">0</div></div>
 </div>
 
-<div id="list" style="height: calc(100vh - 360px); overflow-y: auto;"></div>
+<div id="list" style="height: calc(100vh - 300px); overflow-y: auto;"></div>
 
 <div class="dock">
     <button class="btn btn-primary" onclick="openModal('add')">ADD</button>
@@ -95,67 +90,55 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
 
 <div class="peek-overlay" id="peekOverlay" onclick="closePeek()">
     <div class="peek-card" onclick="event.stopPropagation()">
-        <h2 id="peekTitle" style="color:var(--primary); margin:0 0 15px 0; font-size: 20px;">Edit Design Data</h2>
-        <input id="edit-design-name" class="inp-large" style="padding:12px; font-size: 16px;">
-        <div class="peek-edit-grid" id="edit-grid">
-            <div class="peek-edit-item"><label style="font-size:9px">22x32</label><input type="number" id="e0"></div>
-            <div class="peek-edit-item"><label style="font-size:9px">34x36</label><input type="number" id="e1"></div>
-            <div class="peek-edit-item"><label style="font-size:9px">16x18</label><input type="number" id="e2"></div>
-            <div class="peek-edit-item"><label style="font-size:9px">26x30</label><input type="number" id="e3"></div>
+        <h3 id="peekTitle" style="color:var(--primary); margin:0 0 15px 0">Edit Design</h3>
+        <input id="edit-design-name" class="inp-large" placeholder="Name">
+        <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:15px">
+            <div class="size-box"><label style="font-size:9px">22x32</label><input type="number" id="e0" style="background:none;border:none;color:#FFF;text-align:center;width:100%;font-weight:800"></div>
+            <div class="size-box"><label style="font-size:9px">34x36</label><input type="number" id="e1" style="background:none;border:none;color:#FFF;text-align:center;width:100%;font-weight:800"></div>
+            <div class="size-box"><label style="font-size:9px">16x18</label><input type="number" id="e2" style="background:none;border:none;color:#FFF;text-align:center;width:100%;font-weight:800"></div>
+            <div class="size-box"><label style="font-size:9px">26x30</label><input type="number" id="e3" style="background:none;border:none;color:#FFF;text-align:center;width:100%;font-weight:800"></div>
         </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px">
-            <button class="btn btn-primary" onclick="saveFullEdit()">UPDATE</button>
-            <button class="btn" style="background:var(--danger); color:white" id="deleteBtn">DELETE</button>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
+            <button class="btn btn-primary" onclick="saveFullEdit()">SAVE</button>
+            <button class="btn" style="background:var(--danger)" id="deleteBtn">DELETE</button>
         </div>
-        <button class="btn btn-glass" style="width:100%; margin-top:10px; border:none" onclick="closePeek()">CANCEL</button>
     </div>
 </div>
 
 <div class="modal-bg" id="modal">
     <div class="modal" onclick="event.stopPropagation()">
-        <h2 id="m-title" style="margin-bottom:20px">Action</h2>
+        <h2 id="m-title">Action</h2>
         <input id="m-design" class="inp-large" placeholder="Design Number" oninput="checkDup(this.value)">
-        <div id="stock-hint" style="font-size:11px; color:var(--warning); margin-bottom:10px; display:none;"></div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px;">
-            <div><label style="font-size:10px; color:var(--text-muted)">22x32</label><select id="s0" class="inp-large" style="padding:10px;"></select></div>
-            <div><label style="font-size:10px; color:var(--text-muted)">34x36</label><select id="s1" class="inp-large" style="padding:10px;"></select></div>
-            <div><label style="font-size:10px; color:var(--text-muted)">16x18</label><select id="s2" class="inp-large" style="padding:10px;"></select></div>
-            <div><label style="font-size:10px; color:var(--text-muted)">26x30</label><select id="s3" class="inp-large" style="padding:10px;"></select></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:20px;">
+            <div><label style="font-size:10px">22x32</label><select id="s0" class="inp-large"></select></div>
+            <div><label style="font-size:10px">34x36</label><select id="s1" class="inp-large"></select></div>
+            <div><label style="font-size:10px">16x18</label><select id="s2" class="inp-large"></select></div>
+            <div><label style="font-size:10px">26x30</label><select id="s3" class="inp-large"></select></div>
         </div>
-        <button class="btn btn-primary" style="width:100%" onclick="finalSubmit()">SAVE ENTRY</button>
+        <button class="btn btn-primary" style="width:100%" onclick="finalSubmit()">SAVE</button>
         <button class="btn btn-glass" style="width:100%; margin-top:10px" onclick="closeModal()">CANCEL</button>
     </div>
 </div>
 
-<div id="print-area" class="print-area"></div>
-
 <script>
-/* --- RESTORED OFFLINE SYNC LOGIC --- */
 const SB_URL = 'https://yhlfqpiwevsehlgbhxtk.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlobGZxcGl3ZXZzZWhsZ2JoeHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5Mjc1ODMsImV4cCI6MjA4NTUwMzU4M30.UX-6NXiJNg6EywD7gIPjla7l5_Koq0UbpuFyENIKOaM';
 const sbClient = supabase.createClient(SB_URL, SB_KEY);
 const sizes = ["22x32","34x36","16x18","26x30"];
-let inventory = [];
-let pendingQueue = []; 
-let currentTab = 'active';
-let foundItem = null;
-let editingItem = null;
-let touchTimer;
+let inventory = [], pendingQueue = [], currentTab = 'active', touchTimer, foundItem, editingItem;
 
 (async function init() {
-    const localInv = localStorage.getItem('dilkhus_inv');
-    const localQue = localStorage.getItem('dilkhus_que');
+    const localInv = localStorage.getItem('dilkhus_inv'), localQue = localStorage.getItem('dilkhus_que');
     if(localInv) inventory = JSON.parse(localInv);
     if(localQue) pendingQueue = JSON.parse(localQue);
-    
-    render();
+    render(); updateStatus();
     
     const opts = `<option value="0">0</option>` + Array.from({length:100},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
     [0,1,2,3].forEach(i => document.getElementById('s'+i).innerHTML = opts);
 
-    window.addEventListener('online', processQueue);
+    window.addEventListener('online', () => { updateStatus(); processQueue(); });
+    window.addEventListener('offline', updateStatus);
     if(navigator.onLine) { fetchLatest(); processQueue(); }
-    
     sbClient.channel('any').on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, fetchLatest).subscribe();
 })();
 
@@ -168,26 +151,29 @@ async function fetchLatest() {
 function saveLocal() { 
     localStorage.setItem('dilkhus_inv', JSON.stringify(inventory)); 
     localStorage.setItem('dilkhus_que', JSON.stringify(pendingQueue)); 
-    document.getElementById('dot').style.background = (pendingQueue.length > 0) ? 'var(--warning)' : (navigator.onLine ? 'var(--success)' : 'var(--danger)');
+    updateStatus();
+}
+
+function updateStatus() {
+    const s = document.getElementById('status'), d = document.getElementById('dot');
+    if(pendingQueue.length > 0) { s.innerText = 'SYNCING'; d.style.background = 'var(--warning)'; d.style.color = 'var(--warning)'; }
+    else if(navigator.onLine) { s.innerText = 'ONLINE'; d.style.background = 'var(--success)'; d.style.color = 'var(--success)'; }
+    else { s.innerText = 'OFFLINE'; d.style.background = 'var(--danger)'; d.style.color = 'var(--danger)'; }
 }
 
 async function processQueue() {
     if(!navigator.onLine || pendingQueue.length === 0) return;
     const op = pendingQueue[0];
-    let success = false;
     try {
         if(op.type === 'INSERT') await sbClient.from('inventory').insert(op.data);
         else if(op.type === 'UPDATE') await sbClient.from('inventory').update(op.data).eq('id', op.id);
-        success = true;
-    } catch(e) {}
-    if(success) { pendingQueue.shift(); saveLocal(); processQueue(); }
+        pendingQueue.shift(); saveLocal(); processQueue();
+    } catch(e) { setTimeout(processQueue, 3000); }
 }
 
 function render() {
-    const list = document.getElementById('list'); 
-    const term = document.getElementById('mainSearch').value.toUpperCase();
-    list.innerHTML = '';
-    const filtered = inventory.filter(i => (currentTab === 'active' ? !i.deleted_at : !!i.deleted_at) && i.design.toUpperCase().includes(term));
+    const list = document.getElementById('list'); list.innerHTML = '';
+    const filtered = inventory.filter(i => (currentTab === 'active' ? !i.deleted_at : !!i.deleted_at));
     
     const active = inventory.filter(i => !i.deleted_at);
     document.getElementById('d-stock').innerText = active.reduce((a,c)=>a+c.stock.reduce((x,y)=>x+y,0),0);
@@ -202,9 +188,9 @@ function render() {
 
         let grid = item.stock.map((s, idx) => {
             const rem = s-(item.sold[idx]||0);
-            return `<div class="size-box"><div style="font-size:9px;color:var(--text-muted)">${sizes[idx]}</div><div style="font-weight:900;color:${rem<5?'var(--danger)':'var(--success)'}">${rem}</div></div>`;
+            return `<div class="size-box"><div style="font-size:8px;color:var(--text-muted)">${sizes[idx]}</div><div style="font-weight:900;color:${rem<5?'var(--danger)':'var(--success)'}">${rem}</div></div>`;
         }).join('');
-        el.innerHTML = `<div style="font-weight:900;font-size:18px;margin-bottom:12px;color:var(--primary)">#${item.design}</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">${grid}</div>`;
+        el.innerHTML = `<div style="font-weight:800;font-size:16px;margin-bottom:12px;color:var(--primary)">#${item.design}</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">${grid}</div>`;
         list.appendChild(el);
     });
 }
@@ -248,28 +234,19 @@ async function restoreItem() {
 function openModal(m) { modalMode = m; document.getElementById('m-title').innerText = m === 'add' ? 'Add Stock' : 'Sell Stock'; document.getElementById('modal').classList.add('open'); }
 function closeModal() { document.getElementById('modal').classList.remove('open'); }
 
-function checkDup(val) {
-    foundItem = inventory.find(i => i.design === val.trim().toUpperCase() && !i.deleted_at);
-    const hint = document.getElementById('stock-hint');
-    if(foundItem) {
-        hint.style.display = 'block'; 
-        hint.innerText = foundItem.stock.map((s,i)=>`${sizes[i]}:${s-(foundItem.sold[i]||0)}`).join(' | ');
-    } else { hint.style.display = 'none'; }
-}
+function checkDup(val) { foundItem = inventory.find(i => i.design === val.trim().toUpperCase() && !i.deleted_at); }
 
 async function finalSubmit() {
     const dNo = document.getElementById('m-design').value.trim().toUpperCase();
     const qtys = [0,1,2,3].map(i => +document.getElementById('s'+i).value);
     if(!dNo) return;
-
     if(modalMode === 'add') {
         if(foundItem) {
             foundItem.stock = foundItem.stock.map((s,i) => s + qtys[i]);
             pendingQueue.push({ type: 'UPDATE', id: foundItem.id, data: { stock: foundItem.stock } });
         } else {
             const newItem = { id: Date.now(), design: dNo, stock: qtys, sold: [0,0,0,0], created_at: new Date() };
-            inventory.unshift(newItem);
-            pendingQueue.push({ type: 'INSERT', data: newItem });
+            inventory.unshift(newItem); pendingQueue.push({ type: 'INSERT', data: newItem });
         }
     } else {
         if(!foundItem) return alert("Design not found!");
@@ -279,18 +256,6 @@ async function finalSubmit() {
         pendingQueue.push({ type: 'UPDATE', id: foundItem.id, data: { sold: foundItem.sold } });
     }
     saveLocal(); render(); closeModal(); processQueue();
-}
-
-function printStock() {
-    const active = inventory.filter(i => !i.deleted_at);
-    let tS=0, tSo=0, tR=0;
-    const rows = active.map(i => {
-        const s=i.stock.reduce((a,b)=>a+b,0), so=i.sold.reduce((a,b)=>a+b,0), rems=i.stock.map((v,x)=>v-(i.sold[x]||0)), r=rems.reduce((a,b)=>a+b,0);
-        tS+=s; tSo+=so; tR+=r;
-        return `<tr><td>#${i.design}</td><td>${i.stock[0]}</td><td>${i.stock[1]}</td><td>${i.stock[2]}</td><td>${i.stock[3]}</td><td>${i.sold[0]}</td><td>${i.sold[1]}</td><td>${i.sold[2]}</td><td>${i.sold[3]}</td><td>${rems[0]}</td><td>${rems[1]}</td><td>${rems[2]}</td><td>${rems[3]}</td><td><b>${r}</b></td></tr>`;
-    }).join('');
-    document.getElementById('print-area').innerHTML = `<div style="text-align:center"><img src="https://i.ibb.co/S76pM38S/image.png" style="width:50px"><h1>Report</h1><p>${new Date().toLocaleString()}</p></div><table><thead><tr><th rowspan="2">Design</th><th colspan="4">Stock</th><th colspan="4">Sold</th><th colspan="4">Remaining</th><th rowspan="2">Tot</th></tr><tr><th>22x32</th><th>34x36</th><th>16x18</th><th>26x30</th><th>22x32</th><th>34x36</th><th>16x18</th><th>26x30</th><th>22x32</th><th>34x36</th><th>16x18</th><th>26x30</th></tr></thead><tbody>${rows}</tbody></table>`;
-    window.print();
 }
 </script>
 </body>
