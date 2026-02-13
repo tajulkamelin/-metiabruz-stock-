@@ -3,387 +3,195 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Metiabruz Pro V4.0</title>
+<title>Dilkhus Fashion 3D Pro</title>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
-/* --- MODERN NEON REDESIGN --- */
 :root { 
-    --bg: #09090b; 
-    --card: #18181b; 
-    --primary: #3b82f6; 
-    --primary-glow: rgba(59, 130, 246, 0.5);
-    --danger: #ef4444; 
-    --success: #22c55e; 
-    --warning: #f59e0b; 
-    --text: #fafafa; 
-    --text-muted: #a1a1aa;
-    --border: rgba(255,255,255,0.08); 
+    --bg: #121214; --card: #1c1c1e; --primary: #e91e63; 
+    --success: #22c55e; --danger: #ef4444; --text: #ffffff;
+    --text-muted: #8e8e93; --inner-sh: inset 2px 2px 5px rgba(0,0,0,0.5);
+    --outer-sh: 8px 8px 16px rgba(0,0,0,0.4), -4px -4px 12px rgba(255,255,255,0.03);
 }
 
-* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', -apple-system, system-ui, sans-serif; }
-body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 120px; overflow-x: hidden; line-height: 1.5; }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', system-ui, sans-serif; }
+body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140px; overflow-x: hidden; }
 
-/* HEADER & LOGO */
-.header { position: sticky; top: 0; z-index: 50; background: rgba(9, 9, 11, 0.8); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 45px 20px 15px; }
-.top-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-.logo { font-size: 22px; font-weight: 800; letter-spacing: -1px; background: linear-gradient(to right, #fff, #71717a); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+/* LIQUID WAVE */
+#liquid-wave { position: fixed; inset: 0; background: var(--primary); z-index: 2000; clip-path: circle(0% at 50% 50%); transition: clip-path 0.8s cubic-bezier(0.77, 0, 0.175, 1); pointer-events: none; }
+#liquid-wave.active { clip-path: circle(150% at 50% 50%); }
 
-/* DASHBOARD STATS */
-.dash-container { background: linear-gradient(145deg, #18181b, #09090b); padding: 20px; margin: 0 20px 25px; border-radius: 20px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-.dash-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
-.status-pill { font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.05); padding: 6px 12px; border-radius: 100px; color: var(--text-muted); border: 0.5px solid var(--border); display: flex; align-items: center; gap: 8px; }
-.dot { width: 6px; height: 6px; border-radius: 50%; box-shadow: 0 0 10px currentColor; }
+/* UI COMPONENTS */
+.header { position: sticky; top: 0; z-index: 50; background: rgba(18, 18, 20, 0.9); backdrop-filter: blur(20px); padding: 50px 20px 15px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.stat-card { background: var(--card); border-radius: 18px; padding: 18px; box-shadow: var(--outer-sh); border: 1px solid rgba(255,255,255,0.03); }
+.card { background: var(--card); border-radius: 22px; padding: 22px; margin: 0 20px 20px; box-shadow: var(--outer-sh); transition: 0.2s; }
+.size-box { background: #121214; border-radius: 12px; box-shadow: var(--inner-sh); padding: 12px 5px; text-align: center; }
 
-.dash-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-.stat-card { background: rgba(255,255,255,0.03); border: 1px solid var(--border); border-radius: 14px; padding: 15px; }
-.stat-lbl { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
-.stat-val { font-size: 24px; font-weight: 800; }
+.dock { position: fixed; bottom: 30px; left: 20px; right: 20px; background: rgba(28,28,30,0.8); backdrop-filter: blur(25px); border-radius: 25px; padding: 15px; display: grid; grid-template-columns: 1fr 1fr; gap: 15px; box-shadow: 0 20px 40px rgba(0,0,0,0.6); z-index: 100; }
+.btn { height: 55px; border-radius: 18px; border: none; font-weight: 800; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+.btn-primary { background: var(--primary); color: white; box-shadow: var(--outer-sh); }
+.btn-glass { background: rgba(255,255,255,0.05); color: white; }
 
-/* SEARCH & TABS */
-.search-row { display: flex; gap: 12px; padding: 0 20px; margin-bottom: 20px; }
-.search-wrap { flex: 1; background: #18181b; border: 1px solid var(--border); border-radius: 12px; height: 48px; display: flex; align-items: center; padding: 0 15px; transition: 0.2s; }
-.search-wrap:focus-within { border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-glow); }
-.search-wrap input { flex: 1; background: transparent; border: none; color: #FFF; font-size: 16px; outline: none; margin-left: 10px; }
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2100; display: none; align-items: flex-end; }
+.modal-bg.open { display: flex; }
+.modal { background: #111113; width: 100%; border-radius: 28px 28px 0 0; padding: 20px 24px 60px; border-top: 1px solid rgba(255,255,255,0.1); }
+.inp-large { width: 100%; background: #1c1c1f; border: none; box-shadow: var(--inner-sh); color: #FFF; padding: 18px; border-radius: 15px; font-size: 18px; margin-bottom: 15px; outline: none; }
 
-.tabs { display: flex; padding: 0 20px; gap: 10px; margin-bottom: 20px; }
-.tab { flex: 1; padding: 10px; text-align: center; font-size: 14px; font-weight: 600; color: var(--text-muted); background: transparent; border-radius: 10px; border: 1px solid transparent; transition: 0.2s; }
-.tab.active { background: var(--card); color: #FFF; border-color: var(--border); }
-
-/* CARDS */
-.list { padding: 0 20px; }
-.card { background: var(--card); border-radius: 18px; padding: 20px; margin-bottom: 16px; border: 1px solid var(--border); transition: transform 0.1s; position: relative; }
-.card:active { transform: scale(0.98); }
-.card.selected { border-color: var(--primary); background: rgba(59, 130, 246, 0.05); }
-
-.size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 15px; }
-.size-box { background: rgba(0,0,0,0.2); border-radius: 10px; padding: 10px 5px; text-align: center; border: 0.5px solid var(--border); }
-.size-lbl { font-size: 10px; color: var(--text-muted); margin-bottom: 2px; }
-.size-val { font-size: 16px; font-weight: 700; }
-.val-low { color: var(--danger); } .val-ok { color: var(--success); }
-
-/* DOCK BAR */
-.dock { position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(24, 24, 27, 0.85); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 20px; padding: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; z-index: 100; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }
-.btn { height: 50px; border-radius: 14px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; transition: 0.2s; }
-.btn-primary { background: var(--primary); color: #FFF; }
-.btn-glass { background: rgba(255,255,255,0.05); color: #FFF; border: 1px solid var(--border); }
-.btn:active { opacity: 0.7; transform: translateY(2px); }
-
-/* MODALS */
-.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 200; display: none; align-items: flex-end; }
-.modal-bg.open { display: flex; animation: fadeIn 0.3s; }
-.modal { background: #111113; width: 100%; border-radius: 28px 28px 0 0; padding: 20px 24px 60px; border-top: 1px solid var(--border); }
-@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-.inp-large { width: 100%; background: #1c1c1f; border: 1px solid var(--border); color: #FFF; padding: 18px; border-radius: 15px; font-size: 18px; margin-bottom: 15px; outline: none; }
-.dropdown { width: 100%; padding: 14px; background: #1c1c1f; color: #FFF; border: 1px solid var(--border); border-radius: 12px; font-size: 16px; }
-
-/* RECENT ACTIVITY SIDEBAR */
-.sidebar { background: #09090b; padding-top: 60px; }
-.sb-item { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 12px; margin-bottom: 10px; }
-
-/* PRINTING */
-@media print { .header, .dock, .dash-container, .tabs, .search-row { display: none !important; } }
+/* PRINTING (YOUR DESIRED TABLE) */
+.print-area { display: none; }
+@media print {
+    body { background: white !important; color: black !important; }
+    .header, .dock, .dash-container, #list, #liquid-wave { display: none !important; }
+    .print-area { display: block !important; padding: 20px; width: 100%; }
+    table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 15px; }
+    th, td { border: 1px solid #000; padding: 6px; text-align: center; }
+    th { background: #f0f0f0; }
+    @page { size: landscape; margin: 10mm; }
+}
 </style>
 </head>
 <body>
 
-<div class="sidebar-overlay" onclick="toggleSidebar()" id="sb-overlay" style="position:fixed; inset:0; background:rgba(0,0,0,0.8); z-index:150; display:none;"></div>
-<div class="sidebar" id="sidebar" style="position:fixed; top:0; left:0; bottom:0; width:280px; background:#09090b; z-index:160; transform:translateX(-100%); transition:0.3s cubic-bezier(0.4, 0, 0.2, 1); border-right:1px solid var(--border); padding:60px 20px 20px; overflow-y:auto;">
-    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:30px">
-        <span style="font-size:20px; font-weight:800">Menu</span>
-        <button onclick="toggleSidebar()" style="background:none; border:none; color:#FFF; font-size:20px">✕</button>
-    </div>
-    <div style="margin-bottom:40px">
-        <button class="btn btn-primary" style="width:100%; margin-bottom:12px" onclick="printStock()">🖨️ Print Stock</button>
-        <button class="btn btn-glass" style="width:100%" onclick="forceReset()">⚠️ Reset Sync</button>
-    </div>
-    <div style="font-size:12px; font-weight:700; color:var(--text-muted); text-transform:uppercase; letter-spacing:1px; margin-bottom:15px">Recent Activity</div>
-    <div id="recent-adds"></div>
-</div>
+<div id="liquid-wave"></div>
 
 <div class="header">
-    <div class="top-row">
-        <div style="display:flex; align-items:center; gap:15px">
-            <button onclick="toggleSidebar()" style="background:none; border:none; color:#FFF; font-size:24px">☰</button>
-            <div class="logo">Metiabruz Pro</div>
+    <div style="display:flex; justify-content:space-between; align-items:center;">
+        <div style="display:flex; align-items:center; gap:12px">
+            <img src="https://i.ibb.co/S76pM38S/image.png" style="width:35px; border-radius:50%; border:1px solid var(--primary)">
+            <span style="font-size:22px; font-weight:900;">Dilkhus Fashion</span>
         </div>
-        <div class="status-pill">
-            <div class="dot" id="dot" style="background:var(--danger)"></div>
-            <span id="status">CONNECTING</span>
-        </div>
+        <button class="btn btn-glass" style="height:35px; padding:0 15px; font-size:10px" onclick="printStock()">PRINT STOCK</button>
     </div>
-
-    <div class="dash-container">
-        <div class="dash-grid">
-            <div class="stat-card">
-                <div class="stat-lbl">Inventory</div>
-                <div class="stat-val" id="d-stock" style="color:var(--primary)">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-lbl">Remaining</div>
-                <div class="stat-val" id="d-rem" style="color:var(--success)">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-lbl">Total Sold</div>
-                <div class="stat-val" id="d-sold" style="color:var(--warning)">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-lbl">Designs</div>
-                <div class="stat-val" id="d-des">0</div>
-            </div>
-        </div>
-    </div>
-
-    <div class="search-row">
-        <div class="search-wrap">
-            <span style="opacity:0.4">🔍</span>
-            <input id="search" placeholder="Search design..." oninput="render()">
-        </div>
-        <button id="selBtn" onclick="toggleSelect()" style="background:none; border:none; color:var(--primary); font-weight:700; font-size:15px">Select</button>
-    </div>
-
-    <div class="tabs">
-        <div class="tab active" id="tab-active" onclick="setTab('active')">In Stock</div>
-        <div class="tab" id="tab-trash" onclick="setTab('trash')">Trash</div>
+    <div style="display:flex; gap:10px; margin-top:20px;">
+        <button class="btn btn-glass" style="flex:1; height:40px; font-size:11px;" onclick="triggerLiquid('active')">INVENTORY</button>
+        <button class="btn btn-glass" style="flex:1; height:40px; font-size:11px; background:rgba(0,0,0,0.3)" onclick="triggerLiquid('trash')">TRASH</button>
     </div>
 </div>
 
-<div class="list" id="list"></div>
-
-<div class="dock" id="dock-main">
-    <button class="btn btn-primary" onclick="openModal('add')">➕ Add Stock</button>
-    <button class="btn btn-glass" onclick="openModal('sell')">🏷️ Sell Item</button>
+<div class="dash-container">
+    <div class="stat-card"><div style="font-size:10px; color:var(--text-muted)">TOTAL STOCK</div><div class="stat-val" id="d-stock" style="color:var(--primary)">0</div></div>
+    <div class="stat-card"><div style="font-size:10px; color:var(--text-muted)">REMAINING</div><div class="stat-val" id="d-rem" style="color:var(--success)">0</div></div>
 </div>
-<div class="dock" id="dock-delete" style="display:none">
-    <button class="btn" style="background:var(--danger); grid-column: span 2; color:#FFF" onclick="deleteSelected()">🗑️ Delete Selected (<span id="selCount">0</span>)</button>
+
+<div id="list" style="height: calc(100vh - 320px); overflow-y: auto;"></div>
+
+<div class="dock">
+    <button class="btn btn-primary" onclick="openModal('add')">ADD</button>
+    <button class="btn btn-glass" onclick="openModal('sell')">SELL</button>
 </div>
 
 <div class="modal-bg" id="modal">
     <div class="modal" onclick="event.stopPropagation()">
-        <div style="width:36px; height:4px; background:rgba(255,255,255,0.1); border-radius:10px; margin:0 auto 25px;"></div>
-        <h2 id="m-title" style="margin-bottom:20px; font-weight:800">New Entry</h2>
-        
-        <div id="view-input">
-            <input id="m-design" class="inp-large" placeholder="Design Number" oninput="checkDup(this.value)">
-            
-            <div id="exist-alert" style="background:rgba(245, 158, 11, 0.1); border:1px solid var(--warning); border-radius:15px; padding:15px; margin-bottom:20px; display:none;">
-                <div style="font-size:12px; font-weight:800; color:var(--warning); margin-bottom:10px">⚠️ ALREADY EXISTS</div>
-                <div class="exist-grid" id="exist-grid" style="display:grid; grid-template-columns:repeat(4,1fr); gap:8px"></div>
-            </div>
-
-            <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:25px;">
-                <div><label style="font-size:11px; color:var(--text-muted); font-weight:700; margin-left:5px">22x32</label><select id="s0" class="dropdown"></select></div>
-                <div><label style="font-size:11px; color:var(--text-muted); font-weight:700; margin-left:5px">34x36</label><select id="s1" class="dropdown"></select></div>
-                <div><label style="font-size:11px; color:var(--text-muted); font-weight:700; margin-left:5px">16x18</label><select id="s2" class="dropdown"></select></div>
-                <div><label style="font-size:11px; color:var(--text-muted); font-weight:700; margin-left:5px">26x30</label><select id="s3" class="dropdown"></select></div>
-            </div>
-            
-            <button class="btn btn-primary" style="width:100%" onclick="preSubmit()">Continue</button>
+        <h2 id="m-title" style="margin-bottom:20px">Action</h2>
+        <input id="m-design" class="inp-large" placeholder="Design Number" oninput="checkDup(this.value)">
+        <div id="stock-hint" style="font-size:12px; color:var(--warning); margin-bottom:10px; display:none;"></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:25px;">
+            <div><label style="font-size:10px; color:var(--text-muted)">22x32</label><select id="s0" class="inp-large" style="padding:10px;"></select></div>
+            <div><label style="font-size:10px; color:var(--text-muted)">34x36</label><select id="s1" class="inp-large" style="padding:10px;"></select></div>
+            <div><label style="font-size:10px; color:var(--text-muted)">16x18</label><select id="s2" class="inp-large" style="padding:10px;"></select></div>
+            <div><label style="font-size:10px; color:var(--text-muted)">26x30</label><select id="s3" class="inp-large" style="padding:10px;"></select></div>
         </div>
-
-        <div id="view-review" style="display:none">
-            <div style="text-align:center; margin-bottom:20px">
-                <div style="font-weight:800; font-size:20px">Confirm Update</div>
-                <div style="color:var(--text-muted); font-size:13px">Updating existing records</div>
-            </div>
-            <div id="review-list" style="background:#1c1c1f; border-radius:15px; padding:15px; margin-bottom:25px; border:1px solid var(--border)"></div>
-            <button class="btn" style="width:100%; background:var(--success); color:#FFF" onclick="finalSubmit()">✅ Confirm & Save</button>
-        </div>
-
-        <button class="btn" style="width:100%; margin-top:12px; background:none; color:var(--text-muted)" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" style="width:100%" onclick="finalSubmit()">SAVE ENTRY</button>
+        <button class="btn btn-glass" style="width:100%; margin-top:10px" onclick="closeModal()">CANCEL</button>
     </div>
 </div>
 
-<div id="print-area" style="display:none"></div>
+<div id="print-area" class="print-area"></div>
 
 <script>
-/* --- CORE LOGIC (UNTOUCHED) --- */
 const SB_URL = 'https://yhlfqpiwevsehlgbhxtk.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlobGZxcGl3ZXZzZWhsZ2JoeHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5Mjc1ODMsImV4cCI6MjA4NTUwMzU4M30.UX-6NXiJNg6EywD7gIPjla7l5_Koq0UbpuFyENIKOaM';
 const sbClient = supabase.createClient(SB_URL, SB_KEY);
 const sizes = ["22x32","34x36","16x18","26x30"];
-
 let inventory = [];
-let pendingQueue = []; 
-let isSelect = false;
-let selected = new Set();
-let modalMode = 'add';
 let currentTab = 'active';
 let foundItem = null;
 
 (async function init() {
-    const localData = localStorage.getItem('metia_inv');
-    const localQueue = localStorage.getItem('metia_queue');
-    if(localData) inventory = JSON.parse(localData);
-    if(localQueue) pendingQueue = JSON.parse(localQueue);
-    
-    checkConnection();
-    render();
-    refreshSidebar();
+    const local = localStorage.getItem('dilkhus_inv');
+    if(local) { inventory = JSON.parse(local); render(); }
+    fetchLatest();
     
     const opts = `<option value="0">0</option>` + Array.from({length:100},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
     [0,1,2,3].forEach(i => document.getElementById('s'+i).innerHTML = opts);
 
-    window.addEventListener('online',  () => { checkConnection(); processQueue(); });
-    window.addEventListener('offline', () => { checkConnection(); });
-
-    if(navigator.onLine) { processQueue(); await fetchLatest(); }
-    
-    sbClient.channel('public:inventory').on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, payload => {
-        const { eventType, new: n, old: o } = payload;
-        if(eventType === 'INSERT') { inventory = inventory.filter(x => x.design !== n.design); inventory.unshift(n); }
-        if(eventType === 'UPDATE') { const i = inventory.findIndex(x=>x.id===n.id); if(i>-1) inventory[i]=n; }
-        if(eventType === 'DELETE') { inventory = inventory.filter(x=>x.id!==o.id); }
-        saveLocal(); render(); refreshSidebar();
-    }).subscribe();
+    sbClient.channel('any').on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, fetchLatest).subscribe();
 })();
 
-function checkConnection() {
-    const isOnline = navigator.onLine;
-    const s = document.getElementById('status'); const d = document.getElementById('dot');
-    if(isOnline) {
-        if(pendingQueue.length > 0) { s.innerText = 'SYNCING'; d.style.color = 'var(--warning)'; }
-        else { s.innerText = 'ONLINE'; d.style.color = 'var(--success)'; }
-    } else { s.innerText = 'OFFLINE'; d.style.color = 'var(--danger)'; }
-}
-
-function saveLocal() { localStorage.setItem('metia_inv', JSON.stringify(inventory)); localStorage.setItem('metia_queue', JSON.stringify(pendingQueue)); }
-function forceReset() { if(!confirm("Clear all sync data and reload?")) return; pendingQueue = []; localStorage.removeItem('metia_queue'); location.reload(); }
-
 async function fetchLatest() {
-    if(!navigator.onLine) return;
-    const { data, error } = await sbClient.from('inventory').select('*').order('created_at', {ascending:false});
-    if(!error && data) {
-        const tempItems = inventory.filter(i => typeof i.id === 'string' && i.id.startsWith('temp_'));
-        inventory = [...tempItems, ...data];
-        saveLocal(); render(); refreshSidebar();
-    }
+    const { data } = await sbClient.from('inventory').select('*').order('created_at', {ascending:false});
+    if(data) { inventory = data; localStorage.setItem('dilkhus_inv', JSON.stringify(data)); render(); }
 }
 
-async function processQueue() {
-    if(!navigator.onLine || pendingQueue.length === 0) return;
-    const op = pendingQueue[0]; let success = false;
-    try {
-        if(op.type === 'INSERT') { const { error } = await sbClient.from('inventory').insert(op.payload); if(!error || error.code === '23505') success = true; } 
-        else if (op.type === 'UPDATE') { const { error } = await sbClient.from('inventory').update(op.payload).eq('id', op.id); if(!error) success = true; } 
-        else if (op.type === 'DELETE') { const { error } = await sbClient.from('inventory').update({ deleted_at: op.payload.deleted_at }).in('id', op.ids); if(!error) success = true; }
-    } catch(e) {}
-    if(success) { pendingQueue.shift(); saveLocal(); if(pendingQueue.length > 0) processQueue(); else checkConnection(); } 
+function triggerLiquid(tab) {
+    document.getElementById('liquid-wave').classList.add('active');
+    setTimeout(() => { currentTab = tab; render(); document.getElementById('liquid-wave').classList.remove('active'); }, 800);
 }
 
 function render() {
-    const list = document.getElementById('list'); const term = document.getElementById('search').value.toUpperCase();
-    list.innerHTML = '';
-    const activeInv = inventory.filter(i => !i.deleted_at); 
+    const list = document.getElementById('list'); list.innerHTML = '';
+    const filtered = inventory.filter(i => currentTab === 'active' ? !i.deleted_at : !!i.deleted_at);
     
-    document.getElementById('d-stock').innerText = activeInv.reduce((acc, i) => acc + i.stock.reduce((a,b)=>a+b,0), 0);
-    document.getElementById('d-sold').innerText = activeInv.reduce((acc, i) => acc + i.sold.reduce((a,b)=>a+b,0), 0);
-    document.getElementById('d-rem').innerText = activeInv.reduce((acc, i) => acc + (i.stock.reduce((a,b)=>a+b,0) - i.sold.reduce((a,b)=>a+b,0)), 0);
-    document.getElementById('d-des').innerText = activeInv.length;
+    // Stats
+    const active = inventory.filter(i => !i.deleted_at);
+    document.getElementById('d-stock').innerText = active.reduce((a,c)=>a+c.stock.reduce((x,y)=>x+y,0),0);
+    document.getElementById('d-rem').innerText = active.reduce((a,c)=>a+(c.stock.reduce((x,y)=>x+y,0)-c.sold.reduce((x,y)=>x+y,0)),0);
 
-    inventory.filter(i => {
-        const isTrash = !!i.deleted_at;
-        if(currentTab === 'active' && isTrash) return false;
-        if(currentTab === 'trash' && !isTrash) return false;
-        return i.design && i.design.toUpperCase().includes(term);
-    }).forEach(item => {
-        const el = document.createElement('div');
-        el.className = `card ${selected.has(item.id)?'selected':''}`;
-        el.onclick = () => handleTap(item.id);
-        
+    filtered.forEach(item => {
+        const el = document.createElement('div'); el.className = 'card';
         let grid = item.stock.map((s, idx) => {
-            const left = s - (item.sold[idx]||0);
-            return `<div class="size-box"><div class="size-lbl">${sizes[idx]}</div><div class="size-val ${left<5?'val-low':'val-ok'}">${left}</div></div>`;
+            const rem = s-(item.sold[idx]||0);
+            return `<div class="size-box"><div style="font-size:9px;color:var(--text-muted)">${sizes[idx]}</div><div style="font-weight:900;color:${rem<5?'var(--danger)':'var(--success)'}">${rem}</div></div>`;
         }).join('');
-
-        el.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:5px;">
-                <span style="font-weight:900; font-size:19px; color:var(--primary)">#${item.design}</span>
-                ${item.deleted_at ? '<span style="color:var(--danger); font-size:10px; font-weight:800">TRASH</span>' : ''}
-            </div>
-            <div class="size-grid">${grid}</div>
-        `;
+        el.innerHTML = `<div style="font-weight:900;font-size:20px;margin-bottom:15px;color:var(--primary)">#${item.design}</div><div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px">${grid}</div>`;
         list.appendChild(el);
     });
 }
 
-function toggleSelect() { isSelect = !isSelect; selected.clear(); document.getElementById('selBtn').innerText = isSelect ? 'Done' : 'Select'; document.getElementById('dock-main').style.display = isSelect ? 'none' : 'grid'; document.getElementById('dock-delete').style.display = isSelect ? 'grid' : 'none'; render(); }
-function handleTap(id) { if(isSelect) { if(selected.has(id)) selected.delete(id); else selected.add(id); document.getElementById('selCount').innerText = selected.size; render(); } }
-
-async function deleteSelected() {
-    if(!confirm("Delete selected designs?")) return;
-    const ids = Array.from(selected); const now = new Date().toISOString();
-    inventory.forEach(i => { if(selected.has(i.id)) i.deleted_at = now; });
-    if(navigator.onLine) await sbClient.from('inventory').update({ deleted_at: now }).in('id', ids); 
-    else pendingQueue.push({ type: 'DELETE', ids: ids, payload: { deleted_at: now } });
-    saveLocal(); render(); toggleSelect();
-}
-
-function openModal(m) {
-    modalMode = m; document.getElementById('m-title').innerText = m==='add'?'Add Stock':'Sell Stock';
-    document.getElementById('m-design').value = ''; foundItem = null;
-    document.getElementById('exist-alert').style.display = 'none'; backToInput();
-    [0,1,2,3].forEach(i => document.getElementById('s'+i).value=0);
-    document.getElementById('modal').classList.add('open');
-}
-
 function checkDup(val) {
     foundItem = inventory.find(i => i.design === val.trim().toUpperCase() && !i.deleted_at);
-    const alertBox = document.getElementById('exist-alert');
+    const hint = document.getElementById('stock-hint');
     if(foundItem) {
-        alertBox.style.display = 'block';
-        document.getElementById('exist-grid').innerHTML = foundItem.stock.map((s, i) => `<div style="text-align:center"><div style="font-size:9px; color:var(--text-muted)">${sizes[i]}</div><div style="font-weight:800; font-size:13px">${s - (foundItem.sold[i]||0)}</div></div>`).join('');
-    } else { alertBox.style.display = 'none'; }
+        const rems = foundItem.stock.map((s,i)=>s-(foundItem.sold[i]||0));
+        hint.style.display = 'block'; hint.innerText = `Current: [${sizes[0]}:${rems[0]}] [${sizes[1]}:${rems[1]}] [${sizes[2]}:${rems[2]}] [${sizes[3]}:${rems[3]}]`;
+    } else { hint.style.display = 'none'; }
 }
 
-function preSubmit() {
-    const dNo = document.getElementById('m-design').value.trim().toUpperCase();
-    const qtys = [0,1,2,3].map(i => +document.getElementById('s'+i).value);
-    if(!dNo || qtys.every(q=>q===0)) return;
-    if(modalMode === 'add' && foundItem) {
-        document.getElementById('view-input').style.display = 'none'; document.getElementById('view-review').style.display = 'block';
-        document.getElementById('review-list').innerHTML = qtys.map((add, i) => add > 0 ? `<div style="display:flex; justify-content:space-between; padding:8px 0; border-bottom:0.5px solid var(--border)"><span>${sizes[i]}</span><span style="color:var(--success); font-weight:800">+${add}</span></div>` : '').join('');
-    } else { finalSubmit(); }
-}
-
-function backToInput() { document.getElementById('view-input').style.display = 'block'; document.getElementById('view-review').style.display = 'none'; }
+function openModal(m) { modalMode = m; document.getElementById('m-title').innerText = m === 'add' ? 'Add Stock' : 'Sell Stock'; document.getElementById('modal').classList.add('open'); }
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
 
 async function finalSubmit() {
     const dNo = document.getElementById('m-design').value.trim().toUpperCase();
     const qtys = [0,1,2,3].map(i => +document.getElementById('s'+i).value);
-    let actionType = 'UPDATE'; let targetId = foundItem ? foundItem.id : 'temp_' + Date.now(); let payload = {};
+    if(!dNo) return;
+
     if(modalMode === 'add') {
-        if(foundItem) { foundItem.stock = foundItem.stock.map((s,i) => s + qtys[i]); payload = { stock: foundItem.stock }; } 
-        else { actionType = 'INSERT'; const newItem = { id: targetId, design: dNo, stock: qtys, sold: [0,0,0,0], deleted_at: null, created_at: new Date().toISOString() }; inventory.unshift(newItem); payload = { design: dNo, stock: qtys, sold: [0,0,0,0], deleted_at: null }; }
+        if(foundItem) {
+            const newStock = foundItem.stock.map((s,i) => s + qtys[i]);
+            await sbClient.from('inventory').update({ stock: newStock }).eq('id', foundItem.id);
+        } else {
+            await sbClient.from('inventory').insert({ design: dNo, stock: qtys, sold: [0,0,0,0] });
+        }
     } else {
-        if(!foundItem) return alert("Not Found"); foundItem.sold = foundItem.sold.map((s,i) => (s||0) + qtys[i]); payload = { sold: foundItem.sold };
+        if(!foundItem) return alert("Error: Design not found in inventory!");
+        // VALIDATION: Don't sell more than you have
+        const canSell = foundItem.stock.every((s, i) => (s - foundItem.sold[i]) >= qtys[i]);
+        if(!canSell) return alert("Insufficient Stock! Check remaining quantities.");
+        
+        const newSold = foundItem.sold.map((s,i) => s + qtys[i]);
+        await sbClient.from('inventory').update({ sold: newSold }).eq('id', foundItem.id);
     }
-    pendingQueue.push({ type: actionType, id: targetId, payload: payload });
-    saveLocal(); render(); refreshSidebar(); closeModal(); if(navigator.onLine) processQueue();
-}
-
-function closeModal() { document.getElementById('modal').classList.remove('open'); }
-function setTab(t) { currentTab=t; document.getElementById('tab-active').className=t==='active'?'tab active':'tab'; document.getElementById('tab-trash').className=t==='trash'?'tab active':'tab'; render(); }
-function toggleSidebar() { 
-    const sb = document.getElementById('sidebar');
-    const ov = document.getElementById('sb-overlay');
-    const isOpen = sb.style.transform === 'translateX(0px)';
-    sb.style.transform = isOpen ? 'translateX(-100%)' : 'translateX(0)';
-    ov.style.display = isOpen ? 'none' : 'block';
-}
-
-function refreshSidebar() {
-    const adds = [...inventory].filter(i=>!i.deleted_at).sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).slice(0, 5);
-    document.getElementById('recent-adds').innerHTML = adds.map(i => `
-        <div class="sb-item">
-            <div style="font-weight:800; color:var(--primary)">#${i.design}</div>
-            <div style="font-size:11px; color:var(--text-muted)">Created: ${new Date(i.created_at).toLocaleDateString()}</div>
-        </div>
-    `).join('');
+    closeModal(); fetchLatest();
 }
 
 function printStock() {
-    // Basic printer logic (simplified for mobile browsers)
+    const active = inventory.filter(i => !i.deleted_at);
+    let tS=0, tSo=0, tR=0;
+    const rows = active.map(i => {
+        const s=i.stock.reduce((a,b)=>a+b,0), so=i.sold.reduce((a,b)=>a+b,0), rems=i.stock.map((v,x)=>v-(i.sold[x]||0)), r=rems.reduce((a,b)=>a+b,0);
+        tS+=s; tSo+=so; tR+=r;
+        return `<tr><td>#${i.design}</td><td>${i.stock[0]}</td><td>${i.stock[1]}</td><td>${i.stock[2]}</td><td>${i.stock[3]}</td><td>${i.sold[0]}</td><td>${i.sold[1]}</td><td>${i.sold[2]}</td><td>${i.sold[3]}</td><td>${rems[0]}</td><td>${rems[1]}</td><td>${rems[2]}</td><td>${rems[3]}</td><td style="font-weight:bold">${r}</td></tr>`;
+    }).join('');
+    document.getElementById('print-area').innerHTML = `<div style="text-align:center"><img src="https://i.ibb.co/S76pM38S/image.png" style="width:60px"><h1>Dilkhus Fashion Report</h1><p>${new Date().toLocaleString()}</p><p><b>Stock: ${tS} | Sold: ${tSo} | Rem: ${tR}</b></p></div><table><thead><tr><th rowspan="2">Design</th><th colspan="4">Stock</th><th colspan="4">Sold</th><th colspan="4">Remaining</th><th rowspan="2">Total</th></tr><tr><th>22x32</th><th>34x36</th><th>16x18</th><th>26x30</th><th>22x32</th><th>34x36</th><th>16x18</th><th>26x30</th><th>22x32</th><th>34x36</th><th>16x18</th><th>26x30</th></tr></thead><tbody>${rows}</tbody></table>`;
     window.print();
 }
 </script>
