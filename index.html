@@ -17,8 +17,8 @@
 body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
 /* --- HEADER --- */
-.app-header { background: rgba(15, 23, 42, 0.95); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 50; }
-.menu-btn { font-size: 24px; cursor: pointer; margin-right: 15px; }
+.app-header { background: rgba(15, 23, 42, 0.95); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 50; flex-shrink: 0; }
+.menu-btn { font-size: 24px; cursor: pointer; margin-right: 15px; padding: 5px; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; }
 .status-badge { font-size: 10px; font-weight: 700; background: var(--surface); padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px; border: 1px solid var(--border); }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); transition: 0.3s; }
@@ -26,29 +26,33 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 /* --- SIDEBAR --- */
 .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 900; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(2px); }
 .sidebar-overlay.open { opacity: 1; pointer-events: auto; }
-.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: var(--surface); z-index: 901; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: var(--surface); z-index: 901; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; box-shadow: 10px 0 30px rgba(0,0,0,0.5); }
 .sidebar-overlay.open .sidebar { transform: translateX(0); }
 .nav-item { padding: 15px; border-radius: 10px; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
 .nav-item.active { background: var(--primary); color: white; }
-.nav-item:active { background: var(--surface-light); }
 
 /* --- MAIN CONTENT --- */
-.sub-header { padding: 15px 20px 0; display: grid; gap: 15px; }
+.view-section { display: none; flex-direction: column; height: 100%; overflow: hidden; }
+.view-section.active { display: flex; }
+
+.sub-header { padding: 15px 20px 0; display: grid; gap: 15px; flex-shrink: 0; }
 .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .stat-card { background: var(--surface); padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; }
 .stat-val { font-size: 24px; font-weight: 800; margin-top: 4px; }
-.search-container { padding: 15px 20px; position: relative; }
+.search-container { padding: 15px 20px; position: relative; flex-shrink: 0; }
 .search-inp { width: 100%; background: var(--surface); border: 1px solid var(--border); padding: 12px 12px 12px 40px; border-radius: 12px; color: white; outline: none; font-size: 14px; }
 
-.list-container { flex: 1; overflow-y: auto; padding: 0 20px 100px; scroll-behavior: smooth; }
+/* SCROLLABLE LIST AREA */
+.list-container { flex: 1; overflow-y: auto; padding: 0 20px 120px; scroll-behavior: smooth; -webkit-overflow-scrolling: touch; }
 
 /* Inventory Card */
 .inventory-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); }
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .size-item { background: var(--bg); border-radius: 8px; padding: 8px 4px; text-align: center; border: 1px solid var(--border); }
+
 /* History Card */
-.history-date { font-size: 12px; font-weight: 800; color: var(--text-muted); margin: 20px 0 10px; text-transform: uppercase; letter-spacing: 1px; }
+.history-date { font-size: 12px; font-weight: 800; color: var(--text-muted); margin: 20px 0 10px; text-transform: uppercase; letter-spacing: 1px; position: sticky; top: 0; background: var(--bg); padding: 5px 0; z-index: 10; }
 .history-card { background: var(--surface); border-radius: 12px; padding: 15px; margin-bottom: 10px; border-left: 4px solid var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
 .h-tag { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; margin-bottom: 5px; display: inline-block; }
 .h-sell { border-left-color: var(--success); } .h-sell .h-tag { background: rgba(16, 185, 129, 0.2); color: var(--success); }
@@ -59,21 +63,21 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .btn { border: none; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; color: white; }
 .btn-p { background: var(--primary); } .btn-s { background: var(--surface-light); }
 
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 950; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(4px); }
-.modal-overlay.open { opacity: 1; pointer-events: auto; }
-.bottom-sheet { position: fixed; left: 0; right: 0; bottom: 0; background: #1e293b; border-radius: 24px 24px 0 0; padding: 24px; transform: translateY(100%); transition: transform 0.4s; z-index: 951; padding-bottom: calc(30px + var(--safe-bottom)); }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 950; display: none; opacity: 0; transition: opacity 0.3s; backdrop-filter: blur(4px); }
+.modal-overlay.open { display: block; opacity: 1; }
+.bottom-sheet { position: fixed; left: 0; right: 0; bottom: 0; background: #1e293b; border-radius: 24px 24px 0 0; padding: 24px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 951; padding-bottom: calc(30px + var(--safe-bottom)); }
 .modal-overlay.open .bottom-sheet { transform: translateY(0); }
 
 .inp-large { width: 100%; background: var(--bg); border: 1px solid var(--border); color: white; padding: 16px; border-radius: 12px; font-size: 18px; outline: none; margin-bottom: 15px; }
 .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
 .qty-select { padding: 12px; width: 100%; background: var(--bg); color: white; border: 1px solid var(--border); border-radius: 10px; }
 
-.suggestions-box { position: absolute; top: 75px; left: 24px; right: 24px; background: var(--surface-light); z-index: 960; max-height: 150px; overflow-y: auto; display: none; border-radius: 0 0 12px 12px; }
+.suggestions-box { position: absolute; top: 75px; left: 24px; right: 24px; background: var(--surface-light); z-index: 960; max-height: 150px; overflow-y: auto; display: none; border-radius: 0 0 12px 12px; border: 1px solid var(--border); }
 .suggestions-box.active { display: block; }
-.s-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+.s-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+.s-item:hover { background: rgba(255,255,255,0.05); }
 
-#view-home, #view-history { display: none; }
-.view-active { display: block !important; }
+.empty-state { text-align: center; color: var(--text-muted); padding: 40px 20px; font-size: 14px; }
 </style>
 </head>
 <body>
@@ -82,9 +86,12 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()">
     <div class="sidebar" onclick="event.stopPropagation()">
         <h2 style="margin: 0 0 30px; padding: 0 15px;">Menu</h2>
-        <div class="nav-item active" onclick="switchView('home')">📦 Inventory</div>
-        <div class="nav-item" onclick="switchView('history-add')">📥 Inward History (Add)</div>
-        <div class="nav-item" onclick="switchView('history-sell')">📤 Outward History (Sell)</div>
+        <div class="nav-item active" id="nav-home" onclick="switchView('home')">📦 Inventory Stock</div>
+        <div class="nav-item" id="nav-history-add" onclick="switchView('history-add')">📥 Inward History</div>
+        <div class="nav-item" id="nav-history-sell" onclick="switchView('history-sell')">📤 Sales History</div>
+        <div style="margin-top:auto; padding:15px; font-size:11px; color:var(--text-muted)">
+            <div onclick="resetApp()" style="cursor:pointer">⚠️ Reset App Data</div>
+        </div>
     </div>
 </div>
 
@@ -97,34 +104,31 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
     <div class="status-badge"><div id="dot" class="status-dot"></div><span id="status">INIT</span></div>
 </div>
 
-<!-- VIEW: HOME (INVENTORY) -->
-<div id="view-home" class="view-active">
+<!-- VIEW: HOME -->
+<div id="view-home" class="view-section active">
     <div class="sub-header">
         <div class="stats-row">
             <div class="stat-card"><span style="font-size:11px;color:var(--text-muted)">STOCK</span><div class="stat-val" id="d-stock" style="color:var(--primary)">0</div></div>
             <div class="stat-card"><span style="font-size:11px;color:var(--text-muted)">AVAILABLE</span><div class="stat-val" id="d-rem" style="color:var(--success)">0</div></div>
         </div>
     </div>
-
     <div class="search-container">
         <input type="text" class="search-inp" id="mainSearch" placeholder="Search Design..." oninput="renderInventory()">
     </div>
-
     <div id="list" class="list-container"></div>
+    <!-- DOCK ONLY VISIBLE ON HOME -->
+    <div class="dock">
+        <button class="btn btn-s" onclick="openModal('sell')">📉 SELL</button>
+        <button class="btn btn-p" onclick="openModal('add')">＋ ADD STOCK</button>
+    </div>
 </div>
 
 <!-- VIEW: HISTORY -->
-<div id="view-history">
+<div id="view-history" class="view-section">
     <div class="sub-header">
         <h2 id="history-title" style="margin:0">History</h2>
     </div>
-    <div id="history-list" class="list-container" style="padding-top:20px"></div>
-</div>
-
-<!-- DOCK -->
-<div class="dock" id="mainDock">
-    <button class="btn btn-s" onclick="openModal('sell')">📉 SELL</button>
-    <button class="btn btn-p" onclick="openModal('add')">＋ ADD STOCK</button>
+    <div id="history-list" class="list-container" style="padding-top:10px"></div>
 </div>
 
 <!-- ADD/SELL MODAL -->
@@ -156,49 +160,49 @@ const sizes = ["22x32","34x36","16x18","26x30"];
 
 // State
 let inventory = [], transactions = [], queue = [];
-let currentView = 'home'; // home, history-add, history-sell
+let currentView = 'home'; 
 let foundItem, modalMode = '';
 
-// --- INITIALIZATION ---
+// --- INIT ---
 (async function init() {
-    // Load Local Data
-    inventory = JSON.parse(localStorage.getItem('df_inv') || '[]');
-    transactions = JSON.parse(localStorage.getItem('df_tx') || '[]');
-    queue = JSON.parse(localStorage.getItem('df_q') || '[]');
+    try {
+        inventory = JSON.parse(localStorage.getItem('df_inv') || '[]');
+        transactions = JSON.parse(localStorage.getItem('df_tx') || '[]');
+        queue = JSON.parse(localStorage.getItem('df_q') || '[]');
+    } catch(e) { console.error("Storage corrupt", e); }
     
     renderInventory();
     updateStatus();
 
-    // Sync
     if(navigator.onLine) {
-        await syncData();
+        syncData();
         processQueue();
     }
-    window.addEventListener('online', () => { updateStatus(); processQueue(); });
     
-    // Realtime Subscriptions
+    window.addEventListener('online', () => { updateStatus(); processQueue(); });
+    window.addEventListener('offline', updateStatus);
+
     sbClient.channel('any')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, syncData)
-        .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, syncData)
         .subscribe();
 })();
 
 async function syncData() {
-    // 1. Fetch Inventory
+    // Sync Inventory
     const { data: invData } = await sbClient.from('inventory').select('*').order('created_at', {ascending:false});
     if(invData) {
-        // Simple merge: Server wins, but preserve local new items not yet synced
+        // Merge logic: keep local if newer, otherwise use server
         const serverIds = invData.map(i => i.id);
-        const localNew = inventory.filter(i => !serverIds.includes(i.id));
-        inventory = [...localNew, ...invData];
+        const locals = inventory.filter(i => !serverIds.includes(i.id)); // Not on server yet
+        inventory = [...locals, ...invData];
         localStorage.setItem('df_inv', JSON.stringify(inventory));
         renderInventory();
     }
 
-    // 2. Fetch Transactions (History)
-    const { data: txData } = await sbClient.from('transactions').select('*').order('created_at', {ascending:false}).limit(100);
-    if(txData) {
-        transactions = txData;
+    // Sync History
+    const { data: txData } = await sbClient.from('transactions').select('*').order('created_at', {ascending:false}).limit(200);
+    if(txData && txData.length > 0) {
+        transactions = txData; // Trust server for history
         localStorage.setItem('df_tx', JSON.stringify(transactions));
         if(currentView !== 'home') renderHistory();
     }
@@ -215,51 +219,57 @@ async function processQueue() {
     if(!navigator.onLine || queue.length === 0) return;
     const op = queue[0];
     
-    // Optimistic Queue Processing
     let err;
-    if(op.table === 'inventory') {
-        if(op.type === 'INSERT') err = (await sbClient.from('inventory').insert(op.data)).error;
-        else if(op.type === 'UPDATE') err = (await sbClient.from('inventory').update(op.data).eq('id', op.id)).error;
-    } else if(op.table === 'transactions') {
-        err = (await sbClient.from('transactions').insert(op.data)).error;
-    }
+    try {
+        if(op.table === 'inventory') {
+            if(op.type === 'INSERT') err = (await sbClient.from('inventory').insert(op.data)).error;
+            else if(op.type === 'UPDATE') err = (await sbClient.from('inventory').update(op.data).eq('id', op.id)).error;
+        } else if(op.table === 'transactions') {
+            err = (await sbClient.from('transactions').insert(op.data)).error;
+        }
+    } catch(e) { err = e; }
 
     if(!err) {
         queue.shift();
         localStorage.setItem('df_q', JSON.stringify(queue));
         updateStatus();
-        processQueue();
+        processQueue(); // Loop
     } else {
-        console.error(err);
-        setTimeout(processQueue, 5000);
+        console.error("Sync Error:", err);
+        // If error is permanent (RLS), drop the item to prevent infinite loop
+        if(err.code === '42501' || err.code === 'PGRST301') {
+            alert("Database Error: Permissions denied. Please run the SQL Code.");
+            queue.shift(); 
+        } else {
+            setTimeout(processQueue, 5000);
+        }
     }
 }
 
-// --- NAVIGATION ---
-function toggleSidebar() {
-    document.getElementById('sidebarOverlay').classList.toggle('open');
-}
+// --- NAV ---
+function toggleSidebar() { document.getElementById('sidebarOverlay').classList.toggle('open'); }
 
 function switchView(view) {
     currentView = view;
-    toggleSidebar();
+    document.getElementById('sidebarOverlay').classList.remove('open');
     
-    document.querySelectorAll('.view-active').forEach(e => e.classList.remove('view-active'));
+    // UI Toggles
+    document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-
+    
     if(view === 'home') {
-        document.getElementById('view-home').classList.add('view-active');
-        document.getElementById('mainDock').style.display = 'grid';
+        document.getElementById('view-home').classList.add('active');
+        document.getElementById('nav-home').classList.add('active');
         renderInventory();
     } else {
-        document.getElementById('view-history').classList.add('view-active');
-        document.getElementById('mainDock').style.display = 'none';
+        document.getElementById('view-history').classList.add('active');
+        document.getElementById('nav-'+view).classList.add('active');
         document.getElementById('history-title').innerText = view === 'history-add' ? 'Inward History' : 'Sales History';
         renderHistory();
     }
 }
 
-// --- RENDERING ---
+// --- RENDER ---
 function renderInventory() {
     if(currentView !== 'home') return;
     const list = document.getElementById('list');
@@ -268,23 +278,25 @@ function renderInventory() {
 
     const active = inventory.filter(i => !i.deleted_at);
     
-    // Stats
     document.getElementById('d-stock').innerText = active.reduce((a,c)=>a+c.stock.reduce((x,y)=>x+y,0),0);
     document.getElementById('d-rem').innerText = active.reduce((a,c)=>a+(c.stock.reduce((x,y)=>x+y,0)-c.sold.reduce((x,y)=>x+y,0)),0);
 
-    active.filter(i => i.design.includes(term))
-          .sort((a,b) => new Date(b.created_at) - new Date(a.created_at))
-          .forEach(item => {
-              const grid = item.stock.map((s,i) => {
-                  const rem = s - (item.sold[i]||0);
-                  return `<div class="size-item"><div style="font-size:9px;color:#94a3b8">${sizes[i]}</div><div style="font-weight:700;color:${rem<5?'#ef4444':'#10b981'}">${rem}</div></div>`;
-              }).join('');
-              
-              const el = document.createElement('div');
-              el.className = 'inventory-card';
-              el.innerHTML = `<div class="card-header"><span style="background:rgba(99,102,241,0.2);color:#818cf8;padding:4px 8px;border-radius:6px;font-weight:700">#${item.design}</span></div><div class="size-grid">${grid}</div>`;
-              list.appendChild(el);
-          });
+    const filtered = active.filter(i => i.design.includes(term))
+          .sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
+    if(filtered.length === 0) list.innerHTML = '<div class="empty-state">No items found</div>';
+
+    filtered.forEach(item => {
+          const grid = item.stock.map((s,i) => {
+              const rem = s - (item.sold[i]||0);
+              return `<div class="size-item"><div style="font-size:9px;color:#94a3b8">${sizes[i]}</div><div style="font-weight:700;color:${rem<5?'#ef4444':'#10b981'}">${rem}</div></div>`;
+          }).join('');
+          
+          const el = document.createElement('div');
+          el.className = 'inventory-card';
+          el.innerHTML = `<div class="card-header"><span style="background:rgba(99,102,241,0.2);color:#818cf8;padding:4px 8px;border-radius:6px;font-weight:700">#${item.design}</span></div><div class="size-grid">${grid}</div>`;
+          list.appendChild(el);
+    });
 }
 
 function renderHistory() {
@@ -292,9 +304,14 @@ function renderHistory() {
     list.innerHTML = '';
     const type = currentView === 'history-add' ? 'ADD' : 'SELL';
     
+    // Local filter first
     const filtered = transactions.filter(t => t.type === type);
     
-    // Group by Date
+    if(filtered.length === 0) {
+        list.innerHTML = `<div class="empty-state">No history found. Try adding some stock or selling items.</div>`;
+        return;
+    }
+
     const groups = {};
     filtered.forEach(t => {
         const date = new Date(t.created_at).toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short' });
@@ -311,12 +328,12 @@ function renderHistory() {
                 <div>
                     <div class="h-tag">${type}</div>
                     <div style="font-weight:800;font-size:16px">#${t.design}</div>
-                    ${t.customer ? `<div style="font-size:12px;color:#94a3b8">👤 ${t.customer}</div>` : ''}
+                    ${t.customer ? `<div style="font-size:12px;color:#94a3b8;margin-top:2px">👤 ${t.customer}</div>` : ''}
                 </div>
                 <div style="text-align:right">
                     <div style="font-size:20px;font-weight:800">${t.total_qty}</div>
                     <div style="font-size:10px;color:#94a3b8">Total Qty</div>
-                    <button style="margin-top:5px;background:none;border:1px solid #ef4444;color:#ef4444;border-radius:4px;padding:2px 6px;font-size:10px" onclick="revertTransaction(${t.id})">REVERT</button>
+                    <button style="margin-top:5px;background:none;border:1px solid #ef4444;color:#ef4444;border-radius:4px;padding:4px 8px;font-size:10px" onclick="revertTransaction('${t.id}')">REVERT</button>
                 </div>
             `;
             list.appendChild(el);
@@ -324,7 +341,7 @@ function renderHistory() {
     });
 }
 
-// --- MODAL & LOGIC ---
+// --- MODAL ---
 function openModal(mode) {
     modalMode = mode;
     document.getElementById('m-title').innerText = mode === 'add' ? 'Add Stock' : 'Sell Stock';
@@ -383,86 +400,96 @@ function updateDropdowns(item) {
 }
 
 async function finalSubmit() {
+    // 1. Validate
     const dNo = document.getElementById('m-design').value.trim().toUpperCase();
     const cust = document.getElementById('m-customer').value.trim();
     const qtys = [0,1,2,3].map(i => +document.getElementById('s'+i).value);
     const total = qtys.reduce((a,b)=>a+b,0);
 
-    if(!dNo || total === 0) return alert("Invalid Input");
-    if(modalMode === 'sell' && !foundItem) return alert("Design not found");
+    if(!dNo) return alert("Please enter Design Number");
+    if(total === 0) return alert("Please select quantity");
+    if(modalMode === 'sell' && !foundItem) return alert("Design not found!");
 
-    // 1. Update Inventory Object
-    if(modalMode === 'add') {
-        if(foundItem) {
-            foundItem.stock = foundItem.stock.map((s,i) => s + qtys[i]);
-            queue.push({ table:'inventory', type:'UPDATE', id:foundItem.id, data:{stock:foundItem.stock} });
+    // 2. CLOSE MODAL IMMEDIATELY to prevent freezing
+    closeModal();
+
+    // 3. Logic
+    setTimeout(() => {
+        if(modalMode === 'add') {
+            if(foundItem) {
+                foundItem.stock = foundItem.stock.map((s,i) => s + qtys[i]);
+                queue.push({ table:'inventory', type:'UPDATE', id:foundItem.id, data:{stock:foundItem.stock} });
+            } else {
+                const newItem = { id: Date.now(), design:dNo, stock:qtys, sold:[0,0,0,0], created_at: new Date().toISOString() };
+                inventory.unshift(newItem);
+                queue.push({ table:'inventory', type:'INSERT', data:newItem });
+                foundItem = newItem; 
+            }
         } else {
-            const newItem = { id: Date.now(), design:dNo, stock:qtys, sold:[0,0,0,0], created_at: new Date().toISOString() };
-            inventory.unshift(newItem);
-            queue.push({ table:'inventory', type:'INSERT', data:newItem });
-            foundItem = newItem; // For transaction record
+            foundItem.sold = foundItem.sold.map((s,i) => (foundItem.sold[i]||0) + qtys[i]);
+            queue.push({ table:'inventory', type:'UPDATE', id:foundItem.id, data:{sold:foundItem.sold} });
         }
-    } else {
-        foundItem.sold = foundItem.sold.map((s,i) => (foundItem.sold[i]||0) + qtys[i]);
-        queue.push({ table:'inventory', type:'UPDATE', id:foundItem.id, data:{sold:foundItem.sold} });
-    }
 
-    // 2. Create Transaction Record
-    const tx = {
-        id: Date.now(), // Temp ID
-        created_at: new Date().toISOString(),
-        type: modalMode === 'add' ? 'ADD' : 'SELL',
-        design: dNo,
-        customer: cust,
-        quantities: qtys,
-        total_qty: total
-    };
-    
-    transactions.unshift(tx);
-    queue.push({ table:'transactions', type:'INSERT', data:tx }); // Sync to new table
+        // Add Transaction
+        const tx = {
+            id: Date.now(),
+            created_at: new Date().toISOString(),
+            type: modalMode === 'add' ? 'ADD' : 'SELL',
+            design: dNo,
+            customer: cust,
+            quantities: qtys,
+            total_qty: total
+        };
+        transactions.unshift(tx);
+        queue.push({ table:'transactions', type:'INSERT', data:tx });
 
-    localStorage.setItem('df_inv', JSON.stringify(inventory));
-    localStorage.setItem('df_tx', JSON.stringify(transactions));
-    localStorage.setItem('df_q', JSON.stringify(queue));
-    
-    updateStatus(); processQueue();
-    closeModal(); renderInventory();
+        // Save & Render
+        localStorage.setItem('df_inv', JSON.stringify(inventory));
+        localStorage.setItem('df_tx', JSON.stringify(transactions));
+        localStorage.setItem('df_q', JSON.stringify(queue));
+        
+        renderInventory();
+        updateStatus();
+        processQueue();
+    }, 100); // Small delay to allow UI to close
 }
 
-async function revertTransaction(txId) {
+function revertTransaction(txId) {
     if(!confirm("Revert this transaction? Stocks will be adjusted.")) return;
     
-    const txIndex = transactions.findIndex(t => t.id == txId); // Soft equality for string/int IDs
+    // Find TX
+    const txIndex = transactions.findIndex(t => t.id == txId);
     if(txIndex === -1) return;
     const tx = transactions[txIndex];
 
+    // Revert Stock
     const invItem = inventory.find(i => i.design === tx.design && !i.deleted_at);
-    
     if(invItem) {
         if(tx.type === 'ADD') {
-            // Remove added stock
             invItem.stock = invItem.stock.map((s,i) => Math.max(0, s - tx.quantities[i]));
             queue.push({ table:'inventory', type:'UPDATE', id:invItem.id, data:{stock:invItem.stock} });
         } else {
-            // Add back sold stock
             invItem.sold = invItem.sold.map((s,i) => Math.max(0, s - tx.quantities[i]));
             queue.push({ table:'inventory', type:'UPDATE', id:invItem.id, data:{sold:invItem.sold} });
         }
     }
 
-    // Remove from local list and delete from server
+    // Remove TX
     transactions.splice(txIndex, 1);
-    
-    // We can't delete easily via queue in this simple setup without specific ID logic, 
-    // so we fire-and-forget the delete command
     sbClient.from('transactions').delete().eq('id', txId).then(console.log);
 
     localStorage.setItem('df_inv', JSON.stringify(inventory));
     localStorage.setItem('df_tx', JSON.stringify(transactions));
     localStorage.setItem('df_q', JSON.stringify(queue));
-
+    
     renderHistory();
-    updateStatus(); processQueue();
+    renderInventory();
+}
+
+function resetApp() {
+    if(!confirm("Reset all local data? (Use if stuck)")) return;
+    localStorage.clear();
+    location.reload();
 }
 </script>
 </body>
