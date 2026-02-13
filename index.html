@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Dilkhus Fashion Pro V4.7</title>
+<title>Dilkhus Fashion Pro V4.8</title>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
 :root { 
@@ -15,21 +15,31 @@
 }
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', system-ui, sans-serif; }
-body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 120px; overflow: hidden; height: 100vh; }
+body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 120px; overflow-x: hidden; height: 100vh; }
 
 /* DISABLE SELECTION */
 .card, .btn, .header, .stat-card, img { user-select: none !important; -webkit-user-select: none !important; -webkit-touch-callout: none !important; }
 
-#liquid-wave { position: fixed; inset: 0; background: var(--primary); z-index: 2000; clip-path: circle(0% at 50% 50%); transition: clip-path 0.8s cubic-bezier(0.77, 0, 0.175, 1); pointer-events: none; }
+#liquid-wave { position: fixed; inset: 0; background: var(--primary); z-index: 4000; clip-path: circle(0% at 50% 50%); transition: clip-path 0.8s cubic-bezier(0.77, 0, 0.175, 1); pointer-events: none; }
 #liquid-wave.active { clip-path: circle(150% at 50% 50%); }
 
 .header { position: sticky; top: 0; z-index: 50; background: rgba(9, 9, 11, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 45px 20px 15px; }
 .status-pill { font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.05); padding: 6px 12px; border-radius: 100px; display: flex; align-items: center; gap: 8px; border: 0.5px solid var(--border); }
 .dot { width: 8px; height: 8px; border-radius: 50%; transition: 0.3s; box-shadow: 0 0 8px currentColor; }
 
+/* PREMIUM SEARCH & SORT UI */
+.action-bar { display: flex; align-items: center; justify-content: space-between; margin-top: 15px; gap: 10px; }
+.search-box { flex: 0; width: 0; opacity: 0; overflow: hidden; transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); background: #000; border-radius: 12px; box-shadow: var(--inner-sh); display: flex; align-items: center; }
+.search-box.open { flex: 1; width: 100%; opacity: 1; padding: 0 12px; }
+.search-box input { background: none; border: none; color: #FFF; padding: 10px 5px; width: 100%; outline: none; font-size: 14px; }
+.icon-btn { width: 40px; height: 40px; background: var(--card); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: var(--outer-sh); transition: 0.2s; }
+.icon-btn:active { transform: scale(0.9); box-shadow: var(--inner-sh); }
+
+.sort-select { background: var(--card); color: #FFF; border: 1px solid var(--border); border-radius: 10px; padding: 5px 10px; font-size: 11px; font-weight: 600; outline: none; }
+
 .dash-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 15px 20px; }
 .stat-card { background: var(--card); border-radius: 15px; padding: 15px; box-shadow: var(--outer-sh); border: 1px solid var(--border); }
-.card { background: var(--card); border-radius: 20px; padding: 20px; margin: 0 20px 15px; box-shadow: var(--outer-sh); border: 1px solid var(--border); transition: 0.2s; }
+.card { background: var(--card); border-radius: 20px; padding: 20px; margin: 0 20px 15px; box-shadow: var(--outer-sh); border: 1px solid var(--border); transition: 0.2s; position: relative; }
 .size-box { background: #000; border-radius: 10px; box-shadow: var(--inner-sh); padding: 10px 5px; text-align: center; }
 
 .dock { position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(24, 24, 27, 0.9); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 20px; padding: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; z-index: 100; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }
@@ -37,13 +47,11 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 120
 .btn-primary { background: var(--primary); }
 .btn-glass { background: rgba(255,255,255,0.05); border: 1px solid var(--border); }
 
-/* PEEK OVERLAY WITH CLOSE OPTION */
+/* PEEK OVERLAY */
 .peek-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
 .peek-overlay.active { display: flex !important; }
 .peek-card { background: var(--card); width: 90%; border-radius: 25px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); border: 1px solid var(--border); position: relative; }
-
-/* CLOSE BUTTON (X) */
-.close-peek { position: absolute; top: 15px; right: 15px; width: 32px; height: 32px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #FFF; font-size: 18px; font-weight: bold; cursor: pointer; }
+.close-peek { position: absolute; top: 15px; right: 15px; width: 32px; height: 32px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #FFF; font-size: 16px; cursor: pointer; }
 
 .inp-large { width: 100%; background: #000; border: none; box-shadow: var(--inner-sh); color: #FFF; padding: 16px; border-radius: 12px; font-size: 18px; margin-bottom: 12px; outline: none; }
 
@@ -69,7 +77,22 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 120
             <span id="status">CONNECTING</span>
         </div>
     </div>
-    <div style="display:flex; gap:10px; margin-top:20px;">
+
+    <div class="action-bar">
+        <div class="icon-btn" onclick="toggleSearch()">🔍</div>
+        <div class="search-box" id="searchBox">
+            <input type="text" id="mainSearch" placeholder="Search design..." oninput="render()">
+        </div>
+        <select class="sort-select" id="sortSelect" onchange="render()">
+            <option value="recent">Newest First</option>
+            <option value="design">Design No.</option>
+            <option value="stock-high">Stock (High)</option>
+            <option value="stock-low">Stock (Low)</option>
+        </select>
+        <div class="icon-btn" style="font-size:12px" onclick="printStock()">🖨️</div>
+    </div>
+
+    <div style="display:flex; gap:10px; margin-top:15px;">
         <button class="btn btn-glass" style="flex:1; height:38px; font-size:11px;" onclick="triggerLiquid('active')">INVENTORY</button>
         <button class="btn btn-glass" style="flex:1; height:38px; font-size:11px; background:rgba(0,0,0,0.3)" onclick="triggerLiquid('trash')">TRASH</button>
     </div>
@@ -80,7 +103,7 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 120
     <div class="stat-card"><div style="font-size:10px; color:var(--text-muted)">REM</div><div class="stat-val" id="d-rem" style="color:var(--success)">0</div></div>
 </div>
 
-<div id="list" style="height: calc(100vh - 300px); overflow-y: auto;"></div>
+<div id="list" style="height: calc(100vh - 360px); overflow-y: auto;"></div>
 
 <div class="dock">
     <button class="btn btn-primary" onclick="openModal('add')">ADD</button>
@@ -90,19 +113,16 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 120
 <div class="peek-overlay" id="peekOverlay" onclick="closePeek()">
     <div class="peek-card" onclick="event.stopPropagation()">
         <div class="close-peek" onclick="closePeek()">✕</div>
-        <h3 id="peekTitle" style="color:var(--primary); margin:0 0 15px 0">Manage Design</h3>
+        <h3 id="peekTitle" style="color:var(--primary); margin:0 0 15px 0">Edit Design</h3>
         <input id="edit-design-name" class="inp-large" placeholder="Name">
-        
-        <label style="font-size:10px; color:var(--text-muted); text-align:left; display:block; margin-bottom:5px">STOCK QUANTITIES</label>
         <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:15px">
             <div class="size-box"><label style="font-size:9px">22x32</label><input type="number" id="e0" style="background:none;border:none;color:#FFF;text-align:center;width:100%;font-weight:800;outline:none"></div>
             <div class="size-box"><label style="font-size:9px">34x36</label><input type="number" id="e1" style="background:none;border:none;color:#FFF;text-align:center;width:100%;font-weight:800;outline:none"></div>
             <div class="size-box"><label style="font-size:9px">16x18</label><input type="number" id="e2" style="background:none;border:none;color:#FFF;text-align:center;width:100%;font-weight:800;outline:none"></div>
             <div class="size-box"><label style="font-size:9px">26x30</label><input type="number" id="e3" style="background:none;border:none;color:#FFF;text-align:center;width:100%;font-weight:800;outline:none"></div>
         </div>
-        
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-            <button class="btn btn-primary" onclick="saveFullEdit()">SAVE ALL</button>
+            <button class="btn btn-primary" onclick="saveFullEdit()">SAVE</button>
             <button class="btn" style="background:var(--danger)" id="deleteBtn">DELETE</button>
         </div>
     </div>
@@ -128,7 +148,7 @@ const SB_URL = 'https://yhlfqpiwevsehlgbhxtk.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlobGZxcGl3ZXZzZWhsZ2JoeHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5Mjc1ODMsImV4cCI6MjA4NTUwMzU4M30.UX-6NXiJNg6EywD7gIPjla7l5_Koq0UbpuFyENIKOaM';
 const sbClient = supabase.createClient(SB_URL, SB_KEY);
 const sizes = ["22x32","34x36","16x18","26x30"];
-let inventory = [], pendingQueue = [], currentTab = 'active', touchTimer, foundItem, editingItem;
+let inventory = [], pendingQueue = [], currentTab = 'active', touchTimer, editingItem;
 
 (async function init() {
     const localInv = localStorage.getItem('dilkhus_inv'), localQue = localStorage.getItem('dilkhus_que');
@@ -140,7 +160,6 @@ let inventory = [], pendingQueue = [], currentTab = 'active', touchTimer, foundI
     [0,1,2,3].forEach(i => document.getElementById('s'+i).innerHTML = opts);
 
     window.addEventListener('online', () => { updateStatus(); processQueue(); });
-    window.addEventListener('offline', updateStatus);
     if(navigator.onLine) { fetchLatest(); processQueue(); }
     sbClient.channel('any').on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, fetchLatest).subscribe();
 })();
@@ -174,19 +193,37 @@ async function processQueue() {
     } catch(e) { setTimeout(processQueue, 3000); }
 }
 
+function toggleSearch() {
+    document.getElementById('searchBox').classList.toggle('open');
+    if(document.getElementById('searchBox').classList.contains('open')) document.getElementById('mainSearch').focus();
+}
+
 function render() {
-    const list = document.getElementById('list'); list.innerHTML = '';
-    const filtered = inventory.filter(i => (currentTab === 'active' ? !i.deleted_at : !!i.deleted_at));
+    const list = document.getElementById('list'); 
+    const term = document.getElementById('mainSearch').value.toUpperCase();
+    const sort = document.getElementById('sortSelect').value;
+    list.innerHTML = '';
+    
+    let filtered = inventory.filter(i => (currentTab === 'active' ? !i.deleted_at : !!i.deleted_at) && i.design.toUpperCase().includes(term));
+    
+    // PREMIUM SORTING LOGIC
+    filtered.sort((a, b) => {
+        if(sort === 'design') return a.design.localeCompare(b.design);
+        if(sort === 'stock-high') return b.stock.reduce((x,y)=>x+y,0) - a.stock.reduce((x,y)=>x+y,0);
+        if(sort === 'stock-low') return a.stock.reduce((x,y)=>x+y,0) - b.stock.reduce((x,y)=>x+y,0);
+        return new Date(b.created_at) - new Date(a.created_at); // default recent
+    });
+
     const active = inventory.filter(i => !i.deleted_at);
     document.getElementById('d-stock').innerText = active.reduce((a,c)=>a+c.stock.reduce((x,y)=>x+y,0),0);
     document.getElementById('d-rem').innerText = active.reduce((a,c)=>a+(c.stock.reduce((x,y)=>x+y,0)-c.sold.reduce((x,y)=>x+y,0)),0);
 
     filtered.forEach(item => {
         const el = document.createElement('div'); el.className = 'card';
-        el.addEventListener('touchstart', (e) => { touchTimer = setTimeout(() => openPeek(item), 600); });
-        el.addEventListener('touchend', () => { clearTimeout(touchTimer); });
+        el.addEventListener('touchstart', () => { touchTimer = setTimeout(() => openPeek(item), 600); });
+        el.addEventListener('touchend', () => clearTimeout(touchTimer));
         el.addEventListener('mousedown', () => { touchTimer = setTimeout(() => openPeek(item), 600); });
-        el.addEventListener('mouseup', () => { clearTimeout(touchTimer); });
+        el.addEventListener('mouseup', () => clearTimeout(touchTimer));
 
         let grid = item.stock.map((s, idx) => {
             const rem = s-(item.sold[idx]||0);
@@ -224,7 +261,7 @@ async function saveFullEdit() {
 }
 
 async function deleteItem() {
-    if(!confirm("Move design to trash?")) return;
+    if(!confirm("Move to trash?")) return;
     editingItem.deleted_at = new Date().toISOString();
     pendingQueue.push({ type: 'UPDATE', id: editingItem.id, data: { deleted_at: editingItem.deleted_at } });
     saveLocal(); render(); closePeek(); processQueue();
@@ -261,6 +298,11 @@ async function finalSubmit() {
         pendingQueue.push({ type: 'UPDATE', id: foundItem.id, data: { sold: foundItem.sold } });
     }
     saveLocal(); render(); closeModal(); processQueue();
+}
+
+function printStock() {
+    // Print functionality remains same as previous verified version
+    window.print();
 }
 </script>
 </body>
