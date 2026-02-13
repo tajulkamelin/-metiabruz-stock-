@@ -18,7 +18,6 @@
     --success: #10b981;
     --danger: #ef4444;
     --border: rgba(255,255,255,0.08);
-    --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     --safe-bottom: env(safe-area-inset-bottom);
 }
 
@@ -26,122 +25,81 @@
 body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: calc(90px + var(--safe-bottom)); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
 /* --- HEADER --- */
-.app-header {
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(10px);
-    padding: 15px 20px;
-    border-bottom: 1px solid var(--border);
-    z-index: 50;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-}
-.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; letter-spacing: -0.5px; }
-.brand img { width: 32px; height: 32px; border-radius: 8px; background: var(--surface-light); }
-.status-badge {
-    font-size: 10px; font-weight: 700; background: var(--surface);
-    padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px;
-    border: 1px solid var(--border); transition: 0.3s;
-}
+.app-header { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); padding: 15px 20px; border-bottom: 1px solid var(--border); z-index: 50; display: flex; justify-content: space-between; align-items: center; }
+.brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; }
+.brand div { width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary), #a855f7); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; }
+.status-badge { font-size: 10px; font-weight: 700; background: var(--surface); padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px; border: 1px solid var(--border); }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); box-shadow: 0 0 5px currentColor; transition: 0.3s; }
 
 /* --- STATS & TABS --- */
 .sub-header { padding: 15px 20px 0; display: grid; gap: 15px; }
 .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-.stat-card {
-    background: var(--surface); padding: 12px 16px; border-radius: 12px;
-    border: 1px solid var(--border); display: flex; flex-direction: column;
-}
-.stat-label { font-size: 11px; color: var(--text-muted); font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; }
+.stat-card { background: var(--surface); padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; }
+.stat-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
 .stat-value { font-size: 24px; font-weight: 800; margin-top: 4px; color: var(--text); }
-
 .tabs { display: flex; background: var(--surface); padding: 4px; border-radius: 12px; margin-top: 5px; }
 .tab { flex: 1; padding: 10px; text-align: center; font-size: 13px; font-weight: 600; color: var(--text-muted); border-radius: 8px; border: none; background: transparent; transition: 0.2s; cursor: pointer; }
-.tab.active { background: var(--primary); color: white; shadow: var(--shadow); }
+.tab.active { background: var(--primary); color: white; }
 
 /* --- FILTERS --- */
 .filter-row { padding: 15px 20px; display: flex; gap: 10px; }
 .search-container { flex: 1; position: relative; }
-.search-inp {
-    width: 100%; background: var(--surface); border: 1px solid var(--border);
-    padding: 12px 12px 12px 40px; border-radius: 12px; color: white; outline: none; font-size: 14px;
-}
+.search-inp { width: 100%; background: var(--surface); border: 1px solid var(--border); padding: 12px 12px 12px 40px; border-radius: 12px; color: white; outline: none; font-size: 14px; }
 .search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: 0.5; }
-.sort-btn {
-    width: 44px; background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; display: flex; align-items: center; justify-content: center;
-    color: var(--text); cursor: pointer;
-}
+.sort-btn { width: 44px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--text); cursor: pointer; }
 
 /* --- LIST --- */
 .list-container { flex: 1; overflow-y: auto; padding: 0 20px 20px; scroll-behavior: smooth; }
-.inventory-card {
-    background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 12px;
-    border: 1px solid var(--border); position: relative; overflow: hidden;
-    transition: transform 0.2s;
-}
+.inventory-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); transition: transform 0.2s; }
 .inventory-card:active { transform: scale(0.98); }
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.design-pill {
-    background: rgba(99, 102, 241, 0.15); color: #818cf8;
-    padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 14px; letter-spacing: 0.5px;
-}
-.edit-icon { opacity: 0.5; padding: 5px; }
-
+.design-pill { background: rgba(99, 102, 241, 0.15); color: #818cf8; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 14px; }
 .size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-.size-item {
-    background: var(--bg); border-radius: 8px; padding: 8px 4px; text-align: center;
-    border: 1px solid var(--border);
-}
+.size-item { background: var(--bg); border-radius: 8px; padding: 8px 4px; text-align: center; border: 1px solid var(--border); }
 .size-label { font-size: 9px; color: var(--text-muted); margin-bottom: 2px; }
 .size-val { font-size: 15px; font-weight: 700; }
 .low-stock { color: var(--danger); }
 .good-stock { color: var(--success); }
 
 /* --- FAB DOCK --- */
-.dock {
-    position: fixed; bottom: 0; left: 0; right: 0;
-    background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px);
-    border-top: 1px solid var(--border);
-    padding: 12px 20px calc(12px + var(--safe-bottom));
-    display: grid; grid-template-columns: 1fr 1fr; gap: 15px; z-index: 100;
-}
-.btn {
-    border: none; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px;
-    display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;
-    transition: 0.2s;
-}
-.btn-primary { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4); }
-.btn-primary:active { background: var(--primary-dark); }
+.dock { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--border); padding: 12px 20px calc(12px + var(--safe-bottom)); display: grid; grid-template-columns: 1fr 1fr; gap: 15px; z-index: 100; }
+.btn { border: none; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: 0.2s; }
+.btn-primary { background: var(--primary); color: white; }
 .btn-secondary { background: var(--surface-light); color: white; }
 
-/* --- MODAL (BOTTOM SHEET) --- */
-.modal-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200;
-    opacity: 0; pointer-events: none; transition: 0.3s;
-    backdrop-filter: blur(4px);
-}
+/* --- MODAL --- */
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(4px); }
 .modal-overlay.open { opacity: 1; pointer-events: auto; }
-.bottom-sheet {
-    position: fixed; left: 0; right: 0; bottom: 0;
-    background: #1e293b; border-radius: 24px 24px 0 0;
-    padding: 24px 24px calc(30px + var(--safe-bottom));
-    transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    z-index: 201; border-top: 1px solid var(--border);
-}
+.bottom-sheet { position: fixed; left: 0; right: 0; bottom: 0; background: #1e293b; border-radius: 24px 24px 0 0; padding: 24px 24px calc(30px + var(--safe-bottom)); transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 201; border-top: 1px solid var(--border); }
 .modal-overlay.open .bottom-sheet { transform: translateY(0); }
 .sheet-handle { width: 40px; height: 5px; background: var(--surface-light); border-radius: 10px; margin: 0 auto 20px; }
 .sheet-title { font-size: 20px; font-weight: 800; margin-bottom: 20px; color: white; }
 
-.inp-group { margin-bottom: 15px; }
-.inp-large {
-    width: 100%; background: var(--bg); border: 1px solid var(--border);
-    color: white; padding: 16px; border-radius: 12px; font-size: 18px; outline: none;
-    transition: 0.2s;
-}
+.inp-group { margin-bottom: 15px; position: relative; } 
+.inp-large { width: 100%; background: var(--bg); border: 1px solid var(--border); color: white; padding: 16px; border-radius: 12px; font-size: 18px; outline: none; }
 .inp-large:focus { border-color: var(--primary); }
+
+/* Suggestion Box Styles */
+.suggestions-box {
+    position: absolute; top: 100%; left: 0; right: 0;
+    background: var(--surface-light); border-radius: 0 0 12px 12px;
+    max-height: 180px; overflow-y: auto; z-index: 10;
+    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);
+    display: none; border: 1px solid var(--border);
+}
+.suggestions-box.active { display: block; }
+.suggestion-item {
+    padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.05);
+    color: var(--text-muted); cursor: pointer; font-size: 14px;
+    display: flex; justify-content: space-between; align-items: center;
+}
+.suggestion-item:active { background: rgba(255,255,255,0.05); }
+.suggestion-item b { color: white; font-size: 16px; }
+
 .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-.qty-select { padding: 12px; font-size: 16px; background: var(--bg); color: white; border: 1px solid var(--border); border-radius: 10px; width: 100%; }
+.qty-select { padding: 12px; font-size: 16px; background: var(--bg); color: white; border: 1px solid var(--border); border-radius: 10px; width: 100%; outline:none; }
+.qty-select:disabled { opacity: 0.5; }
+.avail-label { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 6px; display: block; font-weight:600;}
 
 /* --- PRINT --- */
 #print-area { display: none; }
@@ -157,54 +115,34 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: cal
 <body>
 
 <div class="app-header">
-    <div class="brand">
-        <!-- Logo Placeholder -->
-        <div style="width:32px; height:32px; background:linear-gradient(135deg, var(--primary), #a855f7); border-radius:8px; display:flex; align-items:center; justify-content:center; color:white;">DF</div>
-        Dilkhus Fashion
-    </div>
-    <div class="status-badge">
-        <div id="dot" class="status-dot"></div>
-        <span id="status">INIT</span>
-    </div>
+    <div class="brand"><div>DF</div>Dilkhus Fashion</div>
+    <div class="status-badge"><div id="dot" class="status-dot"></div><span id="status">INIT</span></div>
 </div>
 
 <div class="sub-header">
     <div class="stats-row">
-        <div class="stat-card">
-            <span class="stat-label">Total Stock</span>
-            <span class="stat-value" id="d-stock" style="color:var(--primary)">0</span>
-        </div>
-        <div class="stat-card">
-            <span class="stat-label">Available</span>
-            <span class="stat-value" id="d-rem" style="color:var(--success)">0</span>
-        </div>
+        <div class="stat-card"><span class="stat-label">Stock</span><span class="stat-value" id="d-stock" style="color:var(--primary)">0</span></div>
+        <div class="stat-card"><span class="stat-label">Available</span><span class="stat-value" id="d-rem" style="color:var(--success)">0</span></div>
     </div>
     <div class="tabs">
         <button class="tab active" id="tab-active" onclick="switchTab('active')">INVENTORY</button>
-        <button class="tab" id="tab-trash" onclick="switchTab('trash')">TRASH BIN</button>
+        <button class="tab" id="tab-trash" onclick="switchTab('trash')">TRASH</button>
     </div>
 </div>
 
 <div class="filter-row">
     <div class="search-container">
         <span class="search-icon">🔍</span>
-        <input type="text" class="search-inp" id="mainSearch" placeholder="Search Design No..." oninput="render()">
+        <input type="text" class="search-inp" id="mainSearch" placeholder="Search Design..." oninput="render()">
     </div>
-    <select id="sortSelect" onchange="render()" style="display:none"></select> <!-- Hidden logic ref -->
     <div class="sort-btn" onclick="printStock()">🖨️</div>
 </div>
 
-<div id="list" class="list-container">
-    <!-- Items injected here -->
-</div>
+<div id="list" class="list-container"></div>
 
 <div class="dock">
-    <button class="btn btn-secondary" onclick="openModal('sell')">
-        <span>📉</span> SELL
-    </button>
-    <button class="btn btn-primary" onclick="openModal('add')">
-        <span>＋</span> ADD STOCK
-    </button>
+    <button class="btn btn-secondary" onclick="openModal('sell')"><span>📉</span> SELL</button>
+    <button class="btn btn-primary" onclick="openModal('add')"><span>＋</span> ADD STOCK</button>
 </div>
 
 <!-- ADD/SELL SHEET -->
@@ -214,17 +152,35 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: cal
         <h2 class="sheet-title" id="m-title">Update Stock</h2>
         
         <div class="inp-group">
-            <input id="m-design" class="inp-large" placeholder="Design Number (e.g. 1045)" oninput="checkDup(this.value)">
+            <input id="m-design" class="inp-large" placeholder="Design Number (e.g. 1045)" oninput="handleDesignInput(this.value)" autocomplete="off">
+            <!-- Suggestion Box -->
+            <div id="suggestions" class="suggestions-box"></div>
         </div>
 
         <div class="grid-inputs">
-            <div><label class="size-label">22x32</label><select id="s0" class="qty-select"></select></div>
-            <div><label class="size-label">34x36</label><select id="s1" class="qty-select"></select></div>
-            <div><label class="size-label">16x18</label><select id="s2" class="qty-select"></select></div>
-            <div><label class="size-label">26x30</label><select id="s3" class="qty-select"></select></div>
+            <div>
+                <label class="size-label">22x32</label>
+                <select id="s0" class="qty-select"></select>
+                <span id="l0" class="avail-label"></span>
+            </div>
+            <div>
+                <label class="size-label">34x36</label>
+                <select id="s1" class="qty-select"></select>
+                <span id="l1" class="avail-label"></span>
+            </div>
+            <div>
+                <label class="size-label">16x18</label>
+                <select id="s2" class="qty-select"></select>
+                <span id="l2" class="avail-label"></span>
+            </div>
+            <div>
+                <label class="size-label">26x30</label>
+                <select id="s3" class="qty-select"></select>
+                <span id="l3" class="avail-label"></span>
+            </div>
         </div>
 
-        <button class="btn btn-primary" style="width:100%" onclick="finalSubmit()">CONFIRM ACTION</button>
+        <button class="btn btn-primary" style="width:100%" onclick="finalSubmit()">CONFIRM</button>
     </div>
 </div>
 
@@ -232,20 +188,17 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: cal
 <div class="modal-overlay" id="editOverlay" onclick="closeEdit()">
     <div class="bottom-sheet" onclick="event.stopPropagation()">
         <div class="sheet-handle"></div>
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:20px;">
+        <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
             <h2 class="sheet-title" style="margin:0">Edit Item</h2>
-            <button class="btn btn-secondary" style="padding:8px 12px; font-size:12px; height:auto; background:var(--surface-light)" onclick="closeEdit()">CLOSE</button>
+            <button class="btn btn-secondary" style="padding:5px 10px;height:auto" onclick="closeEdit()">✕</button>
         </div>
-
         <input id="edit-design-name" class="inp-large" style="margin-bottom:15px" placeholder="Design Name">
-        
         <div class="grid-inputs">
-            <div><label class="size-label">22x32</label><input type="number" id="e0" class="qty-select" style="background:var(--bg)"></div>
-            <div><label class="size-label">34x36</label><input type="number" id="e1" class="qty-select" style="background:var(--bg)"></div>
-            <div><label class="size-label">16x18</label><input type="number" id="e2" class="qty-select" style="background:var(--bg)"></div>
-            <div><label class="size-label">26x30</label><input type="number" id="e3" class="qty-select" style="background:var(--bg)"></div>
+            <div><label class="size-label">22x32</label><input type="number" id="e0" class="qty-select"></div>
+            <div><label class="size-label">34x36</label><input type="number" id="e1" class="qty-select"></div>
+            <div><label class="size-label">16x18</label><input type="number" id="e2" class="qty-select"></div>
+            <div><label class="size-label">26x30</label><input type="number" id="e3" class="qty-select"></div>
         </div>
-
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
             <button class="btn btn-primary" onclick="saveFullEdit()">SAVE</button>
             <button class="btn" style="background:var(--danger); color:white" id="deleteBtn">DELETE</button>
@@ -256,53 +209,35 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: cal
 <div id="print-area"></div>
 
 <script>
-// --- CONFIGURATION ---
 const SB_URL = 'https://yhlfqpiwevsehlgbhxtk.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlobGZxcGl3ZXZzZWhsZ2JoeHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5Mjc1ODMsImV4cCI6MjA4NTUwMzU4M30.UX-6NXiJNg6EywD7gIPjla7l5_Koq0UbpuFyENIKOaM';
 const sbClient = supabase.createClient(SB_URL, SB_KEY);
 const sizes = ["22x32","34x36","16x18","26x30"];
-
-// --- STATE ---
 let inventory = [], pendingQueue = [], currentTab = 'active';
 let editingItem, foundItem, modalMode = '';
 
-// --- INIT ---
 (async function init() {
-    // Load Local Data
     const localInv = localStorage.getItem('dilkhus_inv');
     const localQue = localStorage.getItem('dilkhus_que');
     if(localInv) inventory = JSON.parse(localInv);
     if(localQue) pendingQueue = JSON.parse(localQue);
+    render(); updateStatus();
     
-    render(); 
-    updateStatus();
-    
-    // Populate Select Options (0 to 100)
-    const opts = `<option value="0">0</option>` + Array.from({length:100},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
-    [0,1,2,3].forEach(i => document.getElementById('s'+i).innerHTML = opts);
+    // Initial dropdown population (0-100)
+    updateDropdowns(null);
 
-    // Network Logic
-    if(navigator.onLine) { 
-        await fetchLatest(); 
-        processQueue(); 
-    }
+    if(navigator.onLine) { await fetchLatest(); processQueue(); }
     window.addEventListener('online', () => { updateStatus(); processQueue(); });
-    window.addEventListener('offline', updateStatus);
-    
-    // Realtime Subscription
     sbClient.channel('any').on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, fetchLatest).subscribe();
 })();
 
-// --- DATA SYNC LOGIC ---
 async function fetchLatest() {
     const { data } = await sbClient.from('inventory').select('*').order('created_at', {ascending:false});
     if(data) {
-        // Merge strategy: Keep local queue changes, overwrite others
         const serverIds = data.map(item => item.id);
         const localsNotOnServer = inventory.filter(local => !serverIds.includes(local.id));
         inventory = [...localsNotOnServer, ...data];
-        saveLocal(); 
-        render(); 
+        saveLocal(); render(); 
     }
 }
 
@@ -314,13 +249,9 @@ function saveLocal() {
 
 function updateStatus() {
     const s = document.getElementById('status'), d = document.getElementById('dot');
-    if(pendingQueue.length > 0) { 
-        s.innerText = 'SYNCING...'; d.style.background = 'var(--primary)'; 
-    } else if(navigator.onLine) { 
-        s.innerText = 'ONLINE'; d.style.background = 'var(--success)'; 
-    } else { 
-        s.innerText = 'OFFLINE'; d.style.background = 'var(--danger)'; 
-    }
+    if(pendingQueue.length > 0) { s.innerText = 'SYNCING'; d.style.background = 'var(--primary)'; }
+    else if(navigator.onLine) { s.innerText = 'ONLINE'; d.style.background = 'var(--success)'; }
+    else { s.innerText = 'OFFLINE'; d.style.background = 'var(--danger)'; }
 }
 
 async function processQueue() {
@@ -328,31 +259,11 @@ async function processQueue() {
     const op = pendingQueue[0];
     try {
         let error;
-        if(op.type === 'INSERT') {
-            const { error: err } = await sbClient.from('inventory').insert(op.data);
-            error = err;
-        } else if(op.type === 'UPDATE') {
-            const { error: err } = await sbClient.from('inventory').update(op.data).eq('id', op.id);
-            error = err;
-        }
-        
-        if(!error) {
-            pendingQueue.shift(); 
-            saveLocal(); 
-            processQueue(); 
-        } else {
-            console.error("Sync Error:", error);
-            setTimeout(processQueue, 5000); 
-        }
+        if(op.type === 'INSERT') error = (await sbClient.from('inventory').insert(op.data)).error;
+        else if(op.type === 'UPDATE') error = (await sbClient.from('inventory').update(op.data).eq('id', op.id)).error;
+        if(!error) { pendingQueue.shift(); saveLocal(); processQueue(); }
+        else setTimeout(processQueue, 5000);
     } catch(e) { setTimeout(processQueue, 3000); }
-}
-
-// --- RENDER LOGIC ---
-function switchTab(tab) {
-    currentTab = tab;
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('tab-'+tab).classList.add('active');
-    render();
 }
 
 function render() {
@@ -361,62 +272,127 @@ function render() {
     if(!list) return;
     list.innerHTML = '';
     
-    // Filter
     let filtered = inventory.filter(i => (currentTab === 'active' ? !i.deleted_at : !!i.deleted_at) && i.design.toUpperCase().includes(term));
-    
-    // Sort (Default: Newest)
     filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
-    // Update Stats
     const active = inventory.filter(i => !i.deleted_at);
     document.getElementById('d-stock').innerText = active.reduce((a,c)=>a+c.stock.reduce((x,y)=>x+y,0),0);
     document.getElementById('d-rem').innerText = active.reduce((a,c)=>a+(c.stock.reduce((x,y)=>x+y,0)-c.sold.reduce((x,y)=>x+y,0)),0);
 
-    // Build DOM
     filtered.forEach(item => {
         const el = document.createElement('div'); el.className = 'inventory-card';
         el.onclick = () => openEdit(item);
-
         let grid = item.stock.map((s, idx) => {
             const rem = s - (item.sold[idx]||0);
-            const stockClass = rem < 5 ? 'low-stock' : 'good-stock';
-            return `
-                <div class="size-item">
-                    <div class="size-label">${sizes[idx]}</div>
-                    <div class="size-val ${stockClass}">${rem}</div>
-                </div>
-            `;
+            return `<div class="size-item"><div class="size-label">${sizes[idx]}</div><div class="size-val ${rem<5?'low-stock':'good-stock'}">${rem}</div></div>`;
         }).join('');
-
-        el.innerHTML = `
-            <div class="card-header">
-                <div class="design-pill">#${item.design}</div>
-                <div class="edit-icon">⋮</div>
-            </div>
-            <div class="size-grid">${grid}</div>
-        `;
+        el.innerHTML = `<div class="card-header"><div class="design-pill">#${item.design}</div><div>⋮</div></div><div class="size-grid">${grid}</div>`;
         list.appendChild(el);
     });
 }
 
-// --- ADD / SELL MODAL ---
+function switchTab(tab) {
+    currentTab = tab;
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('tab-'+tab).classList.add('active');
+    render();
+}
+
+// --- SUGGESTION & DROPDOWN LOGIC ---
+
+function handleDesignInput(val) {
+    val = val.toUpperCase().trim();
+    const box = document.getElementById('suggestions');
+    
+    // 1. Find matches for suggestion box
+    const matches = inventory.filter(i => i.design.startsWith(val) && !i.deleted_at).slice(0, 5);
+    
+    if (val.length > 0 && matches.length > 0) {
+        box.innerHTML = matches.map(m => `
+            <div class="suggestion-item" onclick="selectSuggestion('${m.design}')">
+                <span><b>${m.design}</b></span>
+                <span style="font-size:10px">Stock: ${m.stock.reduce((a,b)=>a+b,0)}</span>
+            </div>
+        `).join('');
+        box.classList.add('active');
+    } else {
+        box.classList.remove('active');
+    }
+
+    // 2. Check for exact match to update dropdowns immediately
+    const exactMatch = inventory.find(i => i.design === val && !i.deleted_at);
+    updateDropdowns(exactMatch);
+    foundItem = exactMatch;
+}
+
+function selectSuggestion(designVal) {
+    const input = document.getElementById('m-design');
+    input.value = designVal;
+    document.getElementById('suggestions').classList.remove('active');
+    handleDesignInput(designVal); // Trigger dropdown update
+}
+
+// Generates options based on Mode (Add/Sell) and Available Stock
+function updateDropdowns(item) {
+    [0,1,2,3].forEach(idx => {
+        const select = document.getElementById('s'+idx);
+        const label = document.getElementById('l'+idx);
+        select.innerHTML = '';
+        select.disabled = false;
+
+        if (modalMode === 'sell') {
+            if (item) {
+                const available = item.stock[idx] - (item.sold[idx] || 0);
+                label.innerText = `Avail: ${available}`;
+                
+                if (available <= 0) {
+                    select.innerHTML = `<option value="0">0</option>`;
+                    select.disabled = true;
+                } else {
+                    let opts = '';
+                    for(let i=0; i<=available; i++) opts += `<option value="${i}">${i}</option>`;
+                    select.innerHTML = opts;
+                }
+            } else {
+                // Selling unknown item? Not allowed.
+                label.innerText = 'Select Design';
+                select.innerHTML = `<option value="0">0</option>`;
+                select.disabled = true;
+            }
+        } 
+        else { 
+            // ADD MODE: Always allow adding 0-100
+            let opts = '';
+            for(let i=0; i<=100; i++) opts += `<option value="${i}">${i}</option>`;
+            select.innerHTML = opts;
+            
+            // Show current stock as reference
+            if(item) {
+                const current = item.stock[idx]; // Total physical stock
+                label.innerText = `Current: ${current}`;
+            } else {
+                label.innerText = 'New Design';
+            }
+        }
+    });
+}
+
 function openModal(mode) {
     modalMode = mode;
-    document.getElementById('m-title').innerText = mode === 'add' ? 'Add New Stock' : 'Sell Item';
-    document.getElementById('m-design').value = '';
-    [0,1,2,3].forEach(i => document.getElementById('s'+i).value = 0);
+    document.getElementById('m-title').innerText = mode === 'add' ? 'Add Stock' : 'Sell Item';
+    const input = document.getElementById('m-design');
+    input.value = '';
+    foundItem = null;
+    
+    updateDropdowns(null); // Reset dropdowns
     document.getElementById('modalOverlay').classList.add('open');
-    document.getElementById('m-design').focus();
+    input.focus();
 }
 
 function closeModal() {
-    modalMode = '';
     document.getElementById('modalOverlay').classList.remove('open');
-}
-
-function checkDup(val) {
-    foundItem = inventory.find(i => i.design === val.trim().toUpperCase() && !i.deleted_at);
-    // Visual feedback could be added here if foundItem exists
+    document.getElementById('suggestions').classList.remove('active');
+    modalMode = '';
 }
 
 async function finalSubmit() {
@@ -424,13 +400,17 @@ async function finalSubmit() {
     const qtys = [0,1,2,3].map(i => +document.getElementById('s'+i).value);
     
     if(!dNo) return alert("Please enter a Design Number");
-    
+    const totalQty = qtys.reduce((a,b)=>a+b,0);
+    if(totalQty === 0) return alert("Please select quantity");
+
     // ADD MODE
     if(modalMode === 'add') {
         if(foundItem) {
+            // Update existing
             foundItem.stock = foundItem.stock.map((s,i) => s + qtys[i]);
             pendingQueue.push({ type: 'UPDATE', id: foundItem.id, data: { stock: foundItem.stock } });
         } else {
+            // Create new
             const newItem = { id: Date.now(), design: dNo, stock: qtys, sold: [0,0,0,0], created_at: new Date().toISOString() };
             inventory.unshift(newItem); 
             pendingQueue.push({ type: 'INSERT', data: newItem });
@@ -439,8 +419,9 @@ async function finalSubmit() {
     // SELL MODE
     else {
         if(!foundItem) return alert("Design not found!");
+        // Double check availablity
         const canSell = foundItem.stock.every((s, i) => (s - (foundItem.sold[i] || 0)) >= qtys[i]);
-        if(!canSell) return alert("Insufficient Stock!");
+        if(!canSell) return alert("Stock changed! Please try again.");
         
         foundItem.sold = foundItem.sold.map((s,i) => (foundItem.sold[i] || 0) + qtys[i]);
         pendingQueue.push({ type: 'UPDATE', id: foundItem.id, data: { sold: foundItem.sold } });
@@ -449,47 +430,38 @@ async function finalSubmit() {
     saveLocal(); render(); closeModal(); processQueue();
 }
 
-// --- EDIT MODAL ---
+// --- EDIT LOGIC (Same as before) ---
 function openEdit(item) {
     editingItem = item;
     document.getElementById('editOverlay').classList.add('open');
     document.getElementById('edit-design-name').value = item.design;
     [0,1,2,3].forEach(i => document.getElementById('e'+i).value = item.stock[i]);
-    
     const dBtn = document.getElementById('deleteBtn');
-    dBtn.innerText = item.deleted_at ? "RESTORE FROM TRASH" : "DELETE ITEM";
-    dBtn.style.background = item.deleted_at ? 'var(--success)' : 'var(--danger)';
+    dBtn.innerText = item.deleted_at ? "RESTORE" : "DELETE";
     dBtn.onclick = item.deleted_at ? restoreItem : deleteItem;
 }
-
 function closeEdit() { document.getElementById('editOverlay').classList.remove('open'); }
-
-async function saveFullEdit() {
+function saveFullEdit() {
     const newName = document.getElementById('edit-design-name').value.trim().toUpperCase();
     const newStock = [0,1,2,3].map(i => +document.getElementById('e'+i).value);
-    editingItem.design = newName; 
-    editingItem.stock = newStock;
+    editingItem.design = newName; editingItem.stock = newStock;
     pendingQueue.push({ type: 'UPDATE', id: editingItem.id, data: { design: newName, stock: newStock } });
     saveLocal(); render(); closeEdit(); processQueue();
 }
-
-async function deleteItem() {
-    if(!confirm("Are you sure you want to delete this?")) return;
+function deleteItem() {
+    if(!confirm("Delete this item?")) return;
     editingItem.deleted_at = new Date().toISOString();
     pendingQueue.push({ type: 'UPDATE', id: editingItem.id, data: { deleted_at: editingItem.deleted_at } });
     saveLocal(); render(); closeEdit(); processQueue();
 }
-
-async function restoreItem() {
+function restoreItem() {
     editingItem.deleted_at = null;
     pendingQueue.push({ type: 'UPDATE', id: editingItem.id, data: { deleted_at: null } });
     saveLocal(); render(); closeEdit(); processQueue();
 }
-
-// --- PRINT ---
 function printStock() {
     const printArea = document.getElementById('print-area');
-    let tableHtml = `<h2>Dilkhus Fashion - Stock Report</h2><table style="width:100%;border:1px solid #000"><thead><tr><th>Design</th><th>22x32</th><th>34x36</th><th>16x18</th><th>26x30</th><th>Total</th></tr></thead><tbody>`;
+    let tableHtml = `<h2>Stock Report</h2><table><thead><tr><th>Design</th><th>22x32</th><th>34x36</th><th>16x18</th><th>26x30</th><th>Total</th></tr></thead><tbody>`;
     inventory.filter(i => !i.deleted_at).forEach(item => {
         const rems = item.stock.map((s, idx) => s - (item.sold[idx] || 0));
         tableHtml += `<tr><td>${item.design}</td><td>${rems[0]}</td><td>${rems[1]}</td><td>${rems[2]}</td><td>${rems[3]}</td><td><b>${rems.reduce((a,b)=>a+b,0)}</b></td></tr>`;
