@@ -58,7 +58,6 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 120
 .modal { background: #111113; width: 100%; border-radius: 25px 25px 0 0; padding: 20px 24px 50px; border-top: 1px solid var(--border); }
 .inp-large { width: 100%; background: #000; border: none; box-shadow: var(--inner-sh); color: #FFF; padding: 16px; border-radius: 12px; font-size: 18px; margin-bottom: 12px; outline: none; }
 
-/* PRINT STYLES */
 #print-area { display: none; }
 @media print {
     body * { visibility: hidden; }
@@ -66,7 +65,6 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 120
     #print-area { display: block; position: absolute; left: 0; top: 0; width: 100%; color: #000; background: #fff; padding: 20px; }
     table { width: 100%; border-collapse: collapse; margin-top: 20px; }
     th, td { border: 1px solid #000; padding: 8px; text-align: center; }
-    .no-print { display: none !important; }
 }
 </style>
 </head>
@@ -163,21 +161,29 @@ let inventory = [], pendingQueue = [], currentTab = 'active', touchTimer, editin
     const localInv = localStorage.getItem('dilkhus_inv'), localQue = localStorage.getItem('dilkhus_que');
     if(localInv) inventory = JSON.parse(localInv);
     if(localQue) pendingQueue = JSON.parse(localQue);
+    
     render(); updateStatus();
     
     const opts = `<option value="0">0</option>` + Array.from({length:100},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
     [0,1,2,3].forEach(i => document.getElementById('s'+i).innerHTML = opts);
 
+    if(navigator.onLine) { 
+        await fetchLatest(); 
+        processQueue(); 
+    }
     window.addEventListener('online', () => { updateStatus(); processQueue(); });
-    if(navigator.onLine) { await fetchLatest(); processQueue(); }
     sbClient.channel('any').on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, fetchLatest).subscribe();
 })();
 
 async function fetchLatest() {
     const { data } = await sbClient.from('inventory').select('*').order('created_at', {ascending:false});
-    // Fix: Only overwrite if we don't have pending local changes to prevent vanishing items
-    if(data && pendingQueue.length === 0) { 
-        inventory = data; 
+    if(data) {
+        // MERGE LOGIC: Keep local items that haven't reached the server yet
+        const serverIds = data.map(item => item.id);
+        const localsNotOnServer = inventory.filter(local => !serverIds.includes(local.id));
+        
+        // Update local inventory with server data + unique local items
+        inventory = [...localsNotOnServer, ...data];
         saveLocal(); 
         render(); 
     }
@@ -200,9 +206,23 @@ async function processQueue() {
     if(!navigator.onLine || pendingQueue.length === 0) return;
     const op = pendingQueue[0];
     try {
-        if(op.type === 'INSERT') await sbClient.from('inventory').insert(op.data);
-        else if(op.type === 'UPDATE') await sbClient.from('inventory').update(op.data).eq('id', op.id);
-        pendingQueue.shift(); saveLocal(); processQueue();
+        let error;
+        if(op.type === 'INSERT') {
+            const { error: err } = await sbClient.from('inventory').insert(op.data);
+            error = err;
+        } else if(op.type === 'UPDATE') {
+            const { error: err } = await sbClient.from('inventory').update(op.data).eq('id', op.id);
+            error = err;
+        }
+        
+        if(!error) {
+            pendingQueue.shift(); 
+            saveLocal(); 
+            processQueue(); 
+        } else {
+            console.error("Sync Error:", error);
+            setTimeout(processQueue, 5000); // Wait 5s and try again
+        }
     } catch(e) { setTimeout(processQueue, 3000); }
 }
 
@@ -210,6 +230,7 @@ function render() {
     const list = document.getElementById('list'); 
     const term = document.getElementById('mainSearch').value.toUpperCase();
     const sort = document.getElementById('sortSelect').value;
+    if(!list) return;
     list.innerHTML = '';
     
     let filtered = inventory.filter(i => (currentTab === 'active' ? !i.deleted_at : !!i.deleted_at) && i.design.toUpperCase().includes(term));
@@ -226,10 +247,8 @@ function render() {
 
     filtered.forEach(item => {
         const el = document.createElement('div'); el.className = 'card';
-        // Fix: Prevent auto-popups by checking for actual interaction
         const trigger = () => { touchTimer = setTimeout(() => openPeek(item), 800); };
         const cancel = () => { clearTimeout(touchTimer); };
-        
         el.addEventListener('touchstart', trigger);
         el.addEventListener('touchend', cancel);
         el.addEventListener('mousedown', trigger);
@@ -246,11 +265,10 @@ function render() {
 
 function printStock() {
     const printArea = document.getElementById('print-area');
-    let tableHtml = `<h2>Stock Report - Dilkhus Fashion</h2><table><thead><tr><th>Design</th><th>22x32</th><th>34x36</th><th>16x18</th><th>26x30</th><th>Total</th></tr></thead><tbody>`;
+    let tableHtml = `<h2>Stock Report</h2><table><thead><tr><th>Design</th><th>22x32</th><th>34x36</th><th>16x18</th><th>26x30</th><th>Total</th></tr></thead><tbody>`;
     inventory.filter(i => !i.deleted_at).forEach(item => {
         const rems = item.stock.map((s, idx) => s - (item.sold[idx] || 0));
-        const total = rems.reduce((a, b) => a + b, 0);
-        tableHtml += `<tr><td>${item.design}</td><td>${rems[0]}</td><td>${rems[1]}</td><td>${rems[2]}</td><td>${rems[3]}</td><td><b>${total}</b></td></tr>`;
+        tableHtml += `<tr><td>${item.design}</td><td>${rems[0]}</td><td>${rems[1]}</td><td>${rems[2]}</td><td>${rems[3]}</td><td><b>${rems.reduce((a,b)=>a+b,0)}</b></td></tr>`;
     });
     tableHtml += `</tbody></table>`;
     printArea.innerHTML = tableHtml;
@@ -269,7 +287,7 @@ function triggerLiquid(tab) {
 }
 
 function openPeek(item) {
-    if(!item) return;
+    if(!item || modalMode !== '') return; // Prevent opening during ADD/SELL
     editingItem = item;
     document.getElementById('peekOverlay').classList.add('active');
     document.getElementById('edit-design-name').value = item.design;
@@ -302,12 +320,8 @@ async function restoreItem() {
     saveLocal(); render(); closePeek(); processQueue();
 }
 
-function openModal(m) { 
-    modalMode = m; 
-    document.getElementById('m-title').innerText = m === 'add' ? 'Add Stock' : 'Sell Stock'; 
-    document.getElementById('modal').classList.add('open'); 
-}
-function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function openModal(m) { modalMode = m; document.getElementById('m-title').innerText = m === 'add' ? 'Add Stock' : 'Sell Stock'; document.getElementById('modal').classList.add('open'); }
+function closeModal() { modalMode = ''; document.getElementById('modal').classList.remove('open'); }
 
 function checkDup(val) { foundItem = inventory.find(i => i.design === val.trim().toUpperCase() && !i.deleted_at); }
 
