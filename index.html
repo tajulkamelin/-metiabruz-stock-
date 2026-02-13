@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Dilkhus Fashion Pro</title>
+<title>Dilkhus Fashion Pro V4.7</title>
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <style>
 :root { 
@@ -17,41 +17,40 @@
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', system-ui, sans-serif; }
 body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 120px; overflow: hidden; height: 100vh; }
 
-/* DISABLE SELECTION FOR 3D TOUCH */
-.card, .btn { user-select: none !important; -webkit-user-select: none !important; -webkit-touch-callout: none !important; }
+/* DISABLE SELECTION */
+.card, .btn, .header, .stat-card, img { user-select: none !important; -webkit-user-select: none !important; -webkit-touch-callout: none !important; }
 
-/* LIQUID WAVE */
 #liquid-wave { position: fixed; inset: 0; background: var(--primary); z-index: 2000; clip-path: circle(0% at 50% 50%); transition: clip-path 0.8s cubic-bezier(0.77, 0, 0.175, 1); pointer-events: none; }
 #liquid-wave.active { clip-path: circle(150% at 50% 50%); }
 
-/* HEADER & STATUS */
 .header { position: sticky; top: 0; z-index: 50; background: rgba(9, 9, 11, 0.9); backdrop-filter: blur(12px); border-bottom: 1px solid var(--border); padding: 45px 20px 15px; }
 .status-pill { font-size: 10px; font-weight: 700; background: rgba(255,255,255,0.05); padding: 6px 12px; border-radius: 100px; display: flex; align-items: center; gap: 8px; border: 0.5px solid var(--border); }
 .dot { width: 8px; height: 8px; border-radius: 50%; transition: 0.3s; box-shadow: 0 0 8px currentColor; }
 
-/* STATS & CARDS */
 .dash-container { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 15px 20px; }
 .stat-card { background: var(--card); border-radius: 15px; padding: 15px; box-shadow: var(--outer-sh); border: 1px solid var(--border); }
 .card { background: var(--card); border-radius: 20px; padding: 20px; margin: 0 20px 15px; box-shadow: var(--outer-sh); border: 1px solid var(--border); transition: 0.2s; }
 .size-box { background: #000; border-radius: 10px; box-shadow: var(--inner-sh); padding: 10px 5px; text-align: center; }
 
-/* ACTION DOCK */
 .dock { position: fixed; bottom: 20px; left: 20px; right: 20px; background: rgba(24, 24, 27, 0.9); backdrop-filter: blur(20px); border: 1px solid var(--border); border-radius: 20px; padding: 12px; display: grid; grid-template-columns: 1fr 1fr; gap: 12px; z-index: 100; box-shadow: 0 10px 40px rgba(0,0,0,0.4); }
 .btn { height: 50px; border-radius: 14px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; display: flex; align-items: center; justify-content: center; color: #FFF; }
 .btn-primary { background: var(--primary); }
 .btn-glass { background: rgba(255,255,255,0.05); border: 1px solid var(--border); }
 
-/* PEEK & MODALS */
+/* PEEK OVERLAY WITH CLOSE OPTION */
+.peek-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
+.peek-overlay.active { display: flex !important; }
+.peek-card { background: var(--card); width: 90%; border-radius: 25px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); border: 1px solid var(--border); position: relative; }
+
+/* CLOSE BUTTON (X) */
+.close-peek { position: absolute; top: 15px; right: 15px; width: 32px; height: 32px; background: rgba(255,255,255,0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: #FFF; font-size: 18px; font-weight: bold; cursor: pointer; }
+
+.inp-large { width: 100%; background: #000; border: none; box-shadow: var(--inner-sh); color: #FFF; padding: 16px; border-radius: 12px; font-size: 18px; margin-bottom: 12px; outline: none; }
+
 .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2100; display: none; align-items: flex-end; }
 .modal-bg.open { display: flex; }
 .modal { background: #111113; width: 100%; border-radius: 25px 25px 0 0; padding: 20px 24px 50px; border-top: 1px solid var(--border); }
-.inp-large { width: 100%; background: #000; border: none; box-shadow: var(--inner-sh); color: #FFF; padding: 16px; border-radius: 12px; font-size: 18px; margin-bottom: 12px; outline: none; }
 
-.peek-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 3000; display: none; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
-.peek-overlay.active { display: flex; }
-.peek-card { background: var(--card); width: 90%; border-radius: 25px; padding: 25px; box-shadow: 0 20px 50px rgba(0,0,0,0.8); border: 1px solid var(--border); }
-
-/* PRINTING */
 @media print { .header, .dock, .dash-container, #list, #liquid-wave { display: none !important; } .print-area { display: block; color: #000; background: #FFF; } }
 </style>
 </head>
@@ -72,7 +71,7 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 120
     </div>
     <div style="display:flex; gap:10px; margin-top:20px;">
         <button class="btn btn-glass" style="flex:1; height:38px; font-size:11px;" onclick="triggerLiquid('active')">INVENTORY</button>
-        <button class="btn btn-glass" style="flex:1; height:38px; font-size:11px;" onclick="triggerLiquid('trash')">TRASH</button>
+        <button class="btn btn-glass" style="flex:1; height:38px; font-size:11px; background:rgba(0,0,0,0.3)" onclick="triggerLiquid('trash')">TRASH</button>
     </div>
 </div>
 
@@ -90,16 +89,20 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 120
 
 <div class="peek-overlay" id="peekOverlay" onclick="closePeek()">
     <div class="peek-card" onclick="event.stopPropagation()">
-        <h3 id="peekTitle" style="color:var(--primary); margin:0 0 15px 0">Edit Design</h3>
+        <div class="close-peek" onclick="closePeek()">✕</div>
+        <h3 id="peekTitle" style="color:var(--primary); margin:0 0 15px 0">Manage Design</h3>
         <input id="edit-design-name" class="inp-large" placeholder="Name">
+        
+        <label style="font-size:10px; color:var(--text-muted); text-align:left; display:block; margin-bottom:5px">STOCK QUANTITIES</label>
         <div style="display:grid; grid-template-columns:repeat(2,1fr); gap:10px; margin-bottom:15px">
-            <div class="size-box"><label style="font-size:9px">22x32</label><input type="number" id="e0" style="background:none;border:none;color:#FFF;text-align:center;width:100%;font-weight:800"></div>
-            <div class="size-box"><label style="font-size:9px">34x36</label><input type="number" id="e1" style="background:none;border:none;color:#FFF;text-align:center;width:100%;font-weight:800"></div>
-            <div class="size-box"><label style="font-size:9px">16x18</label><input type="number" id="e2" style="background:none;border:none;color:#FFF;text-align:center;width:100%;font-weight:800"></div>
-            <div class="size-box"><label style="font-size:9px">26x30</label><input type="number" id="e3" style="background:none;border:none;color:#FFF;text-align:center;width:100%;font-weight:800"></div>
+            <div class="size-box"><label style="font-size:9px">22x32</label><input type="number" id="e0" style="background:none;border:none;color:#FFF;text-align:center;width:100%;font-weight:800;outline:none"></div>
+            <div class="size-box"><label style="font-size:9px">34x36</label><input type="number" id="e1" style="background:none;border:none;color:#FFF;text-align:center;width:100%;font-weight:800;outline:none"></div>
+            <div class="size-box"><label style="font-size:9px">16x18</label><input type="number" id="e2" style="background:none;border:none;color:#FFF;text-align:center;width:100%;font-weight:800;outline:none"></div>
+            <div class="size-box"><label style="font-size:9px">26x30</label><input type="number" id="e3" style="background:none;border:none;color:#FFF;text-align:center;width:100%;font-weight:800;outline:none"></div>
         </div>
+        
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px">
-            <button class="btn btn-primary" onclick="saveFullEdit()">SAVE</button>
+            <button class="btn btn-primary" onclick="saveFullEdit()">SAVE ALL</button>
             <button class="btn" style="background:var(--danger)" id="deleteBtn">DELETE</button>
         </div>
     </div>
@@ -115,7 +118,7 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 120
             <div><label style="font-size:10px">16x18</label><select id="s2" class="inp-large"></select></div>
             <div><label style="font-size:10px">26x30</label><select id="s3" class="inp-large"></select></div>
         </div>
-        <button class="btn btn-primary" style="width:100%" onclick="finalSubmit()">SAVE</button>
+        <button class="btn btn-primary" style="width:100%" onclick="finalSubmit()">CONFIRM</button>
         <button class="btn btn-glass" style="width:100%; margin-top:10px" onclick="closeModal()">CANCEL</button>
     </div>
 </div>
@@ -156,9 +159,9 @@ function saveLocal() {
 
 function updateStatus() {
     const s = document.getElementById('status'), d = document.getElementById('dot');
-    if(pendingQueue.length > 0) { s.innerText = 'SYNCING'; d.style.background = 'var(--warning)'; d.style.color = 'var(--warning)'; }
-    else if(navigator.onLine) { s.innerText = 'ONLINE'; d.style.background = 'var(--success)'; d.style.color = 'var(--success)'; }
-    else { s.innerText = 'OFFLINE'; d.style.background = 'var(--danger)'; d.style.color = 'var(--danger)'; }
+    if(pendingQueue.length > 0) { s.innerText = 'SYNCING'; d.style.background = 'var(--warning)'; }
+    else if(navigator.onLine) { s.innerText = 'ONLINE'; d.style.background = 'var(--success)'; }
+    else { s.innerText = 'OFFLINE'; d.style.background = 'var(--danger)'; }
 }
 
 async function processQueue() {
@@ -174,17 +177,16 @@ async function processQueue() {
 function render() {
     const list = document.getElementById('list'); list.innerHTML = '';
     const filtered = inventory.filter(i => (currentTab === 'active' ? !i.deleted_at : !!i.deleted_at));
-    
     const active = inventory.filter(i => !i.deleted_at);
     document.getElementById('d-stock').innerText = active.reduce((a,c)=>a+c.stock.reduce((x,y)=>x+y,0),0);
     document.getElementById('d-rem').innerText = active.reduce((a,c)=>a+(c.stock.reduce((x,y)=>x+y,0)-c.sold.reduce((x,y)=>x+y,0)),0);
 
     filtered.forEach(item => {
         const el = document.createElement('div'); el.className = 'card';
-        el.ontouchstart = () => { touchTimer = setTimeout(() => openPeek(item), 600); };
-        el.ontouchend = () => clearTimeout(touchTimer);
-        el.onmousedown = () => { touchTimer = setTimeout(() => openPeek(item), 600); };
-        el.onmouseup = () => clearTimeout(touchTimer);
+        el.addEventListener('touchstart', (e) => { touchTimer = setTimeout(() => openPeek(item), 600); });
+        el.addEventListener('touchend', () => { clearTimeout(touchTimer); });
+        el.addEventListener('mousedown', () => { touchTimer = setTimeout(() => openPeek(item), 600); });
+        el.addEventListener('mouseup', () => { clearTimeout(touchTimer); });
 
         let grid = item.stock.map((s, idx) => {
             const rem = s-(item.sold[idx]||0);
@@ -201,12 +203,14 @@ function triggerLiquid(tab) {
 }
 
 function openPeek(item) {
+    if(!item) return;
     editingItem = item;
-    document.getElementById('peekOverlay').classList.add('active');
+    const overlay = document.getElementById('peekOverlay');
     document.getElementById('edit-design-name').value = item.design;
     [0,1,2,3].forEach(i => document.getElementById('e'+i).value = item.stock[i]);
     document.getElementById('deleteBtn').innerText = item.deleted_at ? "RESTORE" : "DELETE";
     document.getElementById('deleteBtn').onclick = item.deleted_at ? restoreItem : deleteItem;
+    overlay.classList.add('active');
 }
 
 function closePeek() { document.getElementById('peekOverlay').classList.remove('active'); }
@@ -220,6 +224,7 @@ async function saveFullEdit() {
 }
 
 async function deleteItem() {
+    if(!confirm("Move design to trash?")) return;
     editingItem.deleted_at = new Date().toISOString();
     pendingQueue.push({ type: 'UPDATE', id: editingItem.id, data: { deleted_at: editingItem.deleted_at } });
     saveLocal(); render(); closePeek(); processQueue();
@@ -250,9 +255,9 @@ async function finalSubmit() {
         }
     } else {
         if(!foundItem) return alert("Design not found!");
-        const canSell = foundItem.stock.every((s, i) => (s - foundItem.sold[i]) >= qtys[i]);
+        const canSell = foundItem.stock.every((s, i) => (s - (foundItem.sold[i] || 0)) >= qtys[i]);
         if(!canSell) return alert("Insufficient Stock!");
-        foundItem.sold = foundItem.sold.map((s,i) => s + qtys[i]);
+        foundItem.sold = foundItem.sold.map((s,i) => (s || 0) + qtys[i]);
         pendingQueue.push({ type: 'UPDATE', id: foundItem.id, data: { sold: foundItem.sold } });
     }
     saveLocal(); render(); closeModal(); processQueue();
