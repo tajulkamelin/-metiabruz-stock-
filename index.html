@@ -8,467 +8,461 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 <style>
 :root {
-    --bg: #0f172a;
-    --surface: #1e293b;
-    --surface-light: #334155;
-    --primary: #6366f1;
-    --primary-dark: #4f46e5;
-    --text: #f8fafc;
-    --text-muted: #94a3b8;
-    --success: #10b981;
-    --danger: #ef4444;
-    --border: rgba(255,255,255,0.08);
+    --bg: #0f172a; --surface: #1e293b; --surface-light: #334155;
+    --primary: #6366f1; --text: #f8fafc; --text-muted: #94a3b8;
+    --success: #10b981; --danger: #ef4444; --border: rgba(255,255,255,0.08);
     --safe-bottom: env(safe-area-inset-bottom);
 }
-
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; }
-body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: calc(90px + var(--safe-bottom)); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
+body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column; }
 
 /* --- HEADER --- */
-.app-header { background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); padding: 15px 20px; border-bottom: 1px solid var(--border); z-index: 50; display: flex; justify-content: space-between; align-items: center; }
+.app-header { background: rgba(15, 23, 42, 0.95); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 50; }
+.menu-btn { font-size: 24px; cursor: pointer; margin-right: 15px; }
 .brand { display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; }
-.brand div { width: 32px; height: 32px; background: linear-gradient(135deg, var(--primary), #a855f7); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; }
 .status-badge { font-size: 10px; font-weight: 700; background: var(--surface); padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px; border: 1px solid var(--border); }
-.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); box-shadow: 0 0 5px currentColor; transition: 0.3s; }
+.status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); transition: 0.3s; }
 
-/* --- STATS & TABS --- */
+/* --- SIDEBAR --- */
+.sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 900; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(2px); }
+.sidebar-overlay.open { opacity: 1; pointer-events: auto; }
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: var(--surface); z-index: 901; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
+.sidebar-overlay.open .sidebar { transform: translateX(0); }
+.nav-item { padding: 15px; border-radius: 10px; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
+.nav-item.active { background: var(--primary); color: white; }
+.nav-item:active { background: var(--surface-light); }
+
+/* --- MAIN CONTENT --- */
 .sub-header { padding: 15px 20px 0; display: grid; gap: 15px; }
 .stats-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
 .stat-card { background: var(--surface); padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border); display: flex; flex-direction: column; }
-.stat-label { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; }
-.stat-value { font-size: 24px; font-weight: 800; margin-top: 4px; color: var(--text); }
-.tabs { display: flex; background: var(--surface); padding: 4px; border-radius: 12px; margin-top: 5px; }
-.tab { flex: 1; padding: 10px; text-align: center; font-size: 13px; font-weight: 600; color: var(--text-muted); border-radius: 8px; border: none; background: transparent; transition: 0.2s; cursor: pointer; }
-.tab.active { background: var(--primary); color: white; }
-
-/* --- FILTERS --- */
-.filter-row { padding: 15px 20px; display: flex; gap: 10px; }
-.search-container { flex: 1; position: relative; }
+.stat-val { font-size: 24px; font-weight: 800; margin-top: 4px; }
+.search-container { padding: 15px 20px; position: relative; }
 .search-inp { width: 100%; background: var(--surface); border: 1px solid var(--border); padding: 12px 12px 12px 40px; border-radius: 12px; color: white; outline: none; font-size: 14px; }
-.search-icon { position: absolute; left: 12px; top: 50%; transform: translateY(-50%); opacity: 0.5; }
-.sort-btn { width: 44px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--text); cursor: pointer; }
 
-/* --- LIST --- */
-.list-container { flex: 1; overflow-y: auto; padding: 0 20px 20px; scroll-behavior: smooth; }
-.inventory-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); transition: transform 0.2s; }
-.inventory-card:active { transform: scale(0.98); }
+.list-container { flex: 1; overflow-y: auto; padding: 0 20px 100px; scroll-behavior: smooth; }
+
+/* Inventory Card */
+.inventory-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); }
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
-.design-pill { background: rgba(99, 102, 241, 0.15); color: #818cf8; padding: 4px 10px; border-radius: 6px; font-weight: 800; font-size: 14px; }
 .size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .size-item { background: var(--bg); border-radius: 8px; padding: 8px 4px; text-align: center; border: 1px solid var(--border); }
-.size-label { font-size: 9px; color: var(--text-muted); margin-bottom: 2px; }
-.size-val { font-size: 15px; font-weight: 700; }
-.low-stock { color: var(--danger); }
-.good-stock { color: var(--success); }
+/* History Card */
+.history-date { font-size: 12px; font-weight: 800; color: var(--text-muted); margin: 20px 0 10px; text-transform: uppercase; letter-spacing: 1px; }
+.history-card { background: var(--surface); border-radius: 12px; padding: 15px; margin-bottom: 10px; border-left: 4px solid var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
+.h-tag { font-size: 10px; font-weight: 700; padding: 3px 8px; border-radius: 4px; margin-bottom: 5px; display: inline-block; }
+.h-sell { border-left-color: var(--success); } .h-sell .h-tag { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+.h-add { border-left-color: var(--primary); } .h-add .h-tag { background: rgba(99, 102, 241, 0.2); color: var(--primary); }
 
-/* --- FAB DOCK --- */
+/* --- DOCK & MODAL --- */
 .dock { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--border); padding: 12px 20px calc(12px + var(--safe-bottom)); display: grid; grid-template-columns: 1fr 1fr; gap: 15px; z-index: 100; }
-.btn { border: none; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; transition: 0.2s; }
-.btn-primary { background: var(--primary); color: white; }
-.btn-secondary { background: var(--surface-light); color: white; }
+.btn { border: none; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; color: white; }
+.btn-p { background: var(--primary); } .btn-s { background: var(--surface-light); }
 
-/* --- MODAL --- */
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 200; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(4px); }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 950; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(4px); }
 .modal-overlay.open { opacity: 1; pointer-events: auto; }
-.bottom-sheet { position: fixed; left: 0; right: 0; bottom: 0; background: #1e293b; border-radius: 24px 24px 0 0; padding: 24px 24px calc(30px + var(--safe-bottom)); transform: translateY(100%); transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 201; border-top: 1px solid var(--border); }
+.bottom-sheet { position: fixed; left: 0; right: 0; bottom: 0; background: #1e293b; border-radius: 24px 24px 0 0; padding: 24px; transform: translateY(100%); transition: transform 0.4s; z-index: 951; padding-bottom: calc(30px + var(--safe-bottom)); }
 .modal-overlay.open .bottom-sheet { transform: translateY(0); }
-.sheet-handle { width: 40px; height: 5px; background: var(--surface-light); border-radius: 10px; margin: 0 auto 20px; }
-.sheet-title { font-size: 20px; font-weight: 800; margin-bottom: 20px; color: white; }
 
-.inp-group { margin-bottom: 15px; position: relative; } 
-.inp-large { width: 100%; background: var(--bg); border: 1px solid var(--border); color: white; padding: 16px; border-radius: 12px; font-size: 18px; outline: none; }
-.inp-large:focus { border-color: var(--primary); }
-
-/* Suggestion Box Styles */
-.suggestions-box {
-    position: absolute; top: 100%; left: 0; right: 0;
-    background: var(--surface-light); border-radius: 0 0 12px 12px;
-    max-height: 180px; overflow-y: auto; z-index: 10;
-    box-shadow: 0 10px 15px -3px rgba(0,0,0,0.5);
-    display: none; border: 1px solid var(--border);
-}
-.suggestions-box.active { display: block; }
-.suggestion-item {
-    padding: 14px 16px; border-bottom: 1px solid rgba(255,255,255,0.05);
-    color: var(--text-muted); cursor: pointer; font-size: 14px;
-    display: flex; justify-content: space-between; align-items: center;
-}
-.suggestion-item:active { background: rgba(255,255,255,0.05); }
-.suggestion-item b { color: white; font-size: 16px; }
-
+.inp-large { width: 100%; background: var(--bg); border: 1px solid var(--border); color: white; padding: 16px; border-radius: 12px; font-size: 18px; outline: none; margin-bottom: 15px; }
 .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
-.qty-select { padding: 12px; font-size: 16px; background: var(--bg); color: white; border: 1px solid var(--border); border-radius: 10px; width: 100%; outline:none; }
-.qty-select:disabled { opacity: 0.5; }
-.avail-label { font-size: 11px; color: var(--text-muted); text-align: center; margin-top: 6px; display: block; font-weight:600;}
+.qty-select { padding: 12px; width: 100%; background: var(--bg); color: white; border: 1px solid var(--border); border-radius: 10px; }
 
-/* --- PRINT --- */
-#print-area { display: none; }
-@media print {
-    body * { visibility: hidden; }
-    #print-area, #print-area * { visibility: visible; }
-    #print-area { display: block; position: absolute; left: 0; top: 0; width: 100%; color: #000; background: #fff; padding: 20px; }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { border: 1px solid #000; padding: 8px; text-align: center; }
-}
+.suggestions-box { position: absolute; top: 75px; left: 24px; right: 24px; background: var(--surface-light); z-index: 960; max-height: 150px; overflow-y: auto; display: none; border-radius: 0 0 12px 12px; }
+.suggestions-box.active { display: block; }
+.s-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+
+#view-home, #view-history { display: none; }
+.view-active { display: block !important; }
 </style>
 </head>
 <body>
 
+<!-- SIDEBAR -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()">
+    <div class="sidebar" onclick="event.stopPropagation()">
+        <h2 style="margin: 0 0 30px; padding: 0 15px;">Menu</h2>
+        <div class="nav-item active" onclick="switchView('home')">📦 Inventory</div>
+        <div class="nav-item" onclick="switchView('history-add')">📥 Inward History (Add)</div>
+        <div class="nav-item" onclick="switchView('history-sell')">📤 Outward History (Sell)</div>
+    </div>
+</div>
+
+<!-- HEADER -->
 <div class="app-header">
-    <div class="brand"><div>DF</div>Dilkhus Fashion</div>
+    <div style="display:flex; align-items:center">
+        <div class="menu-btn" onclick="toggleSidebar()">☰</div>
+        <div class="brand">Dilkhus Fashion</div>
+    </div>
     <div class="status-badge"><div id="dot" class="status-dot"></div><span id="status">INIT</span></div>
 </div>
 
-<div class="sub-header">
-    <div class="stats-row">
-        <div class="stat-card"><span class="stat-label">Stock</span><span class="stat-value" id="d-stock" style="color:var(--primary)">0</span></div>
-        <div class="stat-card"><span class="stat-label">Available</span><span class="stat-value" id="d-rem" style="color:var(--success)">0</span></div>
+<!-- VIEW: HOME (INVENTORY) -->
+<div id="view-home" class="view-active">
+    <div class="sub-header">
+        <div class="stats-row">
+            <div class="stat-card"><span style="font-size:11px;color:var(--text-muted)">STOCK</span><div class="stat-val" id="d-stock" style="color:var(--primary)">0</div></div>
+            <div class="stat-card"><span style="font-size:11px;color:var(--text-muted)">AVAILABLE</span><div class="stat-val" id="d-rem" style="color:var(--success)">0</div></div>
+        </div>
     </div>
-    <div class="tabs">
-        <button class="tab active" id="tab-active" onclick="switchTab('active')">INVENTORY</button>
-        <button class="tab" id="tab-trash" onclick="switchTab('trash')">TRASH</button>
-    </div>
-</div>
 
-<div class="filter-row">
     <div class="search-container">
-        <span class="search-icon">🔍</span>
-        <input type="text" class="search-inp" id="mainSearch" placeholder="Search Design..." oninput="render()">
+        <input type="text" class="search-inp" id="mainSearch" placeholder="Search Design..." oninput="renderInventory()">
     </div>
-    <div class="sort-btn" onclick="printStock()">🖨️</div>
+
+    <div id="list" class="list-container"></div>
 </div>
 
-<div id="list" class="list-container"></div>
-
-<div class="dock">
-    <button class="btn btn-secondary" onclick="openModal('sell')"><span>📉</span> SELL</button>
-    <button class="btn btn-primary" onclick="openModal('add')"><span>＋</span> ADD STOCK</button>
+<!-- VIEW: HISTORY -->
+<div id="view-history">
+    <div class="sub-header">
+        <h2 id="history-title" style="margin:0">History</h2>
+    </div>
+    <div id="history-list" class="list-container" style="padding-top:20px"></div>
 </div>
 
-<!-- ADD/SELL SHEET -->
+<!-- DOCK -->
+<div class="dock" id="mainDock">
+    <button class="btn btn-s" onclick="openModal('sell')">📉 SELL</button>
+    <button class="btn btn-p" onclick="openModal('add')">＋ ADD STOCK</button>
+</div>
+
+<!-- ADD/SELL MODAL -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
     <div class="bottom-sheet" onclick="event.stopPropagation()">
-        <div class="sheet-handle"></div>
-        <h2 class="sheet-title" id="m-title">Update Stock</h2>
+        <h2 id="m-title" style="margin:0 0 20px">Update Stock</h2>
         
-        <div class="inp-group">
-            <input id="m-design" class="inp-large" placeholder="Design Number (e.g. 1045)" oninput="handleDesignInput(this.value)" autocomplete="off">
-            <!-- Suggestion Box -->
-            <div id="suggestions" class="suggestions-box"></div>
-        </div>
+        <input id="m-design" class="inp-large" placeholder="Design No." oninput="handleDesignInput(this.value)" autocomplete="off">
+        <div id="suggestions" class="suggestions-box"></div>
+        
+        <input id="m-customer" class="inp-large" placeholder="Customer Name (Optional)" style="display:none">
 
         <div class="grid-inputs">
-            <div>
-                <label class="size-label">22x32</label>
-                <select id="s0" class="qty-select"></select>
-                <span id="l0" class="avail-label"></span>
-            </div>
-            <div>
-                <label class="size-label">34x36</label>
-                <select id="s1" class="qty-select"></select>
-                <span id="l1" class="avail-label"></span>
-            </div>
-            <div>
-                <label class="size-label">16x18</label>
-                <select id="s2" class="qty-select"></select>
-                <span id="l2" class="avail-label"></span>
-            </div>
-            <div>
-                <label class="size-label">26x30</label>
-                <select id="s3" class="qty-select"></select>
-                <span id="l3" class="avail-label"></span>
-            </div>
+            <div><label style="font-size:10px">22x32</label><select id="s0" class="qty-select"></select><div id="l0" style="font-size:10px;text-align:center"></div></div>
+            <div><label style="font-size:10px">34x36</label><select id="s1" class="qty-select"></select><div id="l1" style="font-size:10px;text-align:center"></div></div>
+            <div><label style="font-size:10px">16x18</label><select id="s2" class="qty-select"></select><div id="l2" style="font-size:10px;text-align:center"></div></div>
+            <div><label style="font-size:10px">26x30</label><select id="s3" class="qty-select"></select><div id="l3" style="font-size:10px;text-align:center"></div></div>
         </div>
 
-        <button class="btn btn-primary" style="width:100%" onclick="finalSubmit()">CONFIRM</button>
+        <button class="btn btn-p" style="width:100%" onclick="finalSubmit()">CONFIRM</button>
     </div>
 </div>
-
-<!-- EDIT SHEET -->
-<div class="modal-overlay" id="editOverlay" onclick="closeEdit()">
-    <div class="bottom-sheet" onclick="event.stopPropagation()">
-        <div class="sheet-handle"></div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:20px;">
-            <h2 class="sheet-title" style="margin:0">Edit Item</h2>
-            <button class="btn btn-secondary" style="padding:5px 10px;height:auto" onclick="closeEdit()">✕</button>
-        </div>
-        <input id="edit-design-name" class="inp-large" style="margin-bottom:15px" placeholder="Design Name">
-        <div class="grid-inputs">
-            <div><label class="size-label">22x32</label><input type="number" id="e0" class="qty-select"></div>
-            <div><label class="size-label">34x36</label><input type="number" id="e1" class="qty-select"></div>
-            <div><label class="size-label">16x18</label><input type="number" id="e2" class="qty-select"></div>
-            <div><label class="size-label">26x30</label><input type="number" id="e3" class="qty-select"></div>
-        </div>
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px">
-            <button class="btn btn-primary" onclick="saveFullEdit()">SAVE</button>
-            <button class="btn" style="background:var(--danger); color:white" id="deleteBtn">DELETE</button>
-        </div>
-    </div>
-</div>
-
-<div id="print-area"></div>
 
 <script>
 const SB_URL = 'https://yhlfqpiwevsehlgbhxtk.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlobGZxcGl3ZXZzZWhsZ2JoeHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5Mjc1ODMsImV4cCI6MjA4NTUwMzU4M30.UX-6NXiJNg6EywD7gIPjla7l5_Koq0UbpuFyENIKOaM';
 const sbClient = supabase.createClient(SB_URL, SB_KEY);
 const sizes = ["22x32","34x36","16x18","26x30"];
-let inventory = [], pendingQueue = [], currentTab = 'active';
-let editingItem, foundItem, modalMode = '';
 
+// State
+let inventory = [], transactions = [], queue = [];
+let currentView = 'home'; // home, history-add, history-sell
+let foundItem, modalMode = '';
+
+// --- INITIALIZATION ---
 (async function init() {
-    const localInv = localStorage.getItem('dilkhus_inv');
-    const localQue = localStorage.getItem('dilkhus_que');
-    if(localInv) inventory = JSON.parse(localInv);
-    if(localQue) pendingQueue = JSON.parse(localQue);
-    render(); updateStatus();
+    // Load Local Data
+    inventory = JSON.parse(localStorage.getItem('df_inv') || '[]');
+    transactions = JSON.parse(localStorage.getItem('df_tx') || '[]');
+    queue = JSON.parse(localStorage.getItem('df_q') || '[]');
     
-    // Initial dropdown population (0-100)
-    updateDropdowns(null);
+    renderInventory();
+    updateStatus();
 
-    if(navigator.onLine) { await fetchLatest(); processQueue(); }
+    // Sync
+    if(navigator.onLine) {
+        await syncData();
+        processQueue();
+    }
     window.addEventListener('online', () => { updateStatus(); processQueue(); });
-    sbClient.channel('any').on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, fetchLatest).subscribe();
+    
+    // Realtime Subscriptions
+    sbClient.channel('any')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, syncData)
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'transactions' }, syncData)
+        .subscribe();
 })();
 
-async function fetchLatest() {
-    const { data } = await sbClient.from('inventory').select('*').order('created_at', {ascending:false});
-    if(data) {
-        const serverIds = data.map(item => item.id);
-        const localsNotOnServer = inventory.filter(local => !serverIds.includes(local.id));
-        inventory = [...localsNotOnServer, ...data];
-        saveLocal(); render(); 
+async function syncData() {
+    // 1. Fetch Inventory
+    const { data: invData } = await sbClient.from('inventory').select('*').order('created_at', {ascending:false});
+    if(invData) {
+        // Simple merge: Server wins, but preserve local new items not yet synced
+        const serverIds = invData.map(i => i.id);
+        const localNew = inventory.filter(i => !serverIds.includes(i.id));
+        inventory = [...localNew, ...invData];
+        localStorage.setItem('df_inv', JSON.stringify(inventory));
+        renderInventory();
     }
-}
 
-function saveLocal() { 
-    localStorage.setItem('dilkhus_inv', JSON.stringify(inventory)); 
-    localStorage.setItem('dilkhus_que', JSON.stringify(pendingQueue)); 
-    updateStatus();
+    // 2. Fetch Transactions (History)
+    const { data: txData } = await sbClient.from('transactions').select('*').order('created_at', {ascending:false}).limit(100);
+    if(txData) {
+        transactions = txData;
+        localStorage.setItem('df_tx', JSON.stringify(transactions));
+        if(currentView !== 'home') renderHistory();
+    }
 }
 
 function updateStatus() {
     const s = document.getElementById('status'), d = document.getElementById('dot');
-    if(pendingQueue.length > 0) { s.innerText = 'SYNCING'; d.style.background = 'var(--primary)'; }
-    else if(navigator.onLine) { s.innerText = 'ONLINE'; d.style.background = 'var(--success)'; }
-    else { s.innerText = 'OFFLINE'; d.style.background = 'var(--danger)'; }
+    if(queue.length > 0) { s.innerText = 'SYNCING'; d.style.background = '#f59e0b'; }
+    else if(navigator.onLine) { s.innerText = 'ONLINE'; d.style.background = '#10b981'; }
+    else { s.innerText = 'OFFLINE'; d.style.background = '#ef4444'; }
 }
 
 async function processQueue() {
-    if(!navigator.onLine || pendingQueue.length === 0) return;
-    const op = pendingQueue[0];
-    try {
-        let error;
-        if(op.type === 'INSERT') error = (await sbClient.from('inventory').insert(op.data)).error;
-        else if(op.type === 'UPDATE') error = (await sbClient.from('inventory').update(op.data).eq('id', op.id)).error;
-        if(!error) { pendingQueue.shift(); saveLocal(); processQueue(); }
-        else setTimeout(processQueue, 5000);
-    } catch(e) { setTimeout(processQueue, 3000); }
+    if(!navigator.onLine || queue.length === 0) return;
+    const op = queue[0];
+    
+    // Optimistic Queue Processing
+    let err;
+    if(op.table === 'inventory') {
+        if(op.type === 'INSERT') err = (await sbClient.from('inventory').insert(op.data)).error;
+        else if(op.type === 'UPDATE') err = (await sbClient.from('inventory').update(op.data).eq('id', op.id)).error;
+    } else if(op.table === 'transactions') {
+        err = (await sbClient.from('transactions').insert(op.data)).error;
+    }
+
+    if(!err) {
+        queue.shift();
+        localStorage.setItem('df_q', JSON.stringify(queue));
+        updateStatus();
+        processQueue();
+    } else {
+        console.error(err);
+        setTimeout(processQueue, 5000);
+    }
 }
 
-function render() {
-    const list = document.getElementById('list'); 
-    const term = document.getElementById('mainSearch').value.toUpperCase();
-    if(!list) return;
-    list.innerHTML = '';
+// --- NAVIGATION ---
+function toggleSidebar() {
+    document.getElementById('sidebarOverlay').classList.toggle('open');
+}
+
+function switchView(view) {
+    currentView = view;
+    toggleSidebar();
     
-    let filtered = inventory.filter(i => (currentTab === 'active' ? !i.deleted_at : !!i.deleted_at) && i.design.toUpperCase().includes(term));
-    filtered.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+    document.querySelectorAll('.view-active').forEach(e => e.classList.remove('view-active'));
+    document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+
+    if(view === 'home') {
+        document.getElementById('view-home').classList.add('view-active');
+        document.getElementById('mainDock').style.display = 'grid';
+        renderInventory();
+    } else {
+        document.getElementById('view-history').classList.add('view-active');
+        document.getElementById('mainDock').style.display = 'none';
+        document.getElementById('history-title').innerText = view === 'history-add' ? 'Inward History' : 'Sales History';
+        renderHistory();
+    }
+}
+
+// --- RENDERING ---
+function renderInventory() {
+    if(currentView !== 'home') return;
+    const list = document.getElementById('list');
+    const term = document.getElementById('mainSearch').value.toUpperCase();
+    list.innerHTML = '';
 
     const active = inventory.filter(i => !i.deleted_at);
+    
+    // Stats
     document.getElementById('d-stock').innerText = active.reduce((a,c)=>a+c.stock.reduce((x,y)=>x+y,0),0);
     document.getElementById('d-rem').innerText = active.reduce((a,c)=>a+(c.stock.reduce((x,y)=>x+y,0)-c.sold.reduce((x,y)=>x+y,0)),0);
 
-    filtered.forEach(item => {
-        const el = document.createElement('div'); el.className = 'inventory-card';
-        el.onclick = () => openEdit(item);
-        let grid = item.stock.map((s, idx) => {
-            const rem = s - (item.sold[idx]||0);
-            return `<div class="size-item"><div class="size-label">${sizes[idx]}</div><div class="size-val ${rem<5?'low-stock':'good-stock'}">${rem}</div></div>`;
-        }).join('');
-        el.innerHTML = `<div class="card-header"><div class="design-pill">#${item.design}</div><div>⋮</div></div><div class="size-grid">${grid}</div>`;
-        list.appendChild(el);
+    active.filter(i => i.design.includes(term))
+          .sort((a,b) => new Date(b.created_at) - new Date(a.created_at))
+          .forEach(item => {
+              const grid = item.stock.map((s,i) => {
+                  const rem = s - (item.sold[i]||0);
+                  return `<div class="size-item"><div style="font-size:9px;color:#94a3b8">${sizes[i]}</div><div style="font-weight:700;color:${rem<5?'#ef4444':'#10b981'}">${rem}</div></div>`;
+              }).join('');
+              
+              const el = document.createElement('div');
+              el.className = 'inventory-card';
+              el.innerHTML = `<div class="card-header"><span style="background:rgba(99,102,241,0.2);color:#818cf8;padding:4px 8px;border-radius:6px;font-weight:700">#${item.design}</span></div><div class="size-grid">${grid}</div>`;
+              list.appendChild(el);
+          });
+}
+
+function renderHistory() {
+    const list = document.getElementById('history-list');
+    list.innerHTML = '';
+    const type = currentView === 'history-add' ? 'ADD' : 'SELL';
+    
+    const filtered = transactions.filter(t => t.type === type);
+    
+    // Group by Date
+    const groups = {};
+    filtered.forEach(t => {
+        const date = new Date(t.created_at).toLocaleDateString('en-IN', { weekday:'short', day:'numeric', month:'short' });
+        if(!groups[date]) groups[date] = [];
+        groups[date].push(t);
+    });
+
+    Object.keys(groups).forEach(date => {
+        list.innerHTML += `<div class="history-date">${date}</div>`;
+        groups[date].forEach(t => {
+            const el = document.createElement('div');
+            el.className = `history-card ${type==='SELL'?'h-sell':'h-add'}`;
+            el.innerHTML = `
+                <div>
+                    <div class="h-tag">${type}</div>
+                    <div style="font-weight:800;font-size:16px">#${t.design}</div>
+                    ${t.customer ? `<div style="font-size:12px;color:#94a3b8">👤 ${t.customer}</div>` : ''}
+                </div>
+                <div style="text-align:right">
+                    <div style="font-size:20px;font-weight:800">${t.total_qty}</div>
+                    <div style="font-size:10px;color:#94a3b8">Total Qty</div>
+                    <button style="margin-top:5px;background:none;border:1px solid #ef4444;color:#ef4444;border-radius:4px;padding:2px 6px;font-size:10px" onclick="revertTransaction(${t.id})">REVERT</button>
+                </div>
+            `;
+            list.appendChild(el);
+        });
     });
 }
 
-function switchTab(tab) {
-    currentTab = tab;
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    document.getElementById('tab-'+tab).classList.add('active');
-    render();
-}
-
-// --- SUGGESTION & DROPDOWN LOGIC ---
-
-function handleDesignInput(val) {
-    val = val.toUpperCase().trim();
-    const box = document.getElementById('suggestions');
-    
-    // 1. Find matches for suggestion box
-    const matches = inventory.filter(i => i.design.startsWith(val) && !i.deleted_at).slice(0, 5);
-    
-    if (val.length > 0 && matches.length > 0) {
-        box.innerHTML = matches.map(m => `
-            <div class="suggestion-item" onclick="selectSuggestion('${m.design}')">
-                <span><b>${m.design}</b></span>
-                <span style="font-size:10px">Stock: ${m.stock.reduce((a,b)=>a+b,0)}</span>
-            </div>
-        `).join('');
-        box.classList.add('active');
-    } else {
-        box.classList.remove('active');
-    }
-
-    // 2. Check for exact match to update dropdowns immediately
-    const exactMatch = inventory.find(i => i.design === val && !i.deleted_at);
-    updateDropdowns(exactMatch);
-    foundItem = exactMatch;
-}
-
-function selectSuggestion(designVal) {
-    const input = document.getElementById('m-design');
-    input.value = designVal;
-    document.getElementById('suggestions').classList.remove('active');
-    handleDesignInput(designVal); // Trigger dropdown update
-}
-
-// Generates options based on Mode (Add/Sell) and Available Stock
-function updateDropdowns(item) {
-    [0,1,2,3].forEach(idx => {
-        const select = document.getElementById('s'+idx);
-        const label = document.getElementById('l'+idx);
-        select.innerHTML = '';
-        select.disabled = false;
-
-        if (modalMode === 'sell') {
-            if (item) {
-                const available = item.stock[idx] - (item.sold[idx] || 0);
-                label.innerText = `Avail: ${available}`;
-                
-                if (available <= 0) {
-                    select.innerHTML = `<option value="0">0</option>`;
-                    select.disabled = true;
-                } else {
-                    let opts = '';
-                    for(let i=0; i<=available; i++) opts += `<option value="${i}">${i}</option>`;
-                    select.innerHTML = opts;
-                }
-            } else {
-                // Selling unknown item? Not allowed.
-                label.innerText = 'Select Design';
-                select.innerHTML = `<option value="0">0</option>`;
-                select.disabled = true;
-            }
-        } 
-        else { 
-            // ADD MODE: Always allow adding 0-100
-            let opts = '';
-            for(let i=0; i<=100; i++) opts += `<option value="${i}">${i}</option>`;
-            select.innerHTML = opts;
-            
-            // Show current stock as reference
-            if(item) {
-                const current = item.stock[idx]; // Total physical stock
-                label.innerText = `Current: ${current}`;
-            } else {
-                label.innerText = 'New Design';
-            }
-        }
-    });
-}
-
+// --- MODAL & LOGIC ---
 function openModal(mode) {
     modalMode = mode;
-    document.getElementById('m-title').innerText = mode === 'add' ? 'Add Stock' : 'Sell Item';
-    const input = document.getElementById('m-design');
-    input.value = '';
-    foundItem = null;
-    
-    updateDropdowns(null); // Reset dropdowns
+    document.getElementById('m-title').innerText = mode === 'add' ? 'Add Stock' : 'Sell Stock';
+    document.getElementById('m-customer').style.display = mode === 'sell' ? 'block' : 'none';
+    document.getElementById('m-design').value = '';
+    document.getElementById('m-customer').value = '';
+    updateDropdowns(null);
     document.getElementById('modalOverlay').classList.add('open');
-    input.focus();
 }
 
 function closeModal() {
     document.getElementById('modalOverlay').classList.remove('open');
     document.getElementById('suggestions').classList.remove('active');
-    modalMode = '';
+}
+
+function handleDesignInput(val) {
+    val = val.toUpperCase().trim();
+    const box = document.getElementById('suggestions');
+    const matches = inventory.filter(i => i.design.startsWith(val) && !i.deleted_at).slice(0,5);
+    
+    if(val.length > 0 && matches.length > 0) {
+        box.innerHTML = matches.map(m => `<div class="s-item" onclick="selectSuggestion('${m.design}')"><b>${m.design}</b> <span style="font-size:10px;color:#94a3b8">Stock: ${m.stock.reduce((a,b)=>a+b,0)}</span></div>`).join('');
+        box.classList.add('active');
+    } else box.classList.remove('active');
+
+    foundItem = inventory.find(i => i.design === val && !i.deleted_at);
+    updateDropdowns(foundItem);
+}
+
+function selectSuggestion(val) {
+    document.getElementById('m-design').value = val;
+    document.getElementById('suggestions').classList.remove('active');
+    handleDesignInput(val);
+}
+
+function updateDropdowns(item) {
+    [0,1,2,3].forEach(idx => {
+        const s = document.getElementById('s'+idx);
+        const l = document.getElementById('l'+idx);
+        s.innerHTML = ''; s.disabled = false;
+
+        if(modalMode === 'sell') {
+            if(item) {
+                const av = item.stock[idx] - (item.sold[idx]||0);
+                l.innerText = `Avail: ${av}`;
+                if(av <= 0) { s.innerHTML='<option value="0">0</option>'; s.disabled=true; }
+                else for(let i=0;i<=av;i++) s.innerHTML+=`<option value="${i}">${i}</option>`;
+            } else {
+                l.innerText = '-'; s.innerHTML='<option value="0">0</option>'; s.disabled=true;
+            }
+        } else {
+            for(let i=0;i<=100;i++) s.innerHTML+=`<option value="${i}">${i}</option>`;
+            l.innerText = item ? `Cur: ${item.stock[idx]}` : 'New';
+        }
+    });
 }
 
 async function finalSubmit() {
     const dNo = document.getElementById('m-design').value.trim().toUpperCase();
+    const cust = document.getElementById('m-customer').value.trim();
     const qtys = [0,1,2,3].map(i => +document.getElementById('s'+i).value);
-    
-    if(!dNo) return alert("Please enter a Design Number");
-    const totalQty = qtys.reduce((a,b)=>a+b,0);
-    if(totalQty === 0) return alert("Please select quantity");
+    const total = qtys.reduce((a,b)=>a+b,0);
 
-    // ADD MODE
+    if(!dNo || total === 0) return alert("Invalid Input");
+    if(modalMode === 'sell' && !foundItem) return alert("Design not found");
+
+    // 1. Update Inventory Object
     if(modalMode === 'add') {
         if(foundItem) {
-            // Update existing
             foundItem.stock = foundItem.stock.map((s,i) => s + qtys[i]);
-            pendingQueue.push({ type: 'UPDATE', id: foundItem.id, data: { stock: foundItem.stock } });
+            queue.push({ table:'inventory', type:'UPDATE', id:foundItem.id, data:{stock:foundItem.stock} });
         } else {
-            // Create new
-            const newItem = { id: Date.now(), design: dNo, stock: qtys, sold: [0,0,0,0], created_at: new Date().toISOString() };
-            inventory.unshift(newItem); 
-            pendingQueue.push({ type: 'INSERT', data: newItem });
+            const newItem = { id: Date.now(), design:dNo, stock:qtys, sold:[0,0,0,0], created_at: new Date().toISOString() };
+            inventory.unshift(newItem);
+            queue.push({ table:'inventory', type:'INSERT', data:newItem });
+            foundItem = newItem; // For transaction record
         }
-    } 
-    // SELL MODE
-    else {
-        if(!foundItem) return alert("Design not found!");
-        // Double check availablity
-        const canSell = foundItem.stock.every((s, i) => (s - (foundItem.sold[i] || 0)) >= qtys[i]);
-        if(!canSell) return alert("Stock changed! Please try again.");
-        
-        foundItem.sold = foundItem.sold.map((s,i) => (foundItem.sold[i] || 0) + qtys[i]);
-        pendingQueue.push({ type: 'UPDATE', id: foundItem.id, data: { sold: foundItem.sold } });
+    } else {
+        foundItem.sold = foundItem.sold.map((s,i) => (foundItem.sold[i]||0) + qtys[i]);
+        queue.push({ table:'inventory', type:'UPDATE', id:foundItem.id, data:{sold:foundItem.sold} });
     }
+
+    // 2. Create Transaction Record
+    const tx = {
+        id: Date.now(), // Temp ID
+        created_at: new Date().toISOString(),
+        type: modalMode === 'add' ? 'ADD' : 'SELL',
+        design: dNo,
+        customer: cust,
+        quantities: qtys,
+        total_qty: total
+    };
     
-    saveLocal(); render(); closeModal(); processQueue();
+    transactions.unshift(tx);
+    queue.push({ table:'transactions', type:'INSERT', data:tx }); // Sync to new table
+
+    localStorage.setItem('df_inv', JSON.stringify(inventory));
+    localStorage.setItem('df_tx', JSON.stringify(transactions));
+    localStorage.setItem('df_q', JSON.stringify(queue));
+    
+    updateStatus(); processQueue();
+    closeModal(); renderInventory();
 }
 
-// --- EDIT LOGIC (Same as before) ---
-function openEdit(item) {
-    editingItem = item;
-    document.getElementById('editOverlay').classList.add('open');
-    document.getElementById('edit-design-name').value = item.design;
-    [0,1,2,3].forEach(i => document.getElementById('e'+i).value = item.stock[i]);
-    const dBtn = document.getElementById('deleteBtn');
-    dBtn.innerText = item.deleted_at ? "RESTORE" : "DELETE";
-    dBtn.onclick = item.deleted_at ? restoreItem : deleteItem;
-}
-function closeEdit() { document.getElementById('editOverlay').classList.remove('open'); }
-function saveFullEdit() {
-    const newName = document.getElementById('edit-design-name').value.trim().toUpperCase();
-    const newStock = [0,1,2,3].map(i => +document.getElementById('e'+i).value);
-    editingItem.design = newName; editingItem.stock = newStock;
-    pendingQueue.push({ type: 'UPDATE', id: editingItem.id, data: { design: newName, stock: newStock } });
-    saveLocal(); render(); closeEdit(); processQueue();
-}
-function deleteItem() {
-    if(!confirm("Delete this item?")) return;
-    editingItem.deleted_at = new Date().toISOString();
-    pendingQueue.push({ type: 'UPDATE', id: editingItem.id, data: { deleted_at: editingItem.deleted_at } });
-    saveLocal(); render(); closeEdit(); processQueue();
-}
-function restoreItem() {
-    editingItem.deleted_at = null;
-    pendingQueue.push({ type: 'UPDATE', id: editingItem.id, data: { deleted_at: null } });
-    saveLocal(); render(); closeEdit(); processQueue();
-}
-function printStock() {
-    const printArea = document.getElementById('print-area');
-    let tableHtml = `<h2>Stock Report</h2><table><thead><tr><th>Design</th><th>22x32</th><th>34x36</th><th>16x18</th><th>26x30</th><th>Total</th></tr></thead><tbody>`;
-    inventory.filter(i => !i.deleted_at).forEach(item => {
-        const rems = item.stock.map((s, idx) => s - (item.sold[idx] || 0));
-        tableHtml += `<tr><td>${item.design}</td><td>${rems[0]}</td><td>${rems[1]}</td><td>${rems[2]}</td><td>${rems[3]}</td><td><b>${rems.reduce((a,b)=>a+b,0)}</b></td></tr>`;
-    });
-    tableHtml += `</tbody></table>`;
-    printArea.innerHTML = tableHtml;
-    window.print();
+async function revertTransaction(txId) {
+    if(!confirm("Revert this transaction? Stocks will be adjusted.")) return;
+    
+    const txIndex = transactions.findIndex(t => t.id == txId); // Soft equality for string/int IDs
+    if(txIndex === -1) return;
+    const tx = transactions[txIndex];
+
+    const invItem = inventory.find(i => i.design === tx.design && !i.deleted_at);
+    
+    if(invItem) {
+        if(tx.type === 'ADD') {
+            // Remove added stock
+            invItem.stock = invItem.stock.map((s,i) => Math.max(0, s - tx.quantities[i]));
+            queue.push({ table:'inventory', type:'UPDATE', id:invItem.id, data:{stock:invItem.stock} });
+        } else {
+            // Add back sold stock
+            invItem.sold = invItem.sold.map((s,i) => Math.max(0, s - tx.quantities[i]));
+            queue.push({ table:'inventory', type:'UPDATE', id:invItem.id, data:{sold:invItem.sold} });
+        }
+    }
+
+    // Remove from local list and delete from server
+    transactions.splice(txIndex, 1);
+    
+    // We can't delete easily via queue in this simple setup without specific ID logic, 
+    // so we fire-and-forget the delete command
+    sbClient.from('transactions').delete().eq('id', txId).then(console.log);
+
+    localStorage.setItem('df_inv', JSON.stringify(inventory));
+    localStorage.setItem('df_tx', JSON.stringify(transactions));
+    localStorage.setItem('df_q', JSON.stringify(queue));
+
+    renderHistory();
+    updateStatus(); processQueue();
 }
 </script>
 </body>
