@@ -16,12 +16,8 @@
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', system-ui, sans-serif; }
 body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140px; overflow-x: hidden; }
 
-/* FIX: DISABLE TEXT SELECTION FOR 3D TOUCH */
-.card, .header, .stat-card, .btn { 
-    user-select: none !important; 
-    -webkit-user-select: none !important; 
-    -webkit-touch-callout: none !important; 
-}
+/* DISABLE TEXT SELECTION FOR 3D TOUCH */
+.card, .header, .stat-card, .btn { user-select: none !important; -webkit-user-select: none !important; -webkit-touch-callout: none !important; }
 
 /* LIQUID WAVE */
 #liquid-wave { position: fixed; inset: 0; background: var(--primary); z-index: 2000; clip-path: circle(0% at 50% 50%); transition: clip-path 0.8s cubic-bezier(0.77, 0, 0.175, 1); pointer-events: none; }
@@ -40,7 +36,6 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
 .btn-primary { background: var(--primary); color: white; box-shadow: var(--outer-sh); }
 .btn-glass { background: rgba(255,255,255,0.05); color: white; }
 
-/* MODALS & PEEK */
 .modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 2100; display: none; align-items: flex-end; }
 .modal-bg.open { display: flex; }
 .modal { background: #111113; width: 100%; border-radius: 28px 28px 0 0; padding: 20px 24px 60px; border-top: 1px solid rgba(255,255,255,0.1); }
@@ -50,11 +45,19 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
 .peek-overlay.active { display: flex; }
 .peek-card { background: var(--card); width: 90%; border-radius: 30px; padding: 25px; box-shadow: 0 30px 60px rgba(0,0,0,0.8); }
 
-/* GRID FOR PEEK EDITING */
 .peek-edit-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 15px 0; }
 .peek-edit-item { background: #121214; padding: 10px; border-radius: 12px; box-shadow: var(--inner-sh); }
-.peek-edit-item label { font-size: 10px; color: var(--text-muted); display: block; margin-bottom: 4px; }
 .peek-edit-item input { background: transparent; border: none; color: #FFF; width: 100%; font-weight: 800; text-align: center; outline: none; }
+
+/* PRINTING */
+.print-area { display: none; }
+@media print {
+    body { background: white !important; color: black !important; padding: 0 !important; }
+    .header, .dock, .dash-container, #list, #liquid-wave { display: none !important; }
+    .print-area { display: block !important; padding: 20px; width: 100%; }
+    table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 15px; }
+    th, td { border: 1px solid #000; padding: 6px; text-align: center; }
+}
 </style>
 </head>
 <body>
@@ -69,11 +72,9 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
         </div>
         <button class="btn btn-glass" style="height:35px; padding:0 15px; font-size:10px" onclick="printStock()">PRINT</button>
     </div>
-    
     <div class="search-container">
         <input type="text" id="mainSearch" class="search-input" placeholder="🔍 Search Design Number..." oninput="render()">
     </div>
-
     <div style="display:flex; gap:10px; margin-top:15px;">
         <button class="btn btn-glass" style="flex:1; height:40px; font-size:11px;" onclick="triggerLiquid('active')">INVENTORY</button>
         <button class="btn btn-glass" style="flex:1; height:40px; font-size:11px; background:rgba(0,0,0,0.3)" onclick="triggerLiquid('trash')">TRASH</button>
@@ -95,20 +96,15 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
 <div class="peek-overlay" id="peekOverlay" onclick="closePeek()">
     <div class="peek-card" onclick="event.stopPropagation()">
         <h2 id="peekTitle" style="color:var(--primary); margin:0 0 15px 0; font-size: 20px;">Edit Design Data</h2>
-        
-        <label style="font-size:10px; color:var(--text-muted); text-align:left; display:block; margin-left:5px">DESIGN NAME</label>
         <input id="edit-design-name" class="inp-large" style="padding:12px; font-size: 16px;">
-
-        <label style="font-size:10px; color:var(--text-muted); text-align:left; display:block; margin-left:5px">ADJUST QUANTITIES (STOCK)</label>
-        <div class="peek-edit-grid">
-            <div class="peek-edit-item"><label>22x32</label><input type="number" id="e0"></div>
-            <div class="peek-edit-item"><label>34x36</label><input type="number" id="e1"></div>
-            <div class="peek-edit-item"><label>16x18</label><input type="number" id="e2"></div>
-            <div class="peek-edit-item"><label>26x30</label><input type="number" id="e3"></div>
+        <div class="peek-edit-grid" id="edit-grid">
+            <div class="peek-edit-item"><label style="font-size:9px">22x32</label><input type="number" id="e0"></div>
+            <div class="peek-edit-item"><label style="font-size:9px">34x36</label><input type="number" id="e1"></div>
+            <div class="peek-edit-item"><label style="font-size:9px">16x18</label><input type="number" id="e2"></div>
+            <div class="peek-edit-item"><label style="font-size:9px">26x30</label><input type="number" id="e3"></div>
         </div>
-
         <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:20px">
-            <button class="btn btn-primary" onclick="saveFullEdit()">UPDATE ALL</button>
+            <button class="btn btn-primary" onclick="saveFullEdit()">UPDATE</button>
             <button class="btn" style="background:var(--danger); color:white" id="deleteBtn">DELETE</button>
         </div>
         <button class="btn btn-glass" style="width:100%; margin-top:10px; border:none" onclick="closePeek()">CANCEL</button>
@@ -134,26 +130,57 @@ body { margin: 0; background: var(--bg); color: var(--text); padding-bottom: 140
 <div id="print-area" class="print-area"></div>
 
 <script>
+/* --- RESTORED OFFLINE SYNC LOGIC --- */
 const SB_URL = 'https://yhlfqpiwevsehlgbhxtk.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlobGZxcGl3ZXZzZWhsZ2JoeHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5Mjc1ODMsImV4cCI6MjA4NTUwMzU4M30.UX-6NXiJNg6EywD7gIPjla7l5_Koq0UbpuFyENIKOaM';
 const sbClient = supabase.createClient(SB_URL, SB_KEY);
 const sizes = ["22x32","34x36","16x18","26x30"];
 let inventory = [];
+let pendingQueue = []; 
 let currentTab = 'active';
 let foundItem = null;
 let editingItem = null;
 let touchTimer;
 
 (async function init() {
-    fetchLatest();
+    const localInv = localStorage.getItem('dilkhus_inv');
+    const localQue = localStorage.getItem('dilkhus_que');
+    if(localInv) inventory = JSON.parse(localInv);
+    if(localQue) pendingQueue = JSON.parse(localQue);
+    
+    render();
+    
     const opts = `<option value="0">0</option>` + Array.from({length:100},(_,i)=>`<option value="${i+1}">${i+1}</option>`).join('');
     [0,1,2,3].forEach(i => document.getElementById('s'+i).innerHTML = opts);
+
+    window.addEventListener('online', processQueue);
+    if(navigator.onLine) { fetchLatest(); processQueue(); }
+    
     sbClient.channel('any').on('postgres_changes', { event: '*', schema: 'public', table: 'inventory' }, fetchLatest).subscribe();
 })();
 
 async function fetchLatest() {
+    if(!navigator.onLine) return;
     const { data } = await sbClient.from('inventory').select('*').order('created_at', {ascending:false});
-    if(data) { inventory = data; render(); }
+    if(data) { inventory = data; saveLocal(); render(); }
+}
+
+function saveLocal() { 
+    localStorage.setItem('dilkhus_inv', JSON.stringify(inventory)); 
+    localStorage.setItem('dilkhus_que', JSON.stringify(pendingQueue)); 
+    document.getElementById('dot').style.background = (pendingQueue.length > 0) ? 'var(--warning)' : (navigator.onLine ? 'var(--success)' : 'var(--danger)');
+}
+
+async function processQueue() {
+    if(!navigator.onLine || pendingQueue.length === 0) return;
+    const op = pendingQueue[0];
+    let success = false;
+    try {
+        if(op.type === 'INSERT') await sbClient.from('inventory').insert(op.data);
+        else if(op.type === 'UPDATE') await sbClient.from('inventory').update(op.data).eq('id', op.id);
+        success = true;
+    } catch(e) {}
+    if(success) { pendingQueue.shift(); saveLocal(); processQueue(); }
 }
 
 function render() {
@@ -168,7 +195,6 @@ function render() {
 
     filtered.forEach(item => {
         const el = document.createElement('div'); el.className = 'card';
-        // 3D TOUCH EVENT HANDLING
         el.ontouchstart = () => { touchTimer = setTimeout(() => openPeek(item), 600); };
         el.ontouchend = () => clearTimeout(touchTimer);
         el.onmousedown = () => { touchTimer = setTimeout(() => openPeek(item), 600); };
@@ -183,11 +209,15 @@ function render() {
     });
 }
 
+function triggerLiquid(tab) {
+    document.getElementById('liquid-wave').classList.add('active');
+    setTimeout(() => { currentTab = tab; render(); document.getElementById('liquid-wave').classList.remove('active'); }, 800);
+}
+
 function openPeek(item) {
     editingItem = item;
     document.getElementById('peekOverlay').classList.add('active');
     document.getElementById('edit-design-name').value = item.design;
-    // Load existing stock into edit inputs
     [0,1,2,3].forEach(i => document.getElementById('e'+i).value = item.stock[i]);
     document.getElementById('deleteBtn').innerText = item.deleted_at ? "RESTORE" : "DELETE";
     document.getElementById('deleteBtn').onclick = item.deleted_at ? restoreItem : deleteItem;
@@ -198,25 +228,21 @@ function closePeek() { document.getElementById('peekOverlay').classList.remove('
 async function saveFullEdit() {
     const newName = document.getElementById('edit-design-name').value.trim().toUpperCase();
     const newStock = [0,1,2,3].map(i => +document.getElementById('e'+i).value);
-    if(!newName) return;
-    await sbClient.from('inventory').update({ design: newName, stock: newStock }).eq('id', editingItem.id);
-    closePeek(); fetchLatest();
+    editingItem.design = newName; editingItem.stock = newStock;
+    pendingQueue.push({ type: 'UPDATE', id: editingItem.id, data: { design: newName, stock: newStock } });
+    saveLocal(); render(); closePeek(); processQueue();
 }
 
 async function deleteItem() {
-    if(!confirm("Move to Trash?")) return;
-    await sbClient.from('inventory').update({ deleted_at: new Date().toISOString() }).eq('id', editingItem.id);
-    closePeek(); fetchLatest();
+    editingItem.deleted_at = new Date().toISOString();
+    pendingQueue.push({ type: 'UPDATE', id: editingItem.id, data: { deleted_at: editingItem.deleted_at } });
+    saveLocal(); render(); closePeek(); processQueue();
 }
 
 async function restoreItem() {
-    await sbClient.from('inventory').update({ deleted_at: null }).eq('id', editingItem.id);
-    closePeek(); fetchLatest();
-}
-
-function triggerLiquid(tab) {
-    document.getElementById('liquid-wave').classList.add('active');
-    setTimeout(() => { currentTab = tab; render(); document.getElementById('liquid-wave').classList.remove('active'); }, 800);
+    editingItem.deleted_at = null;
+    pendingQueue.push({ type: 'UPDATE', id: editingItem.id, data: { deleted_at: null } });
+    saveLocal(); render(); closePeek(); processQueue();
 }
 
 function openModal(m) { modalMode = m; document.getElementById('m-title').innerText = m === 'add' ? 'Add Stock' : 'Sell Stock'; document.getElementById('modal').classList.add('open'); }
@@ -235,19 +261,24 @@ async function finalSubmit() {
     const dNo = document.getElementById('m-design').value.trim().toUpperCase();
     const qtys = [0,1,2,3].map(i => +document.getElementById('s'+i).value);
     if(!dNo) return;
+
     if(modalMode === 'add') {
         if(foundItem) {
-            const newStock = foundItem.stock.map((s,i) => s + qtys[i]);
-            await sbClient.from('inventory').update({ stock: newStock }).eq('id', foundItem.id);
-        } else { await sbClient.from('inventory').insert({ design: dNo, stock: qtys, sold: [0,0,0,0] }); }
+            foundItem.stock = foundItem.stock.map((s,i) => s + qtys[i]);
+            pendingQueue.push({ type: 'UPDATE', id: foundItem.id, data: { stock: foundItem.stock } });
+        } else {
+            const newItem = { id: Date.now(), design: dNo, stock: qtys, sold: [0,0,0,0], created_at: new Date() };
+            inventory.unshift(newItem);
+            pendingQueue.push({ type: 'INSERT', data: newItem });
+        }
     } else {
         if(!foundItem) return alert("Design not found!");
         const canSell = foundItem.stock.every((s, i) => (s - foundItem.sold[i]) >= qtys[i]);
         if(!canSell) return alert("Insufficient Stock!");
-        const newSold = foundItem.sold.map((s,i) => s + qtys[i]);
-        await sbClient.from('inventory').update({ sold: newSold }).eq('id', foundItem.id);
+        foundItem.sold = foundItem.sold.map((s,i) => s + qtys[i]);
+        pendingQueue.push({ type: 'UPDATE', id: foundItem.id, data: { sold: foundItem.sold } });
     }
-    closeModal(); fetchLatest();
+    saveLocal(); render(); closeModal(); processQueue();
 }
 
 function printStock() {
