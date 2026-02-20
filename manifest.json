@@ -1,19 +1,19 @@
 {
-  "name": "Metiabruz Stock",
+  "name": "Metiabruz Stock Pro",
   "short_name": "Metiabruz",
-  "start_url": "/-metiabruz-stock-/index.html",
+  "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#0f172a",
-  "theme_color": "#0ea5e9",
+  "theme_color": "#6366f1",
   "orientation": "portrait",
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/1066/1066832.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icon-512.png",
+      "src": "https://cdn-icons-png.flaticon.com/512/1066/1066832.png",
       "sizes": "512x512",
       "type": "image/png"
     }
