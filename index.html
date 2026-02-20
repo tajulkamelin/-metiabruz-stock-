@@ -61,8 +61,18 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .report-summary { padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; background: rgba(99,102,241,0.1); border-bottom: 1px solid var(--border); }
 
 /* CARDS */
-.inventory-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); user-select: none; transition: transform 0.1s; -webkit-touch-callout: none; }
-.inventory-card:active { transform: scale(0.98); }
+.inventory-card { 
+    background: var(--surface); 
+    border-radius: 16px; 
+    padding: 16px; 
+    margin-bottom: 12px; 
+    border: 1px solid var(--border); 
+    user-select: none; 
+    -webkit-user-select: none; /* Disable text select on iOS */
+    -webkit-touch-callout: none; /* Disable magnifier on iOS */
+    transition: transform 0.1s; 
+}
+.inventory-card:active { transform: scale(0.98); background: var(--surface-light); }
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .size-item { background: var(--bg); border-radius: 8px; padding: 8px 4px; text-align: center; border: 1px solid var(--border); }
@@ -103,15 +113,16 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 
 .empty-state { text-align: center; color: var(--text-muted); padding: 40px 20px; font-size: 14px; }
 
-/* PRINT STYLES */
+/* --- FORCE WHITE PAPER PRINTING --- */
 #print-area { display: none; }
 @media print {
+    body { background-color: #fff !important; color: #000 !important; }
     body * { visibility: hidden; }
     #print-area, #print-area * { visibility: visible; }
-    #print-area { display: block; position: absolute; left: 0; top: 0; width: 100%; color: #000; background: #fff; padding: 20px; }
-    table { width: 100%; border-collapse: collapse; margin-top: 20px; font-family: sans-serif; }
-    th, td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 12px; }
-    th { background: #eee; }
+    #print-area { display: block; position: absolute; left: 0; top: 0; width: 100%; color: #000; background: #fff; padding: 0; }
+    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-family: sans-serif; font-size: 12px; color: #000; }
+    th, td { border: 1px solid #000; padding: 6px; text-align: center; color: #000; }
+    th { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; }
 }
 </style>
 </head>
@@ -126,7 +137,8 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
         <div class="nav-item" id="nav-history-sell" onclick="switchView('history-sell')">📤 Sales History</div>
         <div class="nav-item" id="nav-reports" onclick="switchView('reports')">📊 Advanced Reports</div>
         <div style="margin-top:auto; padding:15px; font-size:11px; color:var(--text-muted)">
-            <div onclick="resetApp()" style="cursor:pointer">⚠️ Reset App Data</div>
+            <div onclick="resetQueue()" style="cursor:pointer; margin-bottom:15px">🔄 Force Sync (Fix Stuck)</div>
+            <div onclick="resetApp()" style="cursor:pointer; color:var(--danger)">⚠️ Reset App Data</div>
         </div>
     </div>
 </div>
@@ -234,8 +246,8 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
             <div><label style="font-size:10px">26x30</label><input type="number" id="man3" class="qty-input"></div>
         </div>
         <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
-            <button class="btn btn-p" onclick="saveManagement()">UPDATE</button>
-            <button class="btn btn-d" onclick="deleteItem()">DELETE</button>
+            <button class="btn btn-p" onclick="saveManagement()">UPDATE STOCK</button>
+            <button class="btn btn-d" onclick="deleteItem()">🗑️ DELETE</button>
         </div>
     </div>
 </div>
@@ -267,7 +279,6 @@ let filteredTransactions = []; // For reports
         queue = JSON.parse(localStorage.getItem('df_q') || '[]');
     } catch(e) { console.error("Data error", e); }
     
-    // Set default dates for report
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('rep-start').value = today;
     document.getElementById('rep-end').value = today;
@@ -297,8 +308,6 @@ async function syncData() {
             localStorage.setItem('df_inv', JSON.stringify(inventory));
             renderInventory();
         }
-        
-        // Fetch ALL transactions for reports (limit raised)
         const { data: txData } = await sbClient.from('transactions').select('*').order('created_at', {ascending:false}).limit(1000);
         if(txData) {
             transactions = txData; 
@@ -310,13 +319,22 @@ async function syncData() {
 
 function updateStatus() {
     const s = document.getElementById('status'), d = document.getElementById('dot');
-    if(queue.length > 0) { s.innerText = 'SYNCING'; d.style.background = 'var(--warning)'; }
-    else if(navigator.onLine) { s.innerText = 'ONLINE'; d.style.background = 'var(--success)'; }
-    else { s.innerText = 'OFFLINE'; d.style.background = 'var(--danger)'; }
+    if(queue.length > 0) { 
+        s.innerText = 'SYNCING'; d.style.background = 'var(--warning)'; 
+    } else if(navigator.onLine) { 
+        s.innerText = 'ONLINE'; d.style.background = 'var(--success)'; 
+    } else { 
+        s.innerText = 'OFFLINE'; d.style.background = 'var(--danger)'; 
+    }
 }
 
 async function processQueue() {
-    if(!navigator.onLine || queue.length === 0 || !sbClient) return;
+    if(!navigator.onLine || queue.length === 0 || !sbClient) {
+        // If queue empty or offline, update UI status immediately
+        if(queue.length === 0) updateStatus();
+        return;
+    }
+    
     const op = queue[0];
     let err;
 
@@ -330,15 +348,34 @@ async function processQueue() {
     } catch(e) { err = e; }
     
     if(!err) {
-        queue.shift(); localStorage.setItem('df_q', JSON.stringify(queue)); updateStatus(); processQueue();
+        queue.shift(); 
+        localStorage.setItem('df_q', JSON.stringify(queue)); 
+        updateStatus(); // Check if more items remain or if we are done
+        processQueue(); // Process next item
     } else {
         if(err.code === '23505') {
             showToast(`Duplicate found! Item skipped.`, "error");
             queue.shift(); localStorage.setItem('df_q', JSON.stringify(queue)); syncData();
         } else {
-            console.error("Queue retry in 5s", err);
+            console.error("Queue jam", err);
+            // Don't recursive loop too fast on network error, but leave visual indicator
             setTimeout(processQueue, 5000);
         }
+    }
+}
+
+function resetQueue() {
+    if(queue.length > 0) {
+        if(confirm(`Remove ${queue.length} stuck items and force sync?`)) {
+            queue = [];
+            localStorage.setItem('df_q', '[]');
+            syncData();
+            updateStatus();
+            showToast("Queue cleared");
+        }
+    } else {
+        syncData();
+        showToast("Syncing...");
     }
 }
 
@@ -374,6 +411,7 @@ function renderInventory() {
           
           const el = document.createElement('div');
           el.className = 'inventory-card';
+          // Long press handlers
           el.addEventListener('touchstart', () => { pressTimer = setTimeout(() => openManage(item), 800); });
           el.addEventListener('touchend', () => clearTimeout(pressTimer));
           el.addEventListener('mousedown', () => { pressTimer = setTimeout(() => openManage(item), 800); });
