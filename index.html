@@ -3,9 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Dilkhus Stock Manager</title>
+<title>Stock Manager Pro</title>
 <link rel="manifest" href="manifest.json">
-<!-- Libraries -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
@@ -21,25 +20,22 @@
     --safe-bottom: env(safe-area-inset-bottom);
 }
 
-/* THEMES */
 body.theme-met { --primary: var(--met-color); } 
 body.theme-uns { --primary: var(--uns-color); } 
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; }
 body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column; transition: --primary 0.3s; }
 
-/* HEADER */
-.app-header { background: rgba(15, 23, 42, 0.95); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 50; flex-shrink: 0; backdrop-filter: blur(10px); }
+.app-header { background: rgba(15, 23, 42, 0.95); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 50; flex-shrink: 0; }
 .menu-btn { font-size: 24px; cursor: pointer; margin-right: 15px; }
 .brand { display: flex; flex-direction: column; font-weight: 800; font-size: 18px; line-height: 1.1; }
 .brand span { font-size: 10px; color: var(--primary); letter-spacing: 1px; font-weight: 600; text-transform: uppercase; }
 .status-badge { font-size: 10px; font-weight: 700; background: var(--surface); padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px; border: 1px solid var(--border); }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); transition: 0.3s; box-shadow: 0 0 5px currentColor; }
 
-/* SIDEBAR */
 .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 900; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(4px); }
 .sidebar-overlay.open { opacity: 1; pointer-events: auto; }
-.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: var(--surface); z-index: 901; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: var(--surface); z-index: 901; transform: translateX(-100%); transition: transform 0.3s; border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
 .sidebar-overlay.open .sidebar { transform: translateX(0); }
 .nav-item { padding: 15px; border-radius: 10px; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
 .nav-item.active { background: var(--primary); color: white; }
@@ -49,7 +45,6 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .loc-btn { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid transparent; background: transparent; color: var(--text-muted); font-weight: 700; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
 .loc-btn.active { background: rgba(255,255,255,0.05); color: white; border-color: var(--primary); }
 
-/* VIEWS & CARDS */
 .view-section { display: none; flex-direction: column; height: 100%; overflow: hidden; }
 .view-section.active { display: flex; }
 .sub-header { padding: 15px 20px 0; display: grid; gap: 15px; flex-shrink: 0; }
@@ -63,14 +58,12 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .print-btn { width: 44px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; }
 .list-container { flex: 1; overflow-y: auto; padding: 0 20px 120px; scroll-behavior: smooth; }
 
-/* INVENTORY CARD */
-.inventory-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transition: transform 0.1s; }
+.inventory-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); user-select: none; }
 .inventory-card:active { transform: scale(0.98); background: var(--surface-light); }
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .size-item { background: var(--bg); border-radius: 8px; padding: 8px 4px; text-align: center; border: 1px solid var(--border); }
 
-/* GLOBAL VIEW STYLES */
 .global-card { background: var(--surface); border-radius: 16px; padding: 15px; margin-bottom: 12px; border: 1px solid var(--border); }
 .global-header { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: 800; font-size: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px;}
 .global-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
@@ -80,7 +73,6 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .global-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; flex: 1; margin-left: 10px; }
 .g-box { background: var(--bg); text-align: center; padding: 4px; border-radius: 4px; font-size: 12px; font-weight: 700; color: #fff; }
 
-/* REPORT FILTERS */
 .report-filters { padding: 15px 20px; background: var(--surface); border-bottom: 1px solid var(--border); }
 .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
 .report-inp { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 8px; font-size: 13px; outline: none; }
@@ -91,7 +83,6 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .h-tag.sell { background: rgba(16, 185, 129, 0.2); color: var(--success); }
 .h-tag.add { background: rgba(255, 255, 255, 0.1); color: var(--text); border: 1px solid var(--border); }
 
-/* MODAL */
 .dock { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--border); padding: 12px 20px calc(12px + var(--safe-bottom)); display: grid; grid-template-columns: 1fr 1fr; gap: 15px; z-index: 100; }
 .btn { border: none; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; color: white; transition: 0.2s; }
 .btn-p { background: var(--primary); } .btn-s { background: var(--surface-light); } .btn-d { background: var(--danger); }
@@ -99,7 +90,7 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 950; display: none; opacity: 0; transition: opacity 0.3s; backdrop-filter: blur(4px); }
 .modal-overlay.open { display: block; opacity: 1; }
-.bottom-sheet { position: fixed; left: 0; right: 0; bottom: 0; background: #1e293b; border-radius: 24px 24px 0 0; padding: 24px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 951; padding-bottom: calc(30px + var(--safe-bottom)); max-height: 90vh; overflow-y: auto; }
+.bottom-sheet { position: fixed; left: 0; right: 0; bottom: 0; background: #1e293b; border-radius: 24px 24px 0 0; padding: 24px; transform: translateY(100%); transition: transform 0.3s; z-index: 951; padding-bottom: calc(30px + var(--safe-bottom)); max-height: 90vh; overflow-y: auto; }
 .modal-overlay.open .bottom-sheet { transform: translateY(0); }
 
 .inp-large { width: 100%; background: var(--bg); border: 1px solid var(--border); color: white; padding: 16px; border-radius: 12px; font-size: 18px; outline: none; margin-bottom: 15px; }
@@ -111,7 +102,6 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .suggestions-box.active { display: block; }
 .s-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
 
-/* PRINT STYLES */
 #print-area { display: none; }
 @media print {
     body { background-color: #fff !important; color: #000 !important; }
@@ -271,7 +261,6 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 <div id="print-area"></div>
 
 <script>
-// --- CONFIGURATION ---
 const SB_URL = 'https://yhlfqpiwevsehlgbhxtk.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlobGZxcGl3ZXZzZWhsZ2JoeHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5Mjc1ODMsImV4cCI6MjA4NTUwMzU4M30.UX-6NXiJNg6EywD7gIPjla7l5_Koq0UbpuFyENIKOaM';
 const sizes = ["22x32","34x36","16x18","26x30"];
@@ -280,14 +269,12 @@ let sbClient = null;
 if(typeof supabase !== 'undefined') sbClient = supabase.createClient(SB_URL, SB_KEY);
 if('serviceWorker' in navigator) navigator.serviceWorker.register('./service-worker.js');
 
-// --- STATE ---
 let currentLocation = localStorage.getItem('app_location') || 'METIABRUZ';
 let inventory = [], transactions = [], queue = [];
 let globalStockData = [], filteredTransactions = [];
 let currentView = 'home';
 let foundItem, modalMode = '', manageItem = null, currentBatch = [];
 
-// --- INIT ---
 (async function init() {
     updateTheme();
     loadLocalData();
@@ -299,7 +286,6 @@ let foundItem, modalMode = '', manageItem = null, currentBatch = [];
     if(navigator.onLine && sbClient) { 
         syncData(); 
         processQueue(); 
-        // Subscribe to both tables
         const tables = ['inventory_met','inventory_uns','transactions_met','transactions_uns'];
         tables.forEach(t => {
             sbClient.channel(t).on('postgres_changes', { event: '*', schema: 'public', table: t }, () => {
@@ -317,6 +303,8 @@ function switchLocation(loc) {
     if(currentLocation === loc) return;
     currentLocation = loc;
     localStorage.setItem('app_location', loc);
+    // Reset Data pointers for clean switch
+    inventory = []; transactions = [];
     updateTheme();
     loadLocalData(); 
     syncData();      
@@ -359,7 +347,6 @@ async function syncData() {
             renderInventory();
         }
         
-        // Fetch ALL transactions for reports
         const { data: txData } = await sbClient.from(tableTx).select('*').order('created_at', {ascending:false}).limit(1000);
         if(txData) {
             transactions = txData; 
@@ -545,6 +532,41 @@ function renderReports() {
     });
 }
 
+function printReport() {
+    const printArea = document.getElementById('print-area');
+    const start = document.getElementById('rep-start').value;
+    const end = document.getElementById('rep-end').value;
+    
+    let html = `
+        <h2 style="text-align:center">${currentLocation} Report (${start} to ${end})</h2>
+        <table style="width:100%; border-collapse: collapse; margin-top: 10px;">
+            <thead>
+                <tr>
+                    <th>Date</th><th>Type</th><th>Design</th><th>Customer</th><th>Total</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
+    filteredTransactions.forEach(t => {
+        const date = new Date(t.created_at).toLocaleDateString('en-IN');
+        html += `<tr>
+            <td>${date}</td>
+            <td>${t.type}</td>
+            <td>${t.design}</td>
+            <td>${t.customer || '-'}</td>
+            <td>${t.total_qty}</td>
+        </tr>`;
+    });
+    
+    const totalQty = filteredTransactions.reduce((a,b) => a + (b.total_qty || 0), 0);
+    html += `</tbody></table>
+    <h3 style="text-align:right; margin-top:10px">Total Qty: ${totalQty}</h3>`;
+    
+    printArea.innerHTML = html;
+    window.print();
+}
+
 // --- BATCH & MODAL ---
 function openModal(mode) {
     modalMode = mode; currentBatch = [];
@@ -679,7 +701,7 @@ function deleteItem() {
 
 function printStock(type) {
     const printArea = document.getElementById('print-area');
-    let title = type === 'global' ? 'Global Stock' : `${currentLocation} Stock`;
+    let title = type === 'global' ? 'Global Stock Report' : `${currentLocation} Stock`;
     let items = type === 'global' ? globalStockData : inventory.filter(i => !i.deleted_at);
     let html = `<h2 style="text-align:center">${title}</h2><table style="width:100%;border-collapse:collapse;margin-top:20px;font-family:sans-serif;font-size:12px;color:#000"><thead><tr><th style="border:1px solid #000;padding:5px">Design</th><th style="border:1px solid #000;padding:5px">Details</th><th style="border:1px solid #000;padding:5px">Total</th></tr></thead><tbody>`;
     items.forEach(i => {
@@ -696,16 +718,6 @@ function printStock(type) {
     html += '</tbody></table>'; printArea.innerHTML = html; window.print();
 }
 
-function printReport() {
-    const printArea = document.getElementById('print-area');
-    let html = `<h2 style="text-align:center">${currentLocation} Report</h2><table style="width:100%;border-collapse:collapse;margin-top:20px;font-family:sans-serif;font-size:12px;color:#000"><thead><tr><th>Date</th><th>Type</th><th>Design</th><th>Total</th></tr></thead><tbody>`;
-    filteredTransactions.forEach(t => {
-        const date = new Date(t.created_at).toLocaleDateString('en-IN');
-        html += `<tr><td style="border:1px solid #000;padding:5px">${date}</td><td style="border:1px solid #000;padding:5px">${t.type}</td><td style="border:1px solid #000;padding:5px">${t.design}</td><td style="border:1px solid #000;padding:5px">${t.total_qty}</td></tr>`;
-    });
-    html += '</tbody></table>'; printArea.innerHTML = html; window.print();
-}
-
 function toggleSidebar() { document.getElementById('sidebarOverlay').classList.toggle('open'); }
 function switchView(view) {
     currentView = view; document.getElementById('sidebarOverlay').classList.remove('open');
@@ -718,7 +730,7 @@ function switchView(view) {
     else if(view === 'global') loadGlobalData();
     else if(view === 'reports') applyReportFilters();
 }
-function resetApp() { if(confirm("Reset app?")) { localStorage.clear(); location.reload(); } }
+function resetApp() { if(confirm("Clear local data & reload?")) { localStorage.clear(); location.reload(); } }
 function showToast(msg, type='success') { Toastify({ text: msg, duration: 3000, gravity: "bottom", position: "center", style: { background: type === 'error' ? "var(--danger)" : "var(--success)", borderRadius: "10px" } }).showToast(); }
 </script>
 </body>
