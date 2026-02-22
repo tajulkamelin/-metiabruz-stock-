@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>Stock Manager Pro</title>
 <link rel="manifest" href="manifest.json">
-<!-- Libraries with Error Handling -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
@@ -21,7 +20,7 @@
     --safe-bottom: env(safe-area-inset-bottom);
 }
 
-/* THEME HANDLING */
+/* THEMES */
 body.theme-met { --primary: var(--met-color); } 
 body.theme-uns { --primary: var(--uns-color); } 
 
@@ -63,21 +62,34 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .print-btn { width: 44px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; }
 .list-container { flex: 1; overflow-y: auto; padding: 0 20px 120px; scroll-behavior: smooth; }
 
+/* INVENTORY CARD (SINGLE) */
 .inventory-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transition: transform 0.1s; }
 .inventory-card:active { transform: scale(0.98); background: var(--surface-light); }
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .size-item { background: var(--bg); border-radius: 8px; padding: 8px 4px; text-align: center; border: 1px solid var(--border); }
 
-/* GLOBAL VIEW STYLES */
-.global-card { background: var(--surface); border-radius: 16px; padding: 15px; margin-bottom: 12px; border: 1px solid var(--border); }
-.global-header { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: 800; font-size: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px;}
-.global-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
-.wh-tag { padding: 4px 8px; border-radius: 4px; font-size: 10px; font-weight: 700; width: 60px; text-align: center; display: inline-block; }
-.wh-met { background: rgba(99, 102, 241, 0.2); color: var(--met-color); border: 1px solid var(--met-color); }
-.wh-uns { background: rgba(6, 182, 212, 0.2); color: var(--uns-color); border: 1px solid var(--uns-color); }
-.global-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; flex: 1; margin-left: 10px; }
-.g-box { background: var(--bg); text-align: center; padding: 4px; border-radius: 4px; font-size: 12px; font-weight: 700; color: #fff; }
+/* GLOBAL DASHBOARD STYLES */
+.global-tabs { display: flex; padding: 0 20px; gap: 10px; margin-bottom: 10px; }
+.g-tab { flex: 1; padding: 10px; text-align: center; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; color: var(--text-muted); font-weight: 600; font-size: 13px; cursor: pointer; }
+.g-tab.active { background: linear-gradient(135deg, var(--met-color), var(--uns-color)); color: white; border-color: transparent; }
+
+.global-card { background: var(--surface); border-radius: 16px; padding: 15px; margin-bottom: 12px; border: 1px solid var(--border); position: relative; overflow: hidden; }
+.global-header { display: flex; justify-content: space-between; margin-bottom: 12px; font-weight: 800; font-size: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px;}
+.global-row { display: flex; align-items: center; margin-bottom: 8px; font-size: 13px; }
+.wh-label { width: 45px; font-size: 10px; font-weight: 800; text-align: center; padding: 4px 0; border-radius: 4px; margin-right: 8px; color: #fff; }
+.wh-label.met { background: var(--met-color); }
+.wh-label.uns { background: var(--uns-color); }
+.global-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; flex: 1; }
+.g-box { background: var(--bg); text-align: center; padding: 4px; border-radius: 4px; font-size: 12px; font-weight: 700; color: var(--text); border: 1px solid var(--border); }
+
+.history-card { background: var(--surface); border-radius: 12px; padding: 15px; margin-bottom: 10px; border-left: 4px solid var(--text-muted); display: flex; justify-content: space-between; align-items: center; position: relative; }
+.history-card.met { border-left-color: var(--met-color); }
+.history-card.uns { border-left-color: var(--uns-color); }
+.h-tag { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-right: 5px; display: inline-block; vertical-align: middle; }
+.h-tag.sell { background: rgba(16, 185, 129, 0.2); color: var(--success); }
+.h-tag.add { background: rgba(255, 255, 255, 0.1); color: var(--text); border: 1px solid var(--border); }
+.loc-badge { position: absolute; top: 10px; right: 10px; font-size: 9px; font-weight: 800; padding: 2px 6px; border-radius: 4px; color: white; }
 
 /* MODAL */
 .dock { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--border); padding: 12px 20px calc(12px + var(--safe-bottom)); display: grid; grid-template-columns: 1fr 1fr; gap: 15px; z-index: 100; }
@@ -106,6 +118,7 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
     th, td { border: 1px solid #000; padding: 6px; text-align: center; color: #000; }
     th { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; }
 }
+.empty-state { text-align: center; color: var(--text-muted); padding: 40px 20px; font-size: 14px; }
 </style>
 </head>
 <body class="theme-met">
@@ -127,7 +140,7 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
         <div style="height:1px; background:var(--border); margin: 10px 0 20px 0;"></div>
 
         <div class="nav-item active" id="nav-home" onclick="switchView('home')">📦 Current Stock</div>
-        <div class="nav-item global-item" id="nav-global" onclick="switchView('global')">🌍 Global Stock (All)</div>
+        <div class="nav-item global-item" id="nav-global" onclick="switchView('global')">🌍 Global Dashboard</div>
         <div class="nav-item" id="nav-history-add" onclick="switchView('history-add')">📥 Inward History</div>
         <div class="nav-item" id="nav-history-sell" onclick="switchView('history-sell')">📤 Sales History</div>
         
@@ -170,22 +183,28 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
     </div>
 </div>
 
-<!-- VIEW: GLOBAL (Combined) -->
+<!-- VIEW: GLOBAL (Combined Dashboard) -->
 <div id="view-global" class="view-section">
     <div class="sub-header">
-        <h2 style="margin:0">Global Stock</h2>
-        <p style="font-size:12px;color:var(--text-muted)">Combined view of Metiabruz & Unsani</p>
+        <h2 style="margin:0">Global Dashboard</h2>
+        <p style="font-size:12px;color:var(--text-muted)">Combined View (Met + Uns)</p>
     </div>
+    
+    <div class="global-tabs">
+        <div class="g-tab active" id="g-tab-stock" onclick="switchGlobalTab('stock')">STOCK</div>
+        <div class="g-tab" id="g-tab-hist" onclick="switchGlobalTab('hist')">HISTORY</div>
+    </div>
+
     <div class="filter-row">
         <div class="search-container">
-            <input type="text" class="search-inp" id="globalSearch" placeholder="Search Global Design..." oninput="renderGlobal()">
+            <input type="text" class="search-inp" id="globalSearch" placeholder="Search Global Data..." oninput="renderGlobal()">
         </div>
         <div class="print-btn" onclick="printStock('global')">🖨️</div>
     </div>
     <div id="global-list" class="list-container"></div>
 </div>
 
-<!-- VIEW: HISTORY -->
+<!-- VIEW: HISTORY (Single) -->
 <div id="view-history" class="view-section">
     <div class="sub-header">
         <h2 id="history-title" style="margin:0">History</h2>
@@ -241,7 +260,6 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 <div id="print-area"></div>
 
 <script>
-// --- CONFIGURATION ---
 const SB_URL = 'https://yhlfqpiwevsehlgbhxtk.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlobGZxcGl3ZXZzZWhsZ2JoeHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5Mjc1ODMsImV4cCI6MjA4NTUwMzU4M30.UX-6NXiJNg6EywD7gIPjla7l5_Koq0UbpuFyENIKOaM';
 const sizes = ["22x32","34x36","16x18","26x30"];
@@ -250,33 +268,30 @@ let sbClient = null;
 if(typeof supabase !== 'undefined') sbClient = supabase.createClient(SB_URL, SB_KEY);
 if('serviceWorker' in navigator) navigator.serviceWorker.register('./service-worker.js');
 
-// --- STATE ---
 let currentLocation = localStorage.getItem('app_location') || 'METIABRUZ';
 let inventory = [], transactions = [], queue = [];
-let globalData = []; // Store combined data
-let currentView = 'home';
+let globalStockData = [], globalHistoryData = [];
+let currentView = 'home', globalTab = 'stock';
 let foundItem, modalMode = '', manageItem = null, currentBatch = [];
 
-// --- INIT ---
 (async function init() {
     updateTheme();
     loadLocalData();
-    
     if(navigator.onLine && sbClient) { 
         syncData(); 
         processQueue(); 
-        // Listen to BOTH tables always
-        sbClient.channel('any')
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_met' }, () => { if(currentLocation === 'METIABRUZ') syncData(); })
-            .on('postgres_changes', { event: '*', schema: 'public', table: 'inventory_uns' }, () => { if(currentLocation === 'UNSANI') syncData(); })
-            .subscribe();
+        // Realtime
+        const tables = ['inventory_met','inventory_uns','transactions_met','transactions_uns'];
+        tables.forEach(t => {
+            sbClient.channel(t).on('postgres_changes', { event: '*', schema: 'public', table: t }, () => {
+                syncData();
+                if(currentView === 'global') loadGlobalData();
+            }).subscribe();
+        });
     }
-    
     window.addEventListener('online', () => { if(sbClient) { updateStatus(); processQueue(); syncData(); } });
-    window.addEventListener('offline', updateStatus);
 })();
 
-// --- LOCATION HANDLING ---
 function switchLocation(loc) {
     if(currentLocation === loc) return;
     currentLocation = loc;
@@ -295,42 +310,32 @@ function updateTheme() {
     document.getElementById('loc-uns').classList.toggle('active', currentLocation === 'UNSANI');
 }
 
-function getStorageKey(key) {
-    const prefix = currentLocation === 'METIABRUZ' ? 'met' : 'uns';
-    return `${prefix}_${key}`;
-}
+function getStorageKey(key) { return `${currentLocation === 'METIABRUZ' ? 'met' : 'uns'}_${key}`; }
 
 function loadLocalData() {
     try {
         inventory = JSON.parse(localStorage.getItem(getStorageKey('inv')) || '[]');
         transactions = JSON.parse(localStorage.getItem(getStorageKey('tx')) || '[]');
         queue = JSON.parse(localStorage.getItem(getStorageKey('q')) || '[]');
-    } catch(e) { console.error("Data error", e); }
+    } catch(e) {}
     renderInventory();
     updateStatus();
 }
 
-// --- DATA & SYNC ---
 async function syncData() {
     if(!sbClient) return;
     try {
-        const tableInv = currentLocation === 'METIABRUZ' ? 'inventory_met' : 'inventory_uns';
-        const tableTx = currentLocation === 'METIABRUZ' ? 'transactions_met' : 'transactions_uns';
+        const tInv = currentLocation === 'METIABRUZ' ? 'inventory_met' : 'inventory_uns';
+        const tTx = currentLocation === 'METIABRUZ' ? 'transactions_met' : 'transactions_uns';
 
-        const { data: invData } = await sbClient.from(tableInv).select('*').order('created_at', {ascending:false});
-        if(invData) {
-            inventory = invData; // We trust server source of truth for simplicity now
-            localStorage.setItem(getStorageKey('inv'), JSON.stringify(inventory));
-            renderInventory();
-        }
+        const { data: inv } = await sbClient.from(tInv).select('*').order('created_at', {ascending:false});
+        if(inv) { inventory = inv; localStorage.setItem(getStorageKey('inv'), JSON.stringify(inventory)); renderInventory(); }
         
-        const { data: txData } = await sbClient.from(tableTx).select('*').order('created_at', {ascending:false}).limit(100);
-        if(txData) {
-            transactions = txData; 
-            localStorage.setItem(getStorageKey('tx'), JSON.stringify(transactions));
-            if(currentView.startsWith('history')) renderHistory();
-        }
-    } catch(e) { console.log("Sync error", e); }
+        const { data: tx } = await sbClient.from(tTx).select('*').order('created_at', {ascending:false}).limit(200);
+        if(tx) { transactions = tx; localStorage.setItem(getStorageKey('tx'), JSON.stringify(transactions)); }
+        
+        if(currentView.startsWith('history')) renderHistory();
+    } catch(e) {}
 }
 
 function updateStatus() {
@@ -341,76 +346,60 @@ function updateStatus() {
 }
 
 async function processQueue() {
-    if(!navigator.onLine || queue.length === 0 || !sbClient) {
-        if(queue.length === 0) updateStatus();
-        return;
-    }
-    
+    if(!navigator.onLine || queue.length === 0) return;
     const op = queue[0];
-    const tableInv = currentLocation === 'METIABRUZ' ? 'inventory_met' : 'inventory_uns';
-    const tableTx = currentLocation === 'METIABRUZ' ? 'transactions_met' : 'transactions_uns';
-    
-    // Dynamically set correct table
-    const table = op.table.includes('inventory') ? tableInv : tableTx;
-
+    const table = op.table.includes('inventory') ? (currentLocation==='METIABRUZ'?'inventory_met':'inventory_uns') : (currentLocation==='METIABRUZ'?'transactions_met':'transactions_uns');
     let err;
     try {
         if(op.table.includes('inventory')) {
             if(op.type === 'INSERT') err = (await sbClient.from(table).insert(op.data)).error;
             else if(op.type === 'UPDATE') err = (await sbClient.from(table).update(op.data).eq('id', op.id)).error;
-        } else {
-            err = (await sbClient.from(table).insert(op.data)).error;
-        }
+        } else err = (await sbClient.from(table).insert(op.data)).error;
     } catch(e) { err = e; }
     
-    if(!err) {
-        queue.shift(); localStorage.setItem(getStorageKey('q'), JSON.stringify(queue)); updateStatus(); processQueue(); 
-    } else {
-        if(err.code === '23505') { 
-            showToast(`Duplicate found! Item skipped.`, "error");
-            queue.shift(); localStorage.setItem(getStorageKey('q'), JSON.stringify(queue)); syncData();
-        } else {
-            console.error("Queue jam", err);
-            setTimeout(processQueue, 5000);
-        }
-    }
+    if(!err) { queue.shift(); localStorage.setItem(getStorageKey('q'), JSON.stringify(queue)); updateStatus(); processQueue(); }
+    else if(err.code === '23505') { queue.shift(); localStorage.setItem(getStorageKey('q'), JSON.stringify(queue)); syncData(); }
+    else setTimeout(processQueue, 5000);
 }
 
-// --- GLOBAL VIEW LOGIC (The Fix) ---
+// --- GLOBAL VIEW LOGIC ---
+function switchGlobalTab(tab) {
+    globalTab = tab;
+    document.getElementById('g-tab-stock').classList.toggle('active', tab === 'stock');
+    document.getElementById('g-tab-hist').classList.toggle('active', tab === 'hist');
+    renderGlobal();
+}
+
 async function loadGlobalData() {
     if(!sbClient || !navigator.onLine) {
-        document.getElementById('global-list').innerHTML = '<div class="empty-state">Online connection required for Global View</div>';
+        document.getElementById('global-list').innerHTML = '<div class="empty-state">Online connection required.</div>';
         return;
     }
-    document.getElementById('global-list').innerHTML = '<div class="empty-state">Loading data...</div>';
+    document.getElementById('global-list').innerHTML = '<div class="empty-state">Loading...</div>';
     
-    // Fetch both
-    const [metRes, unsRes] = await Promise.all([
-        sbClient.from('inventory_met').select('*').is('deleted_at', null),
-        sbClient.from('inventory_uns').select('*').is('deleted_at', null)
+    // Fetch all 4 tables
+    const [invMet, invUns, txMet, txUns] = await Promise.all([
+        sbClient.from('inventory_met').select('*'),
+        sbClient.from('inventory_uns').select('*'),
+        sbClient.from('transactions_met').select('*').order('created_at', {ascending:false}).limit(100),
+        sbClient.from('transactions_uns').select('*').order('created_at', {ascending:false}).limit(100)
     ]);
 
-    const met = metRes.data || [];
-    const uns = unsRes.data || [];
-    
-    // Merge Strategy
-    const map = new Map();
-    
-    met.forEach(i => {
-        const stock = i.stock.map((s, idx) => s - (i.sold[idx]||0));
-        map.set(i.design, { design: i.design, met: stock, uns: [0,0,0,0] });
+    // 1. Process Stock
+    const stockMap = new Map();
+    (invMet.data||[]).forEach(i => stockMap.set(i.design, { design: i.design, met: i.stock.map((s,x)=>s-(i.sold[x]||0)), uns: [0,0,0,0] }));
+    (invUns.data||[]).forEach(i => {
+        const vals = i.stock.map((s,x)=>s-(i.sold[x]||0));
+        if(stockMap.has(i.design)) stockMap.get(i.design).uns = vals;
+        else stockMap.set(i.design, { design: i.design, met: [0,0,0,0], uns: vals });
     });
-    
-    uns.forEach(i => {
-        const stock = i.stock.map((s, idx) => s - (i.sold[idx]||0));
-        if(map.has(i.design)) {
-            map.get(i.design).uns = stock;
-        } else {
-            map.set(i.design, { design: i.design, met: [0,0,0,0], uns: stock });
-        }
-    });
-    
-    globalData = Array.from(map.values()).sort((a,b) => a.design.localeCompare(b.design));
+    globalStockData = Array.from(stockMap.values()).sort((a,b)=>a.design.localeCompare(b.design));
+
+    // 2. Process History
+    const h1 = (txMet.data||[]).map(t => ({...t, loc: 'MET'}));
+    const h2 = (txUns.data||[]).map(t => ({...t, loc: 'UNS'}));
+    globalHistoryData = [...h1, ...h2].sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
+
     renderGlobal();
 }
 
@@ -418,36 +407,42 @@ function renderGlobal() {
     const list = document.getElementById('global-list');
     const term = document.getElementById('globalSearch').value.toUpperCase();
     list.innerHTML = '';
-    
-    const filtered = globalData.filter(i => i.design.includes(term));
-    
-    if(filtered.length === 0) { list.innerHTML = '<div class="empty-state">No designs found</div>'; return; }
-    
-    filtered.forEach(i => {
-        const metTotal = i.met.reduce((a,b)=>a+b,0);
-        const unsTotal = i.uns.reduce((a,b)=>a+b,0);
+
+    if (globalTab === 'stock') {
+        const filtered = globalStockData.filter(i => i.design.includes(term));
+        if(filtered.length===0) { list.innerHTML = '<div class="empty-state">No designs found</div>'; return; }
         
-        let metGrid = i.met.map(q => `<div class="g-box" style="background:#6366f1">${q}</div>`).join('');
-        let unsGrid = i.uns.map(q => `<div class="g-box" style="background:#06b6d4">${q}</div>`).join('');
-        
-        const el = document.createElement('div');
-        el.className = 'global-card';
-        el.innerHTML = `
-            <div class="global-header">
-                <span>#${i.design}</span>
-                <span>Total: ${metTotal + unsTotal}</span>
-            </div>
-            <div class="global-row">
-                <span class="wh-tag wh-met">MET</span>
-                <div class="global-grid">${metGrid}</div>
-            </div>
-            <div class="global-row">
-                <span class="wh-tag wh-uns">UNS</span>
-                <div class="global-grid">${unsGrid}</div>
-            </div>
-        `;
-        list.appendChild(el);
-    });
+        filtered.forEach(i => {
+            const mTot = i.met.reduce((a,b)=>a+b,0);
+            const uTot = i.uns.reduce((a,b)=>a+b,0);
+            let mG = i.met.map(q=>`<div class="g-box">${q}</div>`).join('');
+            let uG = i.uns.map(q=>`<div class="g-box">${q}</div>`).join('');
+            
+            list.innerHTML += `<div class="global-card">
+                <div class="global-header"><span>#${i.design}</span><span>Total: ${mTot+uTot}</span></div>
+                <div class="global-row"><span class="wh-label met">MET</span><div class="global-grid">${mG}</div></div>
+                <div class="global-row"><span class="wh-label uns">UNS</span><div class="global-grid">${uG}</div></div>
+            </div>`;
+        });
+    } else {
+        const filtered = globalHistoryData.filter(t => t.design.includes(term) || (t.customer && t.customer.toUpperCase().includes(term)));
+        if(filtered.length===0) { list.innerHTML = '<div class="empty-state">No history found</div>'; return; }
+
+        filtered.forEach(t => {
+            const date = new Date(t.created_at).toLocaleDateString('en-IN', {day:'numeric',month:'short'});
+            const det = t.quantities.map((q,x)=>q>0?`${sizes[x]}:${q} `: '').join('');
+            list.innerHTML += `<div class="history-card ${t.loc==='MET'?'met':'uns'}">
+                <div>
+                    <span class="h-tag ${t.type==='SELL'?'sell':'add'}">${t.type}</span>
+                    <b>#${t.design}</b> <span style="font-size:10px;color:var(--text-muted)">(${date})</span>
+                    <div style="font-size:11px;margin-top:2px">${det}</div>
+                    ${t.customer?`<div style="font-size:11px;color:var(--text-muted)">👤 ${t.customer}</div>`:''}
+                </div>
+                <div style="font-weight:800;font-size:18px">${t.total_qty}</div>
+                <span class="loc-badge" style="background:${t.loc==='MET'?'var(--met-color)':'var(--uns-color)'}">${t.loc}</span>
+            </div>`;
+        });
+    }
 }
 
 // --- STANDARD RENDER ---
@@ -461,15 +456,11 @@ function renderInventory() {
     document.getElementById('d-stock').innerText = active.reduce((a,c)=>a+c.stock.reduce((x,y)=>x+y,0),0);
     document.getElementById('d-rem').innerText = active.reduce((a,c)=>a+(c.stock.reduce((x,y)=>x+y,0)-c.sold.reduce((x,y)=>x+y,0)),0);
 
-    const filtered = active.filter(i => i.design.includes(term)).sort((a,b) => new Date(b.created_at) - new Date(a.created_at));
-    if(filtered.length === 0) list.innerHTML = '<div class="empty-state">No designs found.</div>';
-    
-    filtered.forEach(item => {
+    active.filter(i => i.design.includes(term)).sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).forEach(item => {
           const grid = item.stock.map((s,i) => {
               const rem = s - (item.sold[i]||0);
               return `<div class="size-item"><div style="font-size:9px;color:var(--text-muted)">${sizes[i]}</div><div style="font-weight:700;color:${rem<5?'var(--danger)':'var(--success)'}">${rem}</div></div>`;
           }).join('');
-          
           const el = document.createElement('div');
           el.className = 'inventory-card';
           el.addEventListener('touchstart', () => { pressTimer = setTimeout(() => openManage(item), 800); });
@@ -477,20 +468,18 @@ function renderInventory() {
           el.addEventListener('mousedown', () => { pressTimer = setTimeout(() => openManage(item), 800); });
           el.addEventListener('mouseup', () => clearTimeout(pressTimer));
           el.oncontextmenu = (e) => e.preventDefault(); 
-          
           el.innerHTML = `<div class="card-header"><span style="background:rgba(255,255,255,0.1);color:var(--primary);padding:4px 8px;border-radius:6px;font-weight:700;border:1px solid var(--border)">#${item.design}</span></div><div class="size-grid">${grid}</div>`;
           list.appendChild(el);
     });
 }
 
-// --- BATCH & MODAL LOGIC ---
+// --- BATCH & MODAL ---
 function openModal(mode) {
     modalMode = mode; currentBatch = [];
     document.getElementById('m-title').innerText = mode === 'add' ? 'Add Stock' : 'Batch Sale';
     document.getElementById('m-customer').style.display = 'block'; 
-    document.getElementById('m-customer').placeholder = mode === 'add' ? 'Supplier Name (Optional)' : '👤 Customer Name';
-    document.getElementById('m-design').value = '';
     document.getElementById('m-customer').value = '';
+    document.getElementById('m-design').value = '';
     document.getElementById('batch-container').style.display = 'none';
     updateDropdowns(null);
     document.getElementById('modalOverlay').classList.add('open');
@@ -501,16 +490,13 @@ function handleDesignInput(val) {
     val = val.toUpperCase().trim();
     const box = document.getElementById('suggestions');
     const matches = inventory.filter(i => i.design.startsWith(val) && !i.deleted_at).slice(0,5);
-    
     if(val.length > 0 && matches.length > 0) {
         box.innerHTML = matches.map(m => `<div class="s-item" onclick="selectSuggestion('${m.design}')"><b>${m.design}</b> <span style="font-size:10px;color:var(--text-muted)">Stock: ${m.stock.reduce((a,b)=>a+b,0)}</span></div>`).join('');
         box.classList.add('active');
     } else box.classList.remove('active');
-    
     foundItem = inventory.find(i => i.design === val && !i.deleted_at);
     updateDropdowns(foundItem);
 }
-
 function selectSuggestion(val) { document.getElementById('m-design').value = val; document.getElementById('suggestions').classList.remove('active'); handleDesignInput(val); }
 
 function updateDropdowns(item) {
@@ -518,10 +504,8 @@ function updateDropdowns(item) {
         const s = document.getElementById('s'+idx);
         const l = document.getElementById('l'+idx);
         s.innerHTML = ''; s.disabled = false;
-        
         let inBatch = 0;
         currentBatch.filter(b => b.design === (item?.design)).forEach(b => inBatch += b.qtys[idx]);
-
         if(modalMode === 'sell') {
             if(item) {
                 const av = item.stock[idx] - (item.sold[idx]||0) - inBatch;
@@ -540,18 +524,9 @@ function addToBatch() {
     const dNo = document.getElementById('m-design').value.trim().toUpperCase();
     const qtys = [0,1,2,3].map(i => +document.getElementById('s'+i).value);
     const total = qtys.reduce((a,b)=>a+b,0);
-    
-    if(!dNo) return showToast("Enter Design No.", "error");
-    if(total === 0) return showToast("Select Quantity", "error");
+    if(!dNo || total === 0) return showToast("Invalid Input", "error");
     if(modalMode === 'sell' && !foundItem) return showToast("Design not found", "error");
-
-    if(modalMode === 'add' && !foundItem) {
-        // UI Check for duplicate design in current list
-        const existsInBatch = currentBatch.some(b => b.design === dNo);
-        const existsInInv = inventory.some(i => i.design === dNo && !i.deleted_at);
-        if(existsInBatch || existsInInv) return showToast("Design exists! Update stock instead.", "error");
-    }
-
+    
     currentBatch.push({ design: dNo, qtys: qtys, total: total, itemRef: foundItem });
     renderBatchList();
     document.getElementById('m-design').value = '';
@@ -574,12 +549,11 @@ function renderBatchList() {
 function removeFromBatch(idx) { currentBatch.splice(idx, 1); renderBatchList(); }
 
 function saveBatch() {
-    const cust = document.getElementById('m-customer').value.trim();
     if(currentBatch.length === 0) return showToast("List is empty", "error");
+    const cust = document.getElementById('m-customer').value.trim();
     
     currentBatch.forEach(b => {
         let realItem = inventory.find(i => i.design === b.design && !i.deleted_at);
-
         if(modalMode === 'add') {
             if(realItem) {
                 realItem.stock = realItem.stock.map((s,i) => s + b.qtys[i]);
@@ -590,19 +564,14 @@ function saveBatch() {
                 queue.push({ table:'inventory', type:'INSERT', data:newItem });
             }
         } else {
-            if(realItem) {
-                realItem.sold = realItem.sold.map((s,i) => (realItem.sold[i]||0) + b.qtys[i]);
-                queue.push({ table:'inventory', type:'UPDATE', id:realItem.id, data:{sold:realItem.sold} });
-            }
+            realItem.sold = realItem.sold.map((s,i) => (realItem.sold[i]||0) + b.qtys[i]);
+            queue.push({ table:'inventory', type:'UPDATE', id:realItem.id, data:{sold:realItem.sold} });
         }
         const tx = { id: Date.now() + Math.random(), created_at: new Date().toISOString(), type: modalMode === 'add' ? 'ADD' : 'SELL', design: b.design, customer: cust, quantities: b.qtys, total_qty: b.total };
         transactions.unshift(tx);
         queue.push({ table:'transactions', type:'INSERT', data:tx });
     });
-
-    saveAll();
-    closeModal();
-    showToast("Transaction Saved!");
+    saveAll(); closeModal(); showToast("Saved");
 }
 
 function saveAll() {
@@ -627,85 +596,42 @@ function saveManagement() {
     queue.push({ table:'inventory', type:'UPDATE', id:manageItem.id, data:{stock:manageItem.stock} });
     const tx = { id: Date.now(), created_at: new Date().toISOString(), type: 'ADD', design: manageItem.design, customer: 'Correction', quantities: [0,0,0,0], total_qty: 0 };
     transactions.unshift(tx); queue.push({ table:'transactions', type:'INSERT', data:tx });
-    saveAll(); closeManage(); showToast("Stock Updated");
+    saveAll(); closeManage();
 }
 function deleteItem() {
     if(!manageItem || !confirm("Delete this design?")) return;
     manageItem.deleted_at = new Date().toISOString();
     queue.push({ table:'inventory', type:'UPDATE', id:manageItem.id, data:{deleted_at: manageItem.deleted_at} });
-    saveAll(); closeManage(); showToast("Item Deleted");
+    saveAll(); closeManage();
 }
 
-// --- PRINT ---
 function printStock(type) {
     const printArea = document.getElementById('print-area');
-    let title = type === 'global' ? 'Global Stock Report' : `${currentLocation} Stock Report`;
-    let itemsToPrint = type === 'global' ? globalData : inventory.filter(i => !i.deleted_at);
+    let title = type === 'global' ? 'Global Stock Report' : `${currentLocation} Stock`;
+    let items = type === 'global' ? globalStockData : inventory.filter(i => !i.deleted_at);
     
-    let tableHtml = `
-        <h2 style="text-align:center">${title}</h2>
-        <p style="text-align:center">Generated: ${new Date().toLocaleString()}</p>
-        <table style="width:100%; border-collapse: collapse; margin-top: 20px;">
-            <thead>
-                <tr>
-                    <th style="border:1px solid #000; padding:5px">Design</th>
-                    <th style="border:1px solid #000; padding:5px">22x32</th>
-                    <th style="border:1px solid #000; padding:5px">34x36</th>
-                    <th style="border:1px solid #000; padding:5px">16x18</th>
-                    <th style="border:1px solid #000; padding:5px">26x30</th>
-                    <th style="border:1px solid #000; padding:5px">Total</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
+    let html = `<h2 style="text-align:center">${title}</h2><table style="width:100%;border-collapse:collapse;margin-top:20px;font-family:sans-serif;font-size:12px;color:#000"><thead><tr><th style="border:1px solid #000;padding:5px">Design</th><th style="border:1px solid #000;padding:5px">Details</th><th style="border:1px solid #000;padding:5px">Total</th></tr></thead><tbody>`;
     
-    itemsToPrint.forEach(item => {
-        let stock, total;
-        if(type === 'global') {
-            // Merge logic for global print
-            stock = item.met.map((m, i) => m + item.uns[i]);
-            total = stock.reduce((a,b)=>a+b,0);
+    items.forEach(i => {
+        let det = '', tot = 0;
+        if(type==='global') {
+            const m = i.met.reduce((a,b)=>a+b,0);
+            const u = i.uns.reduce((a,b)=>a+b,0);
+            det = `MET: ${m} | UNS: ${u}`;
+            tot = m + u;
         } else {
-            stock = item.stock.map((s, i) => s - (item.sold[i] || 0));
-            total = stock.reduce((a, b) => a + b, 0);
+            const stk = i.stock.map((s,x)=>s-(i.sold[x]||0));
+            det = stk.join(' / ');
+            tot = stk.reduce((a,b)=>a+b,0);
         }
-        
-        tableHtml += `
-            <tr>
-                <td style="border:1px solid #000; padding:5px; text-align:center">${item.design}</td>
-                <td style="border:1px solid #000; padding:5px; text-align:center">${stock[0]}</td>
-                <td style="border:1px solid #000; padding:5px; text-align:center">${stock[1]}</td>
-                <td style="border:1px solid #000; padding:5px; text-align:center">${stock[2]}</td>
-                <td style="border:1px solid #000; padding:5px; text-align:center">${stock[3]}</td>
-                <td style="border:1px solid #000; padding:5px; text-align:center; font-weight:bold">${total}</td>
-            </tr>
-        `;
+        html += `<tr><td style="border:1px solid #000;padding:5px;text-align:center">${i.design}</td><td style="border:1px solid #000;padding:5px;text-align:center">${det}</td><td style="border:1px solid #000;padding:5px;text-align:center;font-weight:bold">${tot}</td></tr>`;
     });
-    tableHtml += `</tbody></table>`;
-    printArea.innerHTML = tableHtml;
+    html += '</tbody></table>';
+    printArea.innerHTML = html;
     window.print();
 }
 
-// --- NAVIGATION ---
-function toggleSidebar() { document.getElementById('sidebarOverlay').classList.toggle('open'); }
-
-function switchView(view) {
-    currentView = view;
-    document.getElementById('sidebarOverlay').classList.remove('open');
-    
-    document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active'));
-    document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
-    
-    document.getElementById(`view-${view}`).classList.add('active');
-    const navItem = document.getElementById(`nav-${view}`);
-    if(navItem) navItem.classList.add('active');
-
-    if(view === 'home') renderInventory();
-    else if(view === 'global') loadGlobalData();
-    else if(view === 'history-add') { renderHistory('ADD'); document.getElementById('history-title').innerText='Inward History'; }
-    else if(view === 'history-sell') { renderHistory('SELL'); document.getElementById('history-title').innerText='Sales History'; }
-}
-
+// --- HISTORY ---
 function renderHistory(forcedType = null) {
     const list = document.getElementById('history-list'); list.innerHTML = '';
     const type = forcedType; 
@@ -729,12 +655,23 @@ function renderHistory(forcedType = null) {
     });
 }
 
-function resetApp() { 
-    if(confirm("This will clear local storage and reload. Use only if data is stuck.")) { 
-        localStorage.clear(); 
-        location.reload(); // HARD RELOAD
-    } 
+function toggleSidebar() { document.getElementById('sidebarOverlay').classList.toggle('open'); }
+function switchView(view) {
+    currentView = view;
+    document.getElementById('sidebarOverlay').classList.remove('open');
+    document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
+    document.getElementById(`view-${view}`).classList.add('active');
+    const navItem = document.getElementById(`nav-${view}`);
+    if(navItem) navItem.classList.add('active');
+
+    if(view === 'home') renderInventory();
+    else if(view === 'global') loadGlobalData();
+    else if(view === 'history-add') { renderHistory('ADD'); document.getElementById('history-title').innerText='Inward History'; }
+    else if(view === 'history-sell') { renderHistory('SELL'); document.getElementById('history-title').innerText='Sales History'; }
 }
+function resetApp() { if(confirm("Clear local data & reload?")) { localStorage.clear(); location.reload(); } }
+function showToast(msg, type='success') { Toastify({ text: msg, duration: 3000, gravity: "bottom", position: "center", style: { background: type === 'error' ? "var(--danger)" : "var(--success)", borderRadius: "10px" } }).showToast(); }
 </script>
 </body>
 </html>
