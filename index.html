@@ -6,21 +6,13 @@
 <title>Dilkhus Stock Manager</title>
 <link rel="manifest" href="manifest.json">
 
-<!-- 1. Supabase -->
+<!-- Libraries -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<!-- 2. Toast Notifications -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-<!-- 3. Excel Parser (SheetJS) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<!-- 4. PDF Parser (PDF.js) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
-<script>
-    // Initialize PDF Worker
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-</script>
-
-<!-- Font -->
+<script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 
 <style>
@@ -28,30 +20,25 @@
     --bg: #0f172a; --surface: #1e293b; --surface-light: #334155;
     --text: #f8fafc; --text-muted: #94a3b8; --border: rgba(255,255,255,0.08);
     --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
-    --met-color: #6366f1; /* Indigo */
-    --uns-color: #06b6d4; /* Teal */
+    --met-color: #6366f1; --uns-color: #06b6d4;
     --safe-bottom: env(safe-area-inset-bottom);
 }
-
-/* THEMES */
 body.theme-met { --primary: var(--met-color); } 
 body.theme-uns { --primary: var(--uns-color); } 
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; }
 body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column; transition: --primary 0.3s; }
 
-/* HEADER */
-.app-header { background: rgba(15, 23, 42, 0.95); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 50; flex-shrink: 0; backdrop-filter: blur(10px); }
+.app-header { background: rgba(15, 23, 42, 0.95); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 50; flex-shrink: 0; }
 .menu-btn { font-size: 24px; cursor: pointer; margin-right: 15px; }
 .brand { display: flex; flex-direction: column; font-weight: 800; font-size: 18px; line-height: 1.1; }
 .brand span { font-size: 10px; color: var(--primary); letter-spacing: 1px; font-weight: 600; text-transform: uppercase; }
 .status-badge { font-size: 10px; font-weight: 700; background: var(--surface); padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px; border: 1px solid var(--border); }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); transition: 0.3s; box-shadow: 0 0 5px currentColor; }
 
-/* SIDEBAR */
 .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 900; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(4px); }
 .sidebar-overlay.open { opacity: 1; pointer-events: auto; }
-.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: var(--surface); z-index: 901; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: var(--surface); z-index: 901; transform: translateX(-100%); transition: transform 0.3s; border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
 .sidebar-overlay.open .sidebar { transform: translateX(0); }
 .nav-item { padding: 15px; border-radius: 10px; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
 .nav-item.active { background: var(--primary); color: white; }
@@ -61,7 +48,6 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .loc-btn { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid transparent; background: transparent; color: var(--text-muted); font-weight: 700; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
 .loc-btn.active { background: rgba(255,255,255,0.05); color: white; border-color: var(--primary); }
 
-/* VIEWS & CARDS */
 .view-section { display: none; flex-direction: column; height: 100%; overflow: hidden; }
 .view-section.active { display: flex; }
 .sub-header { padding: 15px 20px 0; display: grid; gap: 15px; flex-shrink: 0; }
@@ -71,18 +57,14 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .filter-row { padding: 15px 20px; display: flex; gap: 10px; flex-shrink: 0; }
 .search-container { flex: 1; position: relative; }
 .search-inp { width: 100%; background: var(--surface); border: 1px solid var(--border); padding: 12px 12px 12px 40px; border-radius: 12px; color: white; outline: none; font-size: 14px; }
-.search-inp:focus { border-color: var(--primary); }
 .print-btn { width: 44px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; }
 .list-container { flex: 1; overflow-y: auto; padding: 0 20px 120px; scroll-behavior: smooth; }
 
-/* INVENTORY CARD */
-.inventory-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transition: transform 0.1s; }
-.inventory-card:active { transform: scale(0.98); background: var(--surface-light); }
+.inventory-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); user-select: none; }
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .size-item { background: var(--bg); border-radius: 8px; padding: 8px 4px; text-align: center; border: 1px solid var(--border); }
 
-/* GLOBAL VIEW STYLES */
 .global-card { background: var(--surface); border-radius: 16px; padding: 15px; margin-bottom: 12px; border: 1px solid var(--border); }
 .global-header { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: 800; font-size: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px;}
 .global-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
@@ -92,44 +74,35 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .global-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; flex: 1; margin-left: 10px; }
 .g-box { background: var(--bg); text-align: center; padding: 4px; border-radius: 4px; font-size: 12px; font-weight: 700; color: #fff; }
 
-/* REPORT FILTERS */
 .report-filters { padding: 15px 20px; background: var(--surface); border-bottom: 1px solid var(--border); }
-.report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
-.report-inp { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 8px; font-size: 13px; outline: none; }
-.history-card { background: var(--surface); border-radius: 12px; padding: 15px; margin-bottom: 10px; border-left: 4px solid var(--text-muted); display: flex; justify-content: space-between; align-items: center; position: relative; }
+.history-card { background: var(--surface); border-radius: 12px; padding: 15px; margin-bottom: 10px; border-left: 4px solid var(--text-muted); display: flex; justify-content: space-between; align-items: center; }
 .history-card.sell { border-left-color: var(--success); }
 .history-card.add { border-left-color: var(--primary); }
-.h-tag { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-right: 5px; display: inline-block; vertical-align: middle; }
+.h-tag { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-right: 5px; display: inline-block; }
 .h-tag.sell { background: rgba(16, 185, 129, 0.2); color: var(--success); }
 .h-tag.add { background: rgba(255, 255, 255, 0.1); color: var(--text); border: 1px solid var(--border); }
 
-/* MODAL */
 .dock { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--border); padding: 12px 20px calc(12px + var(--safe-bottom)); display: grid; grid-template-columns: 1fr 1fr; gap: 15px; z-index: 100; }
-.btn { border: none; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; color: white; transition: 0.2s; }
+.btn { border: none; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; color: white; }
 .btn-p { background: var(--primary); } .btn-s { background: var(--surface-light); } .btn-d { background: var(--danger); }
-.btn:active { transform: scale(0.96); }
 
-.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 950; display: none; opacity: 0; transition: opacity 0.3s; backdrop-filter: blur(4px); }
+.modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 950; display: none; opacity: 0; backdrop-filter: blur(4px); }
 .modal-overlay.open { display: block; opacity: 1; }
-.bottom-sheet { position: fixed; left: 0; right: 0; bottom: 0; background: #1e293b; border-radius: 24px 24px 0 0; padding: 24px; transform: translateY(100%); transition: transform 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); z-index: 951; padding-bottom: calc(30px + var(--safe-bottom)); max-height: 90vh; overflow-y: auto; }
+.bottom-sheet { position: fixed; left: 0; right: 0; bottom: 0; background: #1e293b; border-radius: 24px 24px 0 0; padding: 24px; transform: translateY(100%); transition: transform 0.3s; z-index: 951; padding-bottom: calc(30px + var(--safe-bottom)); max-height: 90vh; overflow-y: auto; }
 .modal-overlay.open .bottom-sheet { transform: translateY(0); }
 
-.inp-large { width: 100%; background: var(--bg); border: 1px solid var(--border); color: white; padding: 16px; border-radius: 12px; font-size: 18px; outline: none; margin-bottom: 15px; }
-.inp-large:focus { border-color: var(--primary); }
+.inp-large, .report-inp { width: 100%; background: var(--bg); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 10px; font-size: 16px; outline: none; margin-bottom: 12px; }
 .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
-.qty-select, .qty-input { padding: 12px; width: 100%; background: var(--bg); color: white; border: 1px solid var(--border); border-radius: 10px; outline: none; font-size: 16px; text-align: center; font-weight: bold; }
+.qty-select, .qty-input { padding: 12px; width: 100%; background: var(--bg); color: white; border: 1px solid var(--border); border-radius: 10px; font-size: 16px; text-align: center; font-weight: bold; }
 
-.suggestions-box { position: absolute; top: 75px; left: 24px; right: 24px; background: var(--surface-light); z-index: 960; max-height: 150px; overflow-y: auto; display: none; border-radius: 0 0 12px 12px; border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-.suggestions-box.active { display: block; }
-.s-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
-
-/* IMPORT BOX */
 .import-box { border: 2px dashed var(--border); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px; background: rgba(0,0,0,0.2); }
-.import-text { font-size: 12px; color: var(--text-muted); margin-bottom: 15px; line-height: 1.5; }
 .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; margin: 10px auto; display: none; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-/* PRINT STYLES */
+.suggestions-box { position: absolute; top: 70px; left: 24px; right: 24px; background: var(--surface-light); z-index: 960; max-height: 150px; overflow-y: auto; display: none; border-radius: 0 0 12px 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+.suggestions-box.active { display: block; }
+.s-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+
 #print-area { display: none; }
 @media print {
     body { background-color: #fff !important; color: #000 !important; }
@@ -151,12 +124,8 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
         <h2 style="margin: 0 0 20px; padding: 0 15px;">Warehouses</h2>
         
         <div class="location-switch">
-            <button class="loc-btn active" id="loc-met" onclick="switchLocation('METIABRUZ')">
-                <span>🏭</span> Metiabruz Stock
-            </button>
-            <button class="loc-btn" id="loc-uns" onclick="switchLocation('UNSANI')">
-                <span>🏢</span> Unsani Stock
-            </button>
+            <button class="loc-btn active" id="loc-met" onclick="switchLocation('METIABRUZ')"><span>🏭</span> Metiabruz Stock</button>
+            <button class="loc-btn" id="loc-uns" onclick="switchLocation('UNSANI')"><span>🏢</span> Unsani Stock</button>
         </div>
 
         <div style="height:1px; background:var(--border); margin: 10px 0 20px 0;"></div>
@@ -176,10 +145,7 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 <div class="app-header">
     <div style="display:flex; align-items:center">
         <div class="menu-btn" onclick="toggleSidebar()">☰</div>
-        <div class="brand">
-            Stock Manager
-            <span id="header-loc">METIABRUZ</span>
-        </div>
+        <div class="brand">Stock Manager <span id="header-loc">METIABRUZ</span></div>
     </div>
     <div class="status-badge"><div id="dot" class="status-dot"></div><span id="status">INIT</span></div>
 </div>
@@ -207,10 +173,7 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 
 <!-- VIEW: GLOBAL (Combined) -->
 <div id="view-global" class="view-section">
-    <div class="sub-header">
-        <h2 style="margin:0">Global Stock</h2>
-        <p style="font-size:12px;color:var(--text-muted)">Combined view of Metiabruz & Unsani</p>
-    </div>
+    <div class="sub-header"><h2 style="margin:0">Global Stock</h2></div>
     <div class="filter-row">
         <div class="search-container">
             <input type="text" class="search-inp" id="globalSearch" placeholder="Search Global Design..." oninput="renderGlobal()">
@@ -247,16 +210,11 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
     <div class="bottom-sheet" onclick="event.stopPropagation()">
         <h2 style="margin:0 0 15px">Import Stock</h2>
         <div class="import-box">
-            <p class="import-text">
-                <b>Supports Excel (.xlsx) & PDF</b><br>
-                For PDF, it must be a computer-generated table with columns in this order:<br>
-                Design, 22x32, 34x36, 16x18, 26x30
-            </p>
+            <p class="import-text">Supports Excel (.xlsx) & PDF Tables.<br>Format: Design | 22x32 | 34x36 | 16x18 | 26x30</p>
             <input type="file" id="fileInput" accept=".xlsx, .xls, .pdf" style="display:none" onchange="handleFileUpload()">
             <button class="btn btn-s" style="width:100%" onclick="document.getElementById('fileInput').click()">📂 Select File</button>
             <div id="importLoader" class="loader"></div>
         </div>
-        <button class="btn btn-s" style="width:100%; margin-top:10px" onclick="downloadTemplate()">⬇ Download Excel Template</button>
     </div>
 </div>
 
@@ -270,13 +228,13 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
             <div id="suggestions" class="suggestions-box"></div>
         </div>
         <div class="grid-inputs">
-            <div><label style="font-size:10px">22x32</label><select id="s0" class="qty-select"></select><div id="l0" style="font-size:10px;text-align:center"></div></div>
-            <div><label style="font-size:10px">34x36</label><select id="s1" class="qty-select"></select><div id="l1" style="font-size:10px;text-align:center"></div></div>
-            <div><label style="font-size:10px">16x18</label><select id="s2" class="qty-select"></select><div id="l2" style="font-size:10px;text-align:center"></div></div>
-            <div><label style="font-size:10px">26x30</label><select id="s3" class="qty-select"></select><div id="l3" style="font-size:10px;text-align:center"></div></div>
+            <div><label style="font-size:10px">22x32</label><select id="s0" class="qty-select"></select></div>
+            <div><label style="font-size:10px">34x36</label><select id="s1" class="qty-select"></select></div>
+            <div><label style="font-size:10px">16x18</label><select id="s2" class="qty-select"></select></div>
+            <div><label style="font-size:10px">26x30</label><select id="s3" class="qty-select"></select></div>
         </div>
         <button class="btn btn-s" style="width:100%; border:1px solid var(--border)" onclick="addToBatch()">⬇ ADD TO LIST</button>
-        <div id="batch-container" class="batch-list" style="display:none">
+        <div id="batch-container" style="margin-top:15px; display:none;">
             <div style="font-size:12px;font-weight:700;color:var(--text-muted);margin-bottom:10px">ITEMS IN CART</div>
             <div id="batch-items"></div>
             <button class="btn btn-p" style="width:100%; margin-top:15px" onclick="saveBatch()">✅ SAVE ALL</button>
@@ -291,7 +249,6 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
             <h2 id="man-title" style="margin:0">Manage Item</h2>
             <button class="btn btn-s" style="padding:5px 10px;height:auto" onclick="closeManage()">✕</button>
         </div>
-        <p style="font-size:12px;color:var(--text-muted);margin-bottom:15px">Correct available quantity manually.</p>
         <div class="grid-inputs">
             <div><label style="font-size:10px">22x32</label><input type="number" id="man0" class="qty-input"></div>
             <div><label style="font-size:10px">34x36</label><input type="number" id="man1" class="qty-input"></div>
@@ -308,32 +265,26 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 <div id="print-area"></div>
 
 <script>
-// --- CONFIGURATION ---
 const SB_URL = 'https://yhlfqpiwevsehlgbhxtk.supabase.co';
 const SB_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InlobGZxcGl3ZXZzZWhsZ2JoeHRrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3Njk5Mjc1ODMsImV4cCI6MjA4NTUwMzU4M30.UX-6NXiJNg6EywD7gIPjla7l5_Koq0UbpuFyENIKOaM';
 const sizes = ["22x32","34x36","16x18","26x30"];
-let sbClient = null;
-
-if(typeof supabase !== 'undefined') sbClient = supabase.createClient(SB_URL, SB_KEY);
+let sbClient = supabase.createClient(SB_URL, SB_KEY);
 if('serviceWorker' in navigator) navigator.serviceWorker.register('./service-worker.js');
 
-// --- STATE ---
 let currentLocation = localStorage.getItem('app_location') || 'METIABRUZ';
 let inventory = [], transactions = [], queue = [];
 let globalStockData = [], filteredTransactions = [];
 let currentView = 'home';
 let foundItem, modalMode = '', manageItem = null, currentBatch = [];
 
-// --- INIT ---
 (async function init() {
     updateTheme();
     loadLocalData();
-    
     const today = new Date().toISOString().split('T')[0];
     document.getElementById('rep-start').value = today;
     document.getElementById('rep-end').value = today;
 
-    if(navigator.onLine && sbClient) { 
+    if(navigator.onLine) { 
         syncData(); 
         processQueue(); 
         const tables = ['inventory_met','inventory_uns','transactions_met','transactions_uns'];
@@ -344,9 +295,7 @@ let foundItem, modalMode = '', manageItem = null, currentBatch = [];
             }).subscribe();
         });
     }
-    
-    window.addEventListener('online', () => { if(sbClient) { updateStatus(); processQueue(); syncData(); } });
-    window.addEventListener('offline', updateStatus);
+    window.addEventListener('online', () => { updateStatus(); processQueue(); syncData(); });
 })();
 
 function switchLocation(loc) {
@@ -368,10 +317,7 @@ function updateTheme() {
     document.getElementById('loc-uns').classList.toggle('active', currentLocation === 'UNSANI');
 }
 
-function getStorageKey(key) {
-    const prefix = currentLocation === 'METIABRUZ' ? 'met' : 'uns';
-    return `${prefix}_${key}`;
-}
+function getStorageKey(key) { return `${currentLocation === 'METIABRUZ' ? 'met' : 'uns'}_${key}`; }
 
 function loadLocalData() {
     try {
@@ -384,19 +330,17 @@ function loadLocalData() {
 }
 
 async function syncData() {
-    if(!sbClient) return;
     try {
-        const tableInv = currentLocation === 'METIABRUZ' ? 'inventory_met' : 'inventory_uns';
-        const tableTx = currentLocation === 'METIABRUZ' ? 'transactions_met' : 'transactions_uns';
+        const tInv = currentLocation === 'METIABRUZ' ? 'inventory_met' : 'inventory_uns';
+        const tTx = currentLocation === 'METIABRUZ' ? 'transactions_met' : 'transactions_uns';
 
-        const { data: invData } = await sbClient.from(tableInv).select('*').order('created_at', {ascending:false});
+        const { data: invData } = await sbClient.from(tInv).select('*').order('created_at', {ascending:false});
         if(invData) {
             inventory = invData;
             localStorage.setItem(getStorageKey('inv'), JSON.stringify(inventory));
             renderInventory();
         }
-        
-        const { data: txData } = await sbClient.from(tableTx).select('*').order('created_at', {ascending:false}).limit(1000);
+        const { data: txData } = await sbClient.from(tTx).select('*').order('created_at', {ascending:false}).limit(1000);
         if(txData) {
             transactions = txData; 
             localStorage.setItem(getStorageKey('tx'), JSON.stringify(transactions));
@@ -413,49 +357,31 @@ function updateStatus() {
 }
 
 async function processQueue() {
-    if(!navigator.onLine || queue.length === 0 || !sbClient) {
+    if(!navigator.onLine || queue.length === 0) {
         if(queue.length === 0) updateStatus();
         return;
     }
-    
     const op = queue[0];
-    const tableInv = currentLocation === 'METIABRUZ' ? 'inventory_met' : 'inventory_uns';
-    const tableTx = currentLocation === 'METIABRUZ' ? 'transactions_met' : 'transactions_uns';
-    const table = op.table.includes('inventory') ? tableInv : tableTx;
-
-    let err;
-    try {
-        if(op.table.includes('inventory')) {
-            if(op.type === 'INSERT') err = (await sbClient.from(table).insert(op.data)).error;
-            else if(op.type === 'UPDATE') err = (await sbClient.from(table).update(op.data).eq('id', op.id)).error;
-        } else err = (await sbClient.from(table).insert(op.data)).error;
-    } catch(e) { err = e; }
+    const table = op.table_override || (op.table.includes('inventory') ? (currentLocation==='METIABRUZ'?'inventory_met':'inventory_uns') : (currentLocation==='METIABRUZ'?'transactions_met':'transactions_uns'));
     
-    if(!err) {
+    const { error } = op.type === 'INSERT' 
+        ? await sbClient.from(table).insert(op.data)
+        : await sbClient.from(table).update(op.data).eq('id', op.id);
+
+    if(!error || error.code === '23505') {
         queue.shift(); localStorage.setItem(getStorageKey('q'), JSON.stringify(queue)); updateStatus(); processQueue(); 
     } else {
-        if(err.code === '23505') { 
-            showToast(`Duplicate found! Item skipped.`, "error");
-            queue.shift(); localStorage.setItem(getStorageKey('q'), JSON.stringify(queue)); syncData();
-        } else {
-            console.error("Queue jam", err);
-            setTimeout(processQueue, 5000);
-        }
+        setTimeout(processQueue, 5000);
     }
 }
 
-// --- FILE IMPORT LOGIC (PDF/Excel) ---
+// --- IMPORT LOGIC ---
 function handleFileUpload() {
     const input = document.getElementById('fileInput');
     if(!input.files || !input.files[0]) return;
     const file = input.files[0];
     document.getElementById('importLoader').style.display = 'block';
-
-    if (file.name.endsWith('.pdf')) {
-        parsePDF(file);
-    } else {
-        parseExcel(file);
-    }
+    if (file.name.endsWith('.pdf')) parsePDF(file); else parseExcel(file);
 }
 
 function parseExcel(file) {
@@ -464,8 +390,7 @@ function parseExcel(file) {
         const data = new Uint8Array(e.target.result);
         const workbook = XLSX.read(data, {type: 'array'});
         const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(sheet);
-        importRows(rows);
+        importRows(XLSX.utils.sheet_to_json(sheet));
     };
     reader.readAsArrayBuffer(file);
 }
@@ -477,96 +402,57 @@ function parsePDF(file) {
         try {
             const pdf = await pdfjsLib.getDocument(typedArray).promise;
             let allRows = [];
-            
             for (let i = 1; i <= pdf.numPages; i++) {
                 const page = await pdf.getPage(i);
                 const textContent = await page.getTextContent();
-                
-                // Group text items by Y coordinate (rows)
                 let rowMap = {};
                 textContent.items.forEach(item => {
-                    const y = Math.round(item.transform[5]); // Round Y to group items on same line
+                    const y = Math.round(item.transform[5]);
                     if(!rowMap[y]) rowMap[y] = [];
                     rowMap[y].push({ str: item.str, x: item.transform[4] });
                 });
-
-                // Sort items in rows by X coordinate
                 Object.values(rowMap).forEach(rowItems => {
                     rowItems.sort((a,b) => a.x - b.x);
                     const rowText = rowItems.map(item => item.str.trim()).filter(s => s !== "");
-                    
-                    // Simple heuristic: Look for lines with 5 items (Design + 4 Qtys)
+                    // Smart detection: Finds line with "DesignName" and "4 numbers" at end
                     if(rowText.length >= 5) {
-                        // Check if last 4 are numbers
-                        const isStockRow = !isNaN(rowText[rowText.length-1]) && !isNaN(rowText[rowText.length-4]);
-                        if(isStockRow) {
-                            allRows.push({
-                                'Design': rowText[0],
-                                '22x32': rowText[rowText.length-4],
-                                '34x36': rowText[rowText.length-3],
-                                '16x18': rowText[rowText.length-2],
-                                '26x30': rowText[rowText.length-1]
-                            });
+                        const l = rowText.length;
+                        if(!isNaN(rowText[l-1]) && !isNaN(rowText[l-4])) {
+                            allRows.push({ 'Design': rowText[0], '22x32': rowText[l-4], '34x36': rowText[l-3], '16x18': rowText[l-2], '26x30': rowText[l-1] });
                         }
                     }
                 });
             }
             importRows(allRows);
-        } catch (error) {
-            console.error(error);
-            showToast("Failed to parse PDF", "error");
-            document.getElementById('importLoader').style.display = 'none';
-        }
+        } catch (error) { document.getElementById('importLoader').style.display = 'none'; showToast("PDF Error", "error"); }
     };
     reader.readAsArrayBuffer(file);
 }
 
 function importRows(rows) {
     let addedCount = 0;
+    // Explicitly set table names based on current location to ensure data goes to right place
+    const tInv = currentLocation === 'METIABRUZ' ? 'inventory_met' : 'inventory_uns';
+    const tTx = currentLocation === 'METIABRUZ' ? 'transactions_met' : 'transactions_uns';
+
     rows.forEach(row => {
         const dNo = row['Design'] ? row['Design'].toString().toUpperCase().trim() : null;
-        if(dNo && dNo !== "DESIGN") { // Ignore Header
-            const qtys = [
-                parseInt(row['22x32'] || 0),
-                parseInt(row['34x36'] || 0),
-                parseInt(row['16x18'] || 0),
-                parseInt(row['26x30'] || 0)
-            ];
-            
-            const exists = inventory.find(i => i.design === dNo && !i.deleted_at);
-            if(!exists) {
-                const newItem = { id: Date.now() + Math.random(), design: dNo, stock: qtys, sold:[0,0,0,0], created_at: new Date().toISOString() };
+        if(dNo && dNo !== "DESIGN") {
+            const qtys = [parseInt(row['22x32']||0), parseInt(row['34x36']||0), parseInt(row['16x18']||0), parseInt(row['26x30']||0)];
+            if(!inventory.find(i => i.design === dNo && !i.deleted_at)) {
+                const newItem = { id: crypto.randomUUID(), design: dNo, stock: qtys, sold:[0,0,0,0], created_at: new Date().toISOString() };
                 inventory.unshift(newItem);
-                queue.push({ table: 'inventory', type: 'INSERT', data: newItem });
-                
-                const tx = { id: Date.now() + Math.random(), created_at: new Date().toISOString(), type: 'ADD', design: dNo, customer: 'File Import', quantities: qtys, total_qty: qtys.reduce((a,b)=>a+b,0) };
-                transactions.unshift(tx);
-                queue.push({ table: 'transactions', type: 'INSERT', data: tx });
-                
+                queue.push({ table_override: tInv, type: 'INSERT', data: newItem });
+                queue.push({ table_override: tTx, type: 'INSERT', data: { created_at: new Date().toISOString(), type: 'ADD', design: dNo, customer: 'Import', quantities: qtys, total_qty: qtys.reduce((a,b)=>a+b,0) } });
                 addedCount++;
             }
         }
     });
-    
-    saveAll();
-    closeImport();
-    document.getElementById('importLoader').style.display = 'none';
-    showToast(`Imported ${addedCount} items`);
-}
-
-function downloadTemplate() {
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.aoa_to_sheet([["Design", "22x32", "34x36", "16x18", "26x30"]]);
-    XLSX.utils.book_append_sheet(wb, ws, "Template");
-    XLSX.writeFile(wb, "Stock_Template.xlsx");
+    saveAll(); closeImport(); document.getElementById('importLoader').style.display = 'none'; showToast(`Imported ${addedCount} items`);
 }
 
 function openModal(mode) {
-    if(mode === 'import') {
-        document.getElementById('importOverlay').classList.add('open');
-        toggleSidebar(); 
-        return;
-    }
+    if(mode === 'import') { document.getElementById('importOverlay').classList.add('open'); toggleSidebar(); return; }
     modalMode = mode; currentBatch = [];
     document.getElementById('m-title').innerText = mode === 'add' ? 'Add Stock' : 'Batch Sale';
     document.getElementById('m-customer').style.display = 'block'; 
@@ -579,31 +465,21 @@ function openModal(mode) {
 function closeImport() { document.getElementById('importOverlay').classList.remove('open'); }
 function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); document.getElementById('suggestions').classList.remove('active'); }
 
-// --- GLOBAL VIEW LOGIC ---
+// --- GLOBAL & REPORTS ---
 async function loadGlobalData() {
-    if(!sbClient || !navigator.onLine) {
-        document.getElementById('global-list').innerHTML = '<div class="empty-state">Online connection required.</div>';
-        return;
-    }
     document.getElementById('global-list').innerHTML = '<div class="empty-state">Loading...</div>';
-    
-    const [metRes, unsRes] = await Promise.all([
+    const [met, uns] = await Promise.all([
         sbClient.from('inventory_met').select('*').is('deleted_at', null),
         sbClient.from('inventory_uns').select('*').is('deleted_at', null)
     ]);
-
-    const met = metRes.data || [];
-    const uns = unsRes.data || [];
-    const stockMap = new Map();
-    
-    met.forEach(i => stockMap.set(i.design, { design: i.design, met: i.stock.map((s,x)=>s-(i.sold[x]||0)), uns: [0,0,0,0] }));
-    uns.forEach(i => {
-        const vals = i.stock.map((s,x)=>s-(i.sold[x]||0));
-        if(stockMap.has(i.design)) stockMap.get(i.design).uns = vals;
-        else stockMap.set(i.design, { design: i.design, met: [0,0,0,0], uns: vals });
+    const map = new Map();
+    (met.data||[]).forEach(i => map.set(i.design, { design: i.design, met: i.stock.map((s,x)=>s-(i.sold[x]||0)), uns: [0,0,0,0] }));
+    (uns.data||[]).forEach(i => {
+        const v = i.stock.map((s,x)=>s-(i.sold[x]||0));
+        if(map.has(i.design)) map.get(i.design).uns = v;
+        else map.set(i.design, { design: i.design, met: [0,0,0,0], uns: v });
     });
-    
-    globalStockData = Array.from(stockMap.values()).sort((a,b)=>a.design.localeCompare(b.design));
+    globalStockData = Array.from(map.values()).sort((a,b)=>a.design.localeCompare(b.design));
     renderGlobal();
 }
 
@@ -611,155 +487,59 @@ function renderGlobal() {
     const list = document.getElementById('global-list');
     const term = document.getElementById('globalSearch').value.toUpperCase();
     list.innerHTML = '';
-    
-    const filtered = globalStockData.filter(i => i.design.includes(term));
-    if(filtered.length === 0) { list.innerHTML = '<div class="empty-state">No designs found</div>'; return; }
-    
-    filtered.forEach(i => {
-        const mTot = i.met.reduce((a,b)=>a+b,0);
-        const uTot = i.uns.reduce((a,b)=>a+b,0);
-        let mG = i.met.map(q=>`<div class="g-box">${q}</div>`).join('');
-        let uG = i.uns.map(q=>`<div class="g-box">${q}</div>`).join('');
-        
-        const el = document.createElement('div');
-        el.className = 'global-card';
-        el.innerHTML = `
-            <div class="global-header"><span>#${i.design}</span><span>Total: ${mTot+uTot}</span></div>
-            <div class="global-row"><span class="wh-tag wh-met">MET</span><div class="global-grid">${mG}</div></div>
-            <div class="global-row"><span class="wh-tag wh-uns">UNS</span><div class="global-grid">${uG}</div></div>
-        `;
-        list.appendChild(el);
+    globalStockData.filter(i => i.design.includes(term)).forEach(i => {
+        const mG = i.met.map(q=>`<div class="g-box">${q}</div>`).join('');
+        const uG = i.uns.map(q=>`<div class="g-box">${q}</div>`).join('');
+        list.innerHTML += `<div class="global-card"><div class="global-header"><span>#${i.design}</span></div><div class="global-row"><span class="wh-tag wh-met">MET</span><div class="global-grid">${mG}</div></div><div class="global-row"><span class="wh-tag wh-uns">UNS</span><div class="global-grid">${uG}</div></div></div>`;
     });
 }
 
-// --- STANDARD RENDER ---
-function renderInventory() {
-    if(currentView !== 'home') return;
-    const list = document.getElementById('list');
-    const term = document.getElementById('mainSearch').value.toUpperCase();
-    list.innerHTML = '';
-    const active = inventory.filter(i => !i.deleted_at);
-    
-    document.getElementById('d-stock').innerText = active.reduce((a,c)=>a+c.stock.reduce((x,y)=>x+y,0),0);
-    document.getElementById('d-rem').innerText = active.reduce((a,c)=>a+(c.stock.reduce((x,y)=>x+y,0)-c.sold.reduce((x,y)=>x+y,0)),0);
-
-    active.filter(i => i.design.includes(term)).sort((a,b) => new Date(b.created_at) - new Date(a.created_at)).forEach(item => {
-          const grid = item.stock.map((s,i) => {
-              const rem = s - (item.sold[i]||0);
-              return `<div class="size-item"><div style="font-size:9px;color:var(--text-muted)">${sizes[i]}</div><div style="font-weight:700;color:${rem<5?'var(--danger)':'var(--success)'}">${rem}</div></div>`;
-          }).join('');
-          const el = document.createElement('div');
-          el.className = 'inventory-card';
-          el.addEventListener('touchstart', () => { pressTimer = setTimeout(() => openManage(item), 800); });
-          el.addEventListener('touchend', () => clearTimeout(pressTimer));
-          el.addEventListener('mousedown', () => { pressTimer = setTimeout(() => openManage(item), 800); });
-          el.addEventListener('mouseup', () => clearTimeout(pressTimer));
-          el.oncontextmenu = (e) => e.preventDefault(); 
-          el.innerHTML = `<div class="card-header"><span style="background:rgba(255,255,255,0.1);color:var(--primary);padding:4px 8px;border-radius:6px;font-weight:700;border:1px solid var(--border)">#${item.design}</span></div><div class="size-grid">${grid}</div>`;
-          list.appendChild(el);
-    });
-}
-
-// --- REPORTS & HISTORY LOGIC ---
 function applyReportFilters() {
-    const startStr = document.getElementById('rep-start').value;
-    const endStr = document.getElementById('rep-end').value;
+    const start = new Date(document.getElementById('rep-start').value); start.setHours(0,0,0,0);
+    const end = new Date(document.getElementById('rep-end').value); end.setHours(23,59,59,999);
     const type = document.getElementById('rep-type').value;
-    const cust = document.getElementById('rep-cust').value.toUpperCase().trim();
-    const design = document.getElementById('rep-design').value.toUpperCase().trim();
-
-    if(!startStr || !endStr) return;
-
-    const startDate = new Date(startStr); startDate.setHours(0,0,0,0);
-    const endDate = new Date(endStr); endDate.setHours(23,59,59,999);
+    const cust = document.getElementById('rep-cust').value.toUpperCase();
+    const des = document.getElementById('rep-design').value.toUpperCase();
 
     filteredTransactions = transactions.filter(t => {
-        const tDate = new Date(t.created_at);
-        const inDate = tDate >= startDate && tDate <= endDate;
-        const matchType = type === 'ALL' || t.type === type;
-        const matchCust = cust === '' || (t.customer && t.customer.toUpperCase().includes(cust));
-        const matchDesign = design === '' || (t.design && t.design.toUpperCase().includes(design));
-        return inDate && matchType && matchCust && matchDesign;
+        const d = new Date(t.created_at);
+        return d >= start && d <= end && (type==='ALL'||t.type===type) && (!cust||(t.customer&&t.customer.toUpperCase().includes(cust))) && (!des||t.design.includes(des));
     });
-
     renderReports();
 }
 
 function renderReports() {
-    const list = document.getElementById('report-results');
-    list.innerHTML = '';
-    
-    if(filteredTransactions.length === 0) {
-        list.innerHTML = `<div class="empty-state">No matching records found.</div>`;
-        return;
-    }
-
+    const list = document.getElementById('report-results'); list.innerHTML = '';
     filteredTransactions.forEach(t => {
-        const el = document.createElement('div');
-        el.className = `history-card ${t.type==='SELL'?'sell':'add'}`;
-        const date = new Date(t.created_at).toLocaleDateString('en-IN', {day:'numeric', month:'short', hour:'2-digit', minute:'2-digit'});
         const details = t.quantities.map((q,i) => q>0 ? `<span>${sizes[i]}:${q}</span>` : '').join(' ');
-        el.innerHTML = `
-        <div style="flex:1">
-            <div style="display:flex;justify-content:space-between;margin-bottom:4px">
-                <span class="h-tag ${t.type==='SELL'?'sell':'add'}">${t.type}</span>
-                <span style="font-size:10px;color:var(--text-muted)">${date}</span>
-            </div>
-            <div style="font-weight:800;font-size:16px">#${t.design}</div>
-            <div style="font-size:11px;color:var(--text-muted);margin-top:2px">${details}</div>
-            ${t.customer ? `<div style="font-size:12px;margin-top:4px">👤 ${t.customer}</div>` : ''}
-        </div>
-        <div style="text-align:right; margin-left:10px">
-            <div style="font-size:20px;font-weight:800">${t.total_qty}</div>
-        </div>`;
+        list.innerHTML += `<div class="history-card ${t.type==='SELL'?'sell':'add'}"><div><span class="h-tag ${t.type==='SELL'?'sell':'add'}">${t.type}</span> <b>#${t.design}</b><div style="font-size:11px;margin-top:2px">${details}</div>${t.customer?`<div style="font-size:11px;color:var(--text-muted)">👤 ${t.customer}</div>`:''}</div><div style="font-weight:800">${t.total_qty}</div></div>`;
+    });
+}
+
+// --- STANDARD FUNCTIONS ---
+function renderInventory() {
+    const list = document.getElementById('list'); 
+    if(!list) return;
+    const term = document.getElementById('mainSearch').value.toUpperCase();
+    list.innerHTML = '';
+    const active = inventory.filter(i => !i.deleted_at);
+    document.getElementById('d-stock').innerText = active.reduce((a,c)=>a+c.stock.reduce((x,y)=>x+y,0),0);
+    document.getElementById('d-rem').innerText = active.reduce((a,c)=>a+(c.stock.reduce((x,y)=>x+y,0)-c.sold.reduce((x,y)=>x+y,0)),0);
+    active.filter(i => i.design.includes(term)).sort((a,b)=>new Date(b.created_at)-new Date(a.created_at)).forEach(item => {
+        const grid = item.stock.map((s,i) => `<div class="size-item"><div style="font-size:9px;color:var(--text-muted)">${sizes[i]}</div><div style="font-weight:700;color:${(s-(item.sold[i]||0))<5?'var(--danger)':'var(--success)'}">${s-(item.sold[i]||0)}</div></div>`).join('');
+        const el = document.createElement('div'); el.className = 'inventory-card';
+        el.addEventListener('click', () => openManage(item));
+        el.innerHTML = `<div class="card-header"><span style="background:rgba(255,255,255,0.1);color:var(--primary);padding:4px 8px;border-radius:6px;font-weight:700">#${item.design}</span></div><div class="size-grid">${grid}</div>`;
         list.appendChild(el);
     });
 }
 
-function printReport() {
-    const printArea = document.getElementById('print-area');
-    const start = document.getElementById('rep-start').value;
-    const end = document.getElementById('rep-end').value;
-    
-    let html = `
-        <h2 style="text-align:center">${currentLocation} Report (${start} to ${end})</h2>
-        <table style="width:100%; border-collapse: collapse; margin-top: 10px;">
-            <thead>
-                <tr>
-                    <th>Date</th><th>Type</th><th>Design</th><th>Customer</th><th>Total</th>
-                </tr>
-            </thead>
-            <tbody>
-    `;
-    
-    filteredTransactions.forEach(t => {
-        const date = new Date(t.created_at).toLocaleDateString('en-IN');
-        html += `<tr>
-            <td>${date}</td>
-            <td>${t.type}</td>
-            <td>${t.design}</td>
-            <td>${t.customer || '-'}</td>
-            <td>${t.total_qty}</td>
-        </tr>`;
-    });
-    
-    const totalQty = filteredTransactions.reduce((a,b) => a + (b.total_qty || 0), 0);
-    html += `</tbody></table>
-    <h3 style="text-align:right; margin-top:10px">Total Qty: ${totalQty}</h3>`;
-    
-    printArea.innerHTML = html;
-    window.print();
-}
-
-// --- STANDARD LOGIC ---
 function handleDesignInput(val) {
     val = val.toUpperCase().trim();
     const box = document.getElementById('suggestions');
     const matches = inventory.filter(i => i.design.startsWith(val) && !i.deleted_at).slice(0,5);
-    if(val.length > 0 && matches.length > 0) {
-        box.innerHTML = matches.map(m => `<div class="s-item" onclick="selectSuggestion('${m.design}')"><b>${m.design}</b> <span style="font-size:10px;color:var(--text-muted)">Stock: ${m.stock.reduce((a,b)=>a+b,0)}</span></div>`).join('');
-        box.classList.add('active');
-    } else box.classList.remove('active');
+    box.innerHTML = matches.map(m => `<div class="s-item" onclick="selectSuggestion('${m.design}')"><b>${m.design}</b></div>`).join('');
+    box.classList.toggle('active', val.length > 0 && matches.length > 0);
     foundItem = inventory.find(i => i.design === val && !i.deleted_at);
     updateDropdowns(foundItem);
 }
@@ -768,20 +548,16 @@ function selectSuggestion(val) { document.getElementById('m-design').value = val
 function updateDropdowns(item) {
     [0,1,2,3].forEach(idx => {
         const s = document.getElementById('s'+idx);
-        const l = document.getElementById('l'+idx);
         s.innerHTML = ''; s.disabled = false;
-        let inBatch = 0;
-        currentBatch.filter(b => b.design === (item?.design)).forEach(b => inBatch += b.qtys[idx]);
+        let inBatch = 0; currentBatch.filter(b => b.design === (item?.design)).forEach(b => inBatch += b.qtys[idx]);
         if(modalMode === 'sell') {
             if(item) {
                 const av = item.stock[idx] - (item.sold[idx]||0) - inBatch;
-                l.innerText = `Avail: ${av}`;
                 if(av <= 0) { s.innerHTML='<option value="0">0</option>'; s.disabled=true; }
                 else for(let i=0;i<=av;i++) s.innerHTML+=`<option value="${i}">${i}</option>`;
-            } else { l.innerText = '-'; s.innerHTML='<option value="0">0</option>'; s.disabled=true; }
+            } else { s.innerHTML='<option value="0">0</option>'; s.disabled=true; }
         } else {
             for(let i=0;i<=100;i++) s.innerHTML+=`<option value="${i}">${i}</option>`;
-            l.innerText = item ? `Cur: ${item.stock[idx]}` : 'New';
         }
     });
 }
@@ -789,53 +565,37 @@ function updateDropdowns(item) {
 function addToBatch() {
     const dNo = document.getElementById('m-design').value.trim().toUpperCase();
     const qtys = [0,1,2,3].map(i => +document.getElementById('s'+i).value);
-    const total = qtys.reduce((a,b)=>a+b,0);
-    if(!dNo || total === 0) return showToast("Invalid Input", "error");
+    if(!dNo || qtys.reduce((a,b)=>a+b,0) === 0) return showToast("Invalid Input", "error");
     if(modalMode === 'sell' && !foundItem) return showToast("Design not found", "error");
-    
-    currentBatch.push({ design: dNo, qtys: qtys, total: total, itemRef: foundItem });
-    renderBatchList();
-    document.getElementById('m-design').value = '';
-    document.getElementById('m-design').focus();
-    updateDropdowns(null);
-    foundItem = null;
+    if(modalMode === 'add' && !foundItem && (currentBatch.some(b => b.design === dNo) || inventory.some(i => i.design === dNo && !i.deleted_at))) return showToast("Duplicate Design", "error");
+    currentBatch.push({ design: dNo, qtys: qtys, itemRef: foundItem });
+    document.getElementById('batch-items').innerHTML = currentBatch.map((b,i) => `<div class="batch-item"><b>#${b.design}</b> <span class="batch-del" onclick="currentBatch.splice(${i},1);addToBatch()">✕</span></div>`).join('');
+    document.getElementById('batch-container').style.display = 'block';
+    document.getElementById('m-design').value = ''; updateDropdowns(null);
 }
-
-function renderBatchList() {
-    const cont = document.getElementById('batch-container');
-    const list = document.getElementById('batch-items');
-    if(currentBatch.length > 0) {
-        cont.style.display = 'block';
-        list.innerHTML = currentBatch.map((b, idx) => {
-            const desc = b.qtys.map((q, i) => q > 0 ? `<span class="batch-pill">${sizes[i]}: ${q}</span>` : '').join('');
-            return `<div class="batch-item"><div><div style="font-weight:700">#${b.design}</div><div style="margin-top:4px">${desc}</div></div><div class="batch-del" onclick="removeFromBatch(${idx})">✕</div></div>`;
-        }).join('');
-    } else cont.style.display = 'none';
-}
-function removeFromBatch(idx) { currentBatch.splice(idx, 1); renderBatchList(); }
 
 function saveBatch() {
-    if(currentBatch.length === 0) return showToast("List is empty", "error");
-    const cust = document.getElementById('m-customer').value.trim();
-    
+    if(currentBatch.length === 0) return;
+    const cust = document.getElementById('m-customer').value;
     currentBatch.forEach(b => {
         let realItem = inventory.find(i => i.design === b.design && !i.deleted_at);
+        const tInv = currentLocation === 'METIABRUZ' ? 'inventory_met' : 'inventory_uns';
+        const tTx = currentLocation === 'METIABRUZ' ? 'transactions_met' : 'transactions_uns';
+        
         if(modalMode === 'add') {
             if(realItem) {
                 realItem.stock = realItem.stock.map((s,i) => s + b.qtys[i]);
-                queue.push({ table:'inventory', type:'UPDATE', id:realItem.id, data:{stock:realItem.stock} });
+                queue.push({ table_override: tInv, type:'UPDATE', id:realItem.id, data:{stock:realItem.stock} });
             } else {
-                const newItem = { id: Date.now() + Math.random(), design: b.design, stock: b.qtys, sold:[0,0,0,0], created_at: new Date().toISOString() };
+                const newItem = { id: crypto.randomUUID(), design: b.design, stock: b.qtys, sold:[0,0,0,0], created_at: new Date().toISOString() };
                 inventory.unshift(newItem);
-                queue.push({ table:'inventory', type:'INSERT', data:newItem });
+                queue.push({ table_override: tInv, type:'INSERT', data:newItem });
             }
         } else {
             realItem.sold = realItem.sold.map((s,i) => (realItem.sold[i]||0) + b.qtys[i]);
-            queue.push({ table:'inventory', type:'UPDATE', id:realItem.id, data:{sold:realItem.sold} });
+            queue.push({ table_override: tInv, type:'UPDATE', id:realItem.id, data:{sold:realItem.sold} });
         }
-        const tx = { id: Date.now() + Math.random(), created_at: new Date().toISOString(), type: modalMode === 'add' ? 'ADD' : 'SELL', design: b.design, customer: cust, quantities: b.qtys, total_qty: b.total };
-        transactions.unshift(tx);
-        queue.push({ table:'transactions', type:'INSERT', data:tx });
+        queue.push({ table_override: tTx, type:'INSERT', data: { created_at: new Date().toISOString(), type: modalMode==='add'?'ADD':'SELL', design: b.design, customer: cust, quantities: b.qtys, total_qty: b.qtys.reduce((a,x)=>a+x,0) } });
     });
     saveAll(); closeModal(); showToast("Saved");
 }
@@ -853,28 +613,26 @@ function openManage(item) {
     [0,1,2,3].forEach(i => document.getElementById('man'+i).value = item.stock[i] - (item.sold[i]||0));
     document.getElementById('manageOverlay').classList.add('open');
 }
-function closeManage() { document.getElementById('manageOverlay').classList.remove('open'); manageItem = null; }
+function closeManage() { document.getElementById('manageOverlay').classList.remove('open'); }
 function saveManagement() {
-    if(!manageItem) return;
     const newAvails = [0,1,2,3].map(i => +document.getElementById('man'+i).value);
-    manageItem.stock = newAvails.map((avail, i) => avail + (manageItem.sold[i]||0));
-    queue.push({ table:'inventory', type:'UPDATE', id:manageItem.id, data:{stock:manageItem.stock} });
-    const tx = { id: Date.now(), created_at: new Date().toISOString(), type: 'ADD', design: manageItem.design, customer: 'Correction', quantities: [0,0,0,0], total_qty: 0 };
-    transactions.unshift(tx); queue.push({ table:'transactions', type:'INSERT', data:tx });
-    saveAll(); closeManage(); showToast("Updated");
+    manageItem.stock = newAvails.map((a,i) => a + (manageItem.sold[i]||0));
+    const tInv = currentLocation === 'METIABRUZ' ? 'inventory_met' : 'inventory_uns';
+    queue.push({ table_override: tInv, type:'UPDATE', id:manageItem.id, data:{stock:manageItem.stock} });
+    saveAll(); closeManage();
 }
 function deleteItem() {
-    if(!manageItem || !confirm("Delete this design?")) return;
+    if(!confirm("Delete?")) return;
     manageItem.deleted_at = new Date().toISOString();
-    queue.push({ table:'inventory', type:'UPDATE', id:manageItem.id, data:{deleted_at: manageItem.deleted_at} });
-    saveAll(); closeManage(); showToast("Deleted");
+    const tInv = currentLocation === 'METIABRUZ' ? 'inventory_met' : 'inventory_uns';
+    queue.push({ table_override: tInv, type:'UPDATE', id:manageItem.id, data:{deleted_at: manageItem.deleted_at} });
+    saveAll(); closeManage();
 }
 
 function printStock(type) {
     const printArea = document.getElementById('print-area');
-    let title = type === 'global' ? 'Global Stock Report' : `${currentLocation} Stock`;
     let items = type === 'global' ? globalStockData : inventory.filter(i => !i.deleted_at);
-    let html = `<h2 style="text-align:center">${title}</h2><table style="width:100%;border-collapse:collapse;margin-top:20px;font-family:sans-serif;font-size:12px;color:#000"><thead><tr><th style="border:1px solid #000;padding:5px">Design</th><th style="border:1px solid #000;padding:5px">Details</th><th style="border:1px solid #000;padding:5px">Total</th></tr></thead><tbody>`;
+    let html = `<h2 style="text-align:center">${type==='global'?'Global':currentLocation} Stock</h2><table style="width:100%;border-collapse:collapse;font-family:sans-serif;font-size:12px;color:#000"><thead><tr><th style="border:1px solid #000;padding:5px">Design</th><th style="border:1px solid #000;padding:5px">Details</th><th style="border:1px solid #000;padding:5px">Total</th></tr></thead><tbody>`;
     items.forEach(i => {
         let det = '', tot = 0;
         if(type==='global') {
@@ -889,14 +647,22 @@ function printStock(type) {
     html += '</tbody></table>'; printArea.innerHTML = html; window.print();
 }
 
+function printReport() {
+    const printArea = document.getElementById('print-area');
+    let html = `<h2 style="text-align:center">${currentLocation} Report</h2><table style="width:100%;border-collapse:collapse;font-family:sans-serif;font-size:12px;color:#000"><thead><tr><th>Date</th><th>Type</th><th>Design</th><th>Total</th></tr></thead><tbody>`;
+    filteredTransactions.forEach(t => {
+        html += `<tr><td style="border:1px solid #000;padding:5px">${new Date(t.created_at).toLocaleDateString()}</td><td style="border:1px solid #000;padding:5px">${t.type}</td><td style="border:1px solid #000;padding:5px">${t.design}</td><td style="border:1px solid #000;padding:5px">${t.total_qty}</td></tr>`;
+    });
+    html += '</tbody></table>'; printArea.innerHTML = html; window.print();
+}
+
 function toggleSidebar() { document.getElementById('sidebarOverlay').classList.toggle('open'); }
 function switchView(view) {
     currentView = view; document.getElementById('sidebarOverlay').classList.remove('open');
     document.querySelectorAll('.view-section').forEach(e => e.classList.remove('active'));
     document.querySelectorAll('.nav-item').forEach(e => e.classList.remove('active'));
     document.getElementById(`view-${view}`).classList.add('active');
-    const navItem = document.getElementById(`nav-${view}`);
-    if(navItem) navItem.classList.add('active');
+    document.getElementById(`nav-${view}`).classList.add('active');
     if(view === 'home') renderInventory();
     else if(view === 'global') loadGlobalData();
     else if(view === 'reports') applyReportFilters();
