@@ -3,15 +3,23 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-<title>Stock Manager Pro</title>
+<title>Dilkhus Stock Manager</title>
 <link rel="manifest" href="manifest.json">
-<!-- Supabase -->
+
+<!-- 1. Supabase -->
 <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
-<!-- Toast Notifications -->
+<!-- 2. Toast Notifications -->
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/toastify-js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/toastify-js/src/toastify.min.css">
-<!-- Excel Parser (SheetJS) -->
+<!-- 3. Excel Parser (SheetJS) -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<!-- 4. PDF Parser (PDF.js) -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+    // Initialize PDF Worker
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+</script>
+
 <!-- Font -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 
@@ -21,7 +29,7 @@
     --text: #f8fafc; --text-muted: #94a3b8; --border: rgba(255,255,255,0.08);
     --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
     --met-color: #6366f1; /* Indigo */
-    --uns-color: #06b6d4; /* Cyan */
+    --uns-color: #06b6d4; /* Teal */
     --safe-bottom: env(safe-area-inset-bottom);
 }
 
@@ -43,7 +51,7 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 /* SIDEBAR */
 .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 900; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(4px); }
 .sidebar-overlay.open { opacity: 1; pointer-events: auto; }
-.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: var(--surface); z-index: 901; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; overflow-y: auto; }
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: var(--surface); z-index: 901; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
 .sidebar-overlay.open .sidebar { transform: translateX(0); }
 .nav-item { padding: 15px; border-radius: 10px; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
 .nav-item.active { background: var(--primary); color: white; }
@@ -67,6 +75,7 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .print-btn { width: 44px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; }
 .list-container { flex: 1; overflow-y: auto; padding: 0 20px 120px; scroll-behavior: smooth; }
 
+/* INVENTORY CARD */
 .inventory-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transition: transform 0.1s; }
 .inventory-card:active { transform: scale(0.98); background: var(--surface-light); }
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
@@ -114,10 +123,13 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .suggestions-box.active { display: block; }
 .s-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
 
-/* IMPORT SECTION */
-.import-box { border: 2px dashed var(--border); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px; }
-.import-text { font-size: 12px; color: var(--text-muted); margin-bottom: 10px; }
+/* IMPORT BOX */
+.import-box { border: 2px dashed var(--border); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px; background: rgba(0,0,0,0.2); }
+.import-text { font-size: 12px; color: var(--text-muted); margin-bottom: 15px; line-height: 1.5; }
+.loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; margin: 10px auto; display: none; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+/* PRINT STYLES */
 #print-area { display: none; }
 @media print {
     body { background-color: #fff !important; color: #000 !important; }
@@ -235,11 +247,16 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
     <div class="bottom-sheet" onclick="event.stopPropagation()">
         <h2 style="margin:0 0 15px">Import Stock</h2>
         <div class="import-box">
-            <p class="import-text">Select Excel (.xlsx) file with headers:<br><b>Design, 22x32, 34x36, 16x18, 26x30</b></p>
-            <input type="file" id="excelFile" accept=".xlsx, .xls" style="display:none" onchange="processExcelFile()">
-            <button class="btn btn-s" style="width:100%" onclick="document.getElementById('excelFile').click()">📂 Select File</button>
+            <p class="import-text">
+                <b>Supports Excel (.xlsx) & PDF</b><br>
+                For PDF, it must be a computer-generated table with columns in this order:<br>
+                Design, 22x32, 34x36, 16x18, 26x30
+            </p>
+            <input type="file" id="fileInput" accept=".xlsx, .xls, .pdf" style="display:none" onchange="handleFileUpload()">
+            <button class="btn btn-s" style="width:100%" onclick="document.getElementById('fileInput').click()">📂 Select File</button>
+            <div id="importLoader" class="loader"></div>
         </div>
-        <button class="btn btn-s" style="width:100%; margin-top:10px" onclick="downloadTemplate()">⬇ Download Template</button>
+        <button class="btn btn-s" style="width:100%; margin-top:10px" onclick="downloadTemplate()">⬇ Download Excel Template</button>
     </div>
 </div>
 
@@ -427,6 +444,141 @@ async function processQueue() {
     }
 }
 
+// --- FILE IMPORT LOGIC (PDF/Excel) ---
+function handleFileUpload() {
+    const input = document.getElementById('fileInput');
+    if(!input.files || !input.files[0]) return;
+    const file = input.files[0];
+    document.getElementById('importLoader').style.display = 'block';
+
+    if (file.name.endsWith('.pdf')) {
+        parsePDF(file);
+    } else {
+        parseExcel(file);
+    }
+}
+
+function parseExcel(file) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, {type: 'array'});
+        const sheet = workbook.Sheets[workbook.SheetNames[0]];
+        const rows = XLSX.utils.sheet_to_json(sheet);
+        importRows(rows);
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function parsePDF(file) {
+    const reader = new FileReader();
+    reader.onload = async function(e) {
+        const typedArray = new Uint8Array(e.target.result);
+        try {
+            const pdf = await pdfjsLib.getDocument(typedArray).promise;
+            let allRows = [];
+            
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                
+                // Group text items by Y coordinate (rows)
+                let rowMap = {};
+                textContent.items.forEach(item => {
+                    const y = Math.round(item.transform[5]); // Round Y to group items on same line
+                    if(!rowMap[y]) rowMap[y] = [];
+                    rowMap[y].push({ str: item.str, x: item.transform[4] });
+                });
+
+                // Sort items in rows by X coordinate
+                Object.values(rowMap).forEach(rowItems => {
+                    rowItems.sort((a,b) => a.x - b.x);
+                    const rowText = rowItems.map(item => item.str.trim()).filter(s => s !== "");
+                    
+                    // Simple heuristic: Look for lines with 5 items (Design + 4 Qtys)
+                    if(rowText.length >= 5) {
+                        // Check if last 4 are numbers
+                        const isStockRow = !isNaN(rowText[rowText.length-1]) && !isNaN(rowText[rowText.length-4]);
+                        if(isStockRow) {
+                            allRows.push({
+                                'Design': rowText[0],
+                                '22x32': rowText[rowText.length-4],
+                                '34x36': rowText[rowText.length-3],
+                                '16x18': rowText[rowText.length-2],
+                                '26x30': rowText[rowText.length-1]
+                            });
+                        }
+                    }
+                });
+            }
+            importRows(allRows);
+        } catch (error) {
+            console.error(error);
+            showToast("Failed to parse PDF", "error");
+            document.getElementById('importLoader').style.display = 'none';
+        }
+    };
+    reader.readAsArrayBuffer(file);
+}
+
+function importRows(rows) {
+    let addedCount = 0;
+    rows.forEach(row => {
+        const dNo = row['Design'] ? row['Design'].toString().toUpperCase().trim() : null;
+        if(dNo && dNo !== "DESIGN") { // Ignore Header
+            const qtys = [
+                parseInt(row['22x32'] || 0),
+                parseInt(row['34x36'] || 0),
+                parseInt(row['16x18'] || 0),
+                parseInt(row['26x30'] || 0)
+            ];
+            
+            const exists = inventory.find(i => i.design === dNo && !i.deleted_at);
+            if(!exists) {
+                const newItem = { id: Date.now() + Math.random(), design: dNo, stock: qtys, sold:[0,0,0,0], created_at: new Date().toISOString() };
+                inventory.unshift(newItem);
+                queue.push({ table: 'inventory', type: 'INSERT', data: newItem });
+                
+                const tx = { id: Date.now() + Math.random(), created_at: new Date().toISOString(), type: 'ADD', design: dNo, customer: 'File Import', quantities: qtys, total_qty: qtys.reduce((a,b)=>a+b,0) };
+                transactions.unshift(tx);
+                queue.push({ table: 'transactions', type: 'INSERT', data: tx });
+                
+                addedCount++;
+            }
+        }
+    });
+    
+    saveAll();
+    closeImport();
+    document.getElementById('importLoader').style.display = 'none';
+    showToast(`Imported ${addedCount} items`);
+}
+
+function downloadTemplate() {
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet([["Design", "22x32", "34x36", "16x18", "26x30"]]);
+    XLSX.utils.book_append_sheet(wb, ws, "Template");
+    XLSX.writeFile(wb, "Stock_Template.xlsx");
+}
+
+function openModal(mode) {
+    if(mode === 'import') {
+        document.getElementById('importOverlay').classList.add('open');
+        toggleSidebar(); 
+        return;
+    }
+    modalMode = mode; currentBatch = [];
+    document.getElementById('m-title').innerText = mode === 'add' ? 'Add Stock' : 'Batch Sale';
+    document.getElementById('m-customer').style.display = 'block'; 
+    document.getElementById('m-customer').value = '';
+    document.getElementById('m-design').value = '';
+    document.getElementById('batch-container').style.display = 'none';
+    updateDropdowns(null);
+    document.getElementById('modalOverlay').classList.add('open');
+}
+function closeImport() { document.getElementById('importOverlay').classList.remove('open'); }
+function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); document.getElementById('suggestions').classList.remove('active'); }
+
 // --- GLOBAL VIEW LOGIC ---
 async function loadGlobalData() {
     if(!sbClient || !navigator.onLine) {
@@ -507,79 +659,6 @@ function renderInventory() {
           list.appendChild(el);
     });
 }
-
-// --- EXCEL IMPORT LOGIC ---
-function processExcelFile() {
-    const input = document.getElementById('excelFile');
-    if(!input.files || !input.files[0]) return;
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, {type: 'array'});
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const rows = XLSX.utils.sheet_to_json(sheet);
-        
-        let addedCount = 0;
-        
-        rows.forEach(row => {
-            const dNo = row['Design'] ? row['Design'].toString().toUpperCase().trim() : null;
-            if(dNo) {
-                const qtys = [
-                    parseInt(row['22x32'] || 0),
-                    parseInt(row['34x36'] || 0),
-                    parseInt(row['16x18'] || 0),
-                    parseInt(row['26x30'] || 0)
-                ];
-                
-                // Add to queue
-                const exists = inventory.find(i => i.design === dNo && !i.deleted_at);
-                if(!exists) {
-                    const newItem = { id: Date.now() + Math.random(), design: dNo, stock: qtys, sold:[0,0,0,0], created_at: new Date().toISOString() };
-                    inventory.unshift(newItem);
-                    queue.push({ table: 'inventory', type: 'INSERT', data: newItem });
-                    
-                    // Add history log
-                    const tx = { id: Date.now() + Math.random(), created_at: new Date().toISOString(), type: 'ADD', design: dNo, customer: 'Excel Import', quantities: qtys, total_qty: qtys.reduce((a,b)=>a+b,0) };
-                    transactions.unshift(tx);
-                    queue.push({ table: 'transactions', type: 'INSERT', data: tx });
-                    
-                    addedCount++;
-                }
-            }
-        });
-        
-        saveAll();
-        closeImport();
-        showToast(`Imported ${addedCount} items successfully`);
-    };
-    reader.readAsArrayBuffer(input.files[0]);
-}
-
-function downloadTemplate() {
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.aoa_to_sheet([["Design", "22x32", "34x36", "16x18", "26x30"]]);
-    XLSX.utils.book_append_sheet(wb, ws, "Template");
-    XLSX.writeFile(wb, "Stock_Template.xlsx");
-}
-
-function openModal(mode) {
-    if(mode === 'import') {
-        document.getElementById('importOverlay').classList.add('open');
-        toggleSidebar(); // close sidebar
-        return;
-    }
-    modalMode = mode; currentBatch = [];
-    document.getElementById('m-title').innerText = mode === 'add' ? 'Add Stock' : 'Batch Sale';
-    document.getElementById('m-customer').style.display = 'block'; 
-    document.getElementById('m-customer').value = '';
-    document.getElementById('m-design').value = '';
-    document.getElementById('batch-container').style.display = 'none';
-    updateDropdowns(null);
-    document.getElementById('modalOverlay').classList.add('open');
-}
-function closeImport() { document.getElementById('importOverlay').classList.remove('open'); }
-function closeModal() { document.getElementById('modalOverlay').classList.remove('open'); document.getElementById('suggestions').classList.remove('active'); }
 
 // --- REPORTS & HISTORY LOGIC ---
 function applyReportFilters() {
