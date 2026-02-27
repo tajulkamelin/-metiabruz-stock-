@@ -13,7 +13,7 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';</script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
 
 <style>
 :root {
@@ -73,7 +73,7 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
 .size-item { background: var(--bg); border-radius: 8px; padding: 8px 4px; text-align: center; border: 1px solid var(--border); }
 
-/* GLOBAL VIEW STYLES */
+/* GLOBAL DASHBOARD */
 .global-card { background: var(--surface); border-radius: 16px; padding: 15px; margin-bottom: 12px; border: 1px solid var(--border); }
 .global-header { display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: 800; font-size: 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px;}
 .global-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; font-size: 13px; }
@@ -90,75 +90,85 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .history-card { background: var(--surface); border-radius: 12px; padding: 15px; margin-bottom: 10px; border-left: 4px solid var(--text-muted); display: flex; justify-content: space-between; align-items: center; position: relative; }
 .history-card.sell { border-left-color: var(--success); }
 .history-card.add { border-left-color: var(--primary); }
-.h-tag { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-right: 5px; display: inline-block; vertical-align: middle; }
+.h-tag { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; margin-right: 5px; display: inline-block; }
 .h-tag.sell { background: rgba(16, 185, 129, 0.2); color: var(--success); }
 .h-tag.add { background: rgba(255, 255, 255, 0.1); color: var(--text); border: 1px solid var(--border); }
 
-/* MODAL */
+/* MODALS */
 .dock { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--border); padding: 12px 20px calc(12px + var(--safe-bottom)); display: grid; grid-template-columns: 1fr 1fr; gap: 15px; z-index: 100; }
 .btn { border: none; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; color: white; transition: 0.2s; }
 .btn-p { background: var(--primary); } .btn-s { background: var(--surface-light); } .btn-d { background: var(--danger); }
-.btn:active { transform: scale(0.96); }
 
 .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 950; display: none; opacity: 0; backdrop-filter: blur(4px); }
 .modal-overlay.open { display: block; opacity: 1; }
 .bottom-sheet { position: fixed; left: 0; right: 0; bottom: 0; background: #1e293b; border-radius: 24px 24px 0 0; padding: 24px; transform: translateY(100%); transition: transform 0.3s; z-index: 951; padding-bottom: calc(30px + var(--safe-bottom)); max-height: 90vh; overflow-y: auto; }
 .modal-overlay.open .bottom-sheet { transform: translateY(0); }
 
-.inp-large { width: 100%; background: var(--bg); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 10px; font-size: 16px; outline: none; margin-bottom: 12px; }
-.inp-large:focus { border-color: var(--primary); }
+.inp-large, .report-inp { width: 100%; background: var(--bg); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 10px; font-size: 16px; outline: none; margin-bottom: 12px; }
 .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
 .qty-select, .qty-input { padding: 12px; width: 100%; background: var(--bg); color: white; border: 1px solid var(--border); border-radius: 10px; font-size: 16px; text-align: center; font-weight: bold; }
 
-.suggestions-box { position: absolute; top: 75px; left: 24px; right: 24px; background: var(--surface-light); z-index: 960; max-height: 150px; overflow-y: auto; display: none; border-radius: 0 0 12px 12px; border: 1px solid var(--border); box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-.suggestions-box.active { display: block; }
-.s-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
-
-/* IMPORT BOX */
 .import-box { border: 2px dashed var(--border); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px; background: rgba(0,0,0,0.2); }
-.import-text { font-size: 12px; color: var(--text-muted); margin-bottom: 15px; line-height: 1.5; }
 .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; margin: 10px auto; display: none; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
+.suggestions-box { position: absolute; top: 70px; left: 24px; right: 24px; background: var(--surface-light); z-index: 960; max-height: 150px; overflow-y: auto; display: none; border-radius: 0 0 12px 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+.suggestions-box.active { display: block; }
+.s-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+
 /* --- PURE CSS PRINT --- */
-#print-area { display: none; }
+#print-overlay {
+    display: none;
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    background: white;
+    z-index: 999999;
+    padding: 30px;
+    color: black;
+    overflow-y: auto;
+}
 
 @media print {
-    /* HIDE APP UI */
-    .app-header, .sidebar-overlay, .view-section, .dock, .modal-overlay, .toastify {
-        display: none !important;
-    }
+    /* Hide everything EXCEPT the print overlay */
+    body > *:not(#print-overlay) { display: none !important; }
     
-    /* RESET BODY FOR PRINT */
     body, html {
-        background-color: #ffffff !important;
-        background: #ffffff !important;
-        color: #000000 !important;
-        margin: 0;
-        padding: 0;
-        width: 100%;
-        height: auto !important;
+        background-color: #fff !important;
+        margin: 0 !important;
+        padding: 0 !important;
+        height: 100% !important;
         overflow: visible !important;
     }
 
-    /* SHOW PRINT AREA */
-    #print-area {
+    #print-overlay {
         display: block !important;
-        position: absolute;
-        left: 0;
-        top: 0;
-        width: 100%;
-        margin: 0;
-        padding: 20px;
-        z-index: 99999;
-        background: white !important;
-        color: black !important;
+        position: static !important;
+        width: 100% !important;
+        height: auto !important;
+        overflow: visible !important;
+        padding: 0 !important;
     }
 
-    /* TABLE STYLING */
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-family: sans-serif; font-size: 11px; }
-    th, td { border: 1px solid #333; padding: 6px; text-align: center; color: #000; }
-    th { background-color: #f0f0f0 !important; font-weight: bold; }
+    table { 
+        width: 100%; 
+        border-collapse: collapse; 
+        font-family: 'Inter', sans-serif; 
+        font-size: 11px; 
+    }
+    th, td { 
+        border: 1px solid #000; 
+        padding: 6px; 
+        text-align: center; 
+        color: #000; 
+    }
+    th { 
+        background-color: #f0f0f0 !important; 
+        font-weight: 800; 
+        -webkit-print-color-adjust: exact; 
+    }
+    h2, p { text-align: center; color: black; }
 }
 
 .empty-state { text-align: center; color: var(--text-muted); padding: 40px 20px; font-size: 14px; }
@@ -285,7 +295,8 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
     </div>
 </div>
 
-<div id="print-area"></div>
+<!-- PRINT OVERLAY -->
+<div id="print-overlay"></div>
 
 <script>
 const SB_URL = 'https://yhlfqpiwevsehlgbhxtk.supabase.co';
@@ -317,6 +328,8 @@ let foundItem, modalMode = '', manageItem = null, currentBatch = [];
         });
     }
     window.addEventListener('online', () => { updateStatus(); processQueue(); syncData(); });
+    // Watchdog for Sync Bug
+    setInterval(() => { if(queue.length === 0) updateStatus(); }, 3000);
 })();
 
 function switchLocation(loc) {
@@ -414,16 +427,12 @@ function parseExcel(file) {
         const wb = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
         const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
         const cleanRows = rows.map(r => {
-            let nR = {};
-            Object.keys(r).forEach(k => {
-                let s = k.toLowerCase().replace(/[^a-z0-9]/g, '');
-                if(s.includes('design') || s.includes('particular')) nR['Design'] = r[k];
-                else if(s.includes('22')) nR['22x32'] = r[k];
-                else if(s.includes('34')) nR['34x36'] = r[k];
-                else if(s.includes('16')) nR['16x18'] = r[k];
-                else if(s.includes('26')) nR['26x30'] = r[k];
-            });
-            return nR;
+            const vals = Object.values(r);
+            // Fallback: If object has 5 values, assume correct order
+            if (vals.length === 5) {
+                return { 'Design': vals[0], '22x32': vals[1], '34x36': vals[2], '16x18': vals[3], '26x30': vals[4] };
+            }
+            return r; // Return original if not simple
         });
         importRows(cleanRows);
     };
@@ -468,9 +477,16 @@ function importRows(rows) {
     const tTx = currentLocation === 'METIABRUZ' ? 'transactions_met' : 'transactions_uns';
 
     rows.forEach(r => {
-        const dNo = r['Design'] ? r['Design'].toString().toUpperCase().trim() : null;
+        const dNo = (r['Design'] || r['design'] || r['Particulars'] || Object.values(r)[0])?.toString().toUpperCase().trim();
         if(dNo && dNo !== "DESIGN") {
-            const qtys = [ parseInt(r['22x32']||0), parseInt(r['34x36']||0), parseInt(r['16x18']||0), parseInt(r['26x30']||0) ];
+            const vals = Object.values(r);
+            const qtys = [ 
+                parseInt(r['22x32'] || vals[1] || 0), 
+                parseInt(r['34x36'] || vals[2] || 0), 
+                parseInt(r['16x18'] || vals[3] || 0), 
+                parseInt(r['26x30'] || vals[4] || 0) 
+            ];
+            
             if(!inventory.find(i => i.design === dNo && !i.deleted_at)) {
                 const newItem = { id: crypto.randomUUID(), design: dNo, stock: qtys, sold:[0,0,0,0], created_at: new Date().toISOString() };
                 inventory.unshift(newItem);
@@ -666,12 +682,11 @@ function deleteItem() {
 }
 
 function printStock(type) {
-    const printArea = document.getElementById('print-area');
+    const printEl = document.getElementById('print-overlay');
     let items = type === 'global' ? globalStockData : inventory.filter(i => !i.deleted_at);
     if(!items || items.length === 0) return showToast("Nothing to print", "error");
 
     let title = type === 'global' ? 'Global Stock Report' : `${currentLocation} Stock`;
-    
     let html = `
         <div style="text-align:center; margin-bottom:20px;">
             <h2>${title}</h2>
@@ -681,7 +696,10 @@ function printStock(type) {
             <thead>
                 <tr>
                     <th style="width:20%">Design</th>
-                    <th style="width:60%">Details</th>
+                    <th style="width:15%">22x32</th>
+                    <th style="width:15%">34x36</th>
+                    <th style="width:15%">16x18</th>
+                    <th style="width:15%">26x30</th>
                     <th style="width:20%">Total</th>
                 </tr>
             </thead>
@@ -689,26 +707,38 @@ function printStock(type) {
     `;
     
     items.forEach(i => {
-        let det = '', tot = 0;
+        let stock, total;
         if(type==='global') {
-            const m = i.met.reduce((a,b)=>a+b,0); const u = i.uns.reduce((a,b)=>a+b,0);
-            det = `MET: ${m} | UNS: ${u}`; tot = m + u;
+            stock = i.met.map((m, x) => m + i.uns[x]);
         } else {
-            const stk = i.stock.map((s,x)=>s-(i.sold[x]||0));
-            det = stk.join(' / '); tot = stk.reduce((a,b)=>a+b,0);
+            stock = i.stock.map((s, x) => s - (i.sold[x] || 0));
         }
-        html += `<tr><td>${i.design}</td><td>${det}</td><td><b>${tot}</b></td></tr>`;
+        total = stock.reduce((a,b)=>a+b,0);
+        
+        html += `<tr>
+            <td>${i.design}</td>
+            <td>${stock[0]}</td>
+            <td>${stock[1]}</td>
+            <td>${stock[2]}</td>
+            <td>${stock[3]}</td>
+            <td><b>${total}</b></td>
+        </tr>`;
     });
     
     html += '</tbody></table>';
-    printArea.innerHTML = html;
-    window.print();
+    
+    printEl.innerHTML = html;
+    printEl.style.display = 'block';
+    
+    setTimeout(() => {
+        window.print();
+        setTimeout(() => { printEl.style.display = 'none'; }, 500); // Allow print dialog time
+    }, 100);
 }
 
 function printReport() {
     if(!filteredTransactions || filteredTransactions.length === 0) return showToast("No records", "error");
-    
-    const printArea = document.getElementById('print-area');
+    const printEl = document.getElementById('print-overlay');
     let html = `
         <div style="text-align:center; margin-bottom:20px;">
             <h2>${currentLocation} Report</h2>
@@ -720,14 +750,13 @@ function printReport() {
             </thead>
             <tbody>
     `;
-    
     filteredTransactions.forEach(t => {
         html += `<tr><td>${new Date(t.created_at).toLocaleDateString()}</td><td>${t.type}</td><td>${t.design}</td><td>${t.total_qty}</td></tr>`;
     });
-    
     html += '</tbody></table>';
-    printArea.innerHTML = html;
-    window.print();
+    printEl.innerHTML = html;
+    printEl.style.display = 'block';
+    setTimeout(() => { window.print(); setTimeout(() => { printEl.style.display = 'none'; }, 500); }, 100);
 }
 
 function toggleSidebar() { document.getElementById('sidebarOverlay').classList.toggle('open'); }
