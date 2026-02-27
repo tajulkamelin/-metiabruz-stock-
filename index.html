@@ -20,30 +20,25 @@
     --bg: #0f172a; --surface: #1e293b; --surface-light: #334155;
     --text: #f8fafc; --text-muted: #94a3b8; --border: rgba(255,255,255,0.08);
     --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
-    --met-color: #6366f1; /* Indigo */
-    --uns-color: #06b6d4; /* Teal */
+    --met-color: #6366f1; --uns-color: #06b6d4;
     --safe-bottom: env(safe-area-inset-bottom);
 }
-
-/* THEMES */
 body.theme-met { --primary: var(--met-color); } 
 body.theme-uns { --primary: var(--uns-color); } 
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; }
 body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column; transition: --primary 0.3s; }
 
-/* HEADER */
-.app-header { background: rgba(15, 23, 42, 0.95); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 50; flex-shrink: 0; backdrop-filter: blur(10px); }
-.menu-btn { font-size: 24px; cursor: pointer; margin-right: 15px; }
+/* LAYOUT */
+.app-header { background: rgba(15, 23, 42, 0.95); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 50; flex-shrink: 0; }
 .brand { display: flex; flex-direction: column; font-weight: 800; font-size: 18px; line-height: 1.1; }
 .brand span { font-size: 10px; color: var(--primary); letter-spacing: 1px; font-weight: 600; text-transform: uppercase; }
-.status-badge { font-size: 10px; font-weight: 700; background: var(--surface); padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px; border: 1px solid var(--border); transition: 0.3s; }
+.status-badge { font-size: 10px; font-weight: 700; background: var(--surface); padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px; border: 1px solid var(--border); }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); transition: 0.3s; box-shadow: 0 0 5px currentColor; }
 
-/* SIDEBAR */
 .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 900; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(4px); }
 .sidebar-overlay.open { opacity: 1; pointer-events: auto; }
-.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: var(--surface); z-index: 901; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: var(--surface); z-index: 901; transform: translateX(-100%); transition: transform 0.3s; border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
 .sidebar-overlay.open .sidebar { transform: translateX(0); }
 .nav-item { padding: 15px; border-radius: 10px; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
 .nav-item.active { background: var(--primary); color: white; }
@@ -53,7 +48,6 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .loc-btn { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid transparent; background: transparent; color: var(--text-muted); font-weight: 700; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
 .loc-btn.active { background: rgba(255,255,255,0.05); color: white; border-color: var(--primary); }
 
-/* VIEWS & CARDS */
 .view-section { display: none; flex-direction: column; height: 100%; overflow: hidden; }
 .view-section.active { display: flex; }
 .sub-header { padding: 15px 20px 0; display: grid; gap: 15px; flex-shrink: 0; }
@@ -66,7 +60,6 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .print-btn { width: 44px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; }
 .list-container { flex: 1; overflow-y: auto; padding: 0 20px 120px; scroll-behavior: smooth; }
 
-/* INVENTORY CARD */
 .inventory-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); user-select: none; }
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
@@ -82,7 +75,7 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .global-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; flex: 1; margin-left: 10px; }
 .g-box { background: var(--bg); text-align: center; padding: 4px; border-radius: 4px; font-size: 12px; font-weight: 700; color: #fff; }
 
-/* REPORTS */
+/* REPORT FILTERS */
 .report-filters { padding: 15px 20px; background: var(--surface); border-bottom: 1px solid var(--border); }
 .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
 .history-card { background: var(--surface); border-radius: 12px; padding: 15px; margin-bottom: 10px; border-left: 4px solid var(--text-muted); display: flex; justify-content: space-between; align-items: center; position: relative; }
@@ -92,7 +85,7 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .h-tag.sell { background: rgba(16, 185, 129, 0.2); color: var(--success); }
 .h-tag.add { background: rgba(255, 255, 255, 0.1); color: var(--text); border: 1px solid var(--border); }
 
-/* MODAL */
+/* MODALS */
 .dock { position: fixed; bottom: 0; left: 0; right: 0; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(12px); border-top: 1px solid var(--border); padding: 12px 20px calc(12px + var(--safe-bottom)); display: grid; grid-template-columns: 1fr 1fr; gap: 15px; z-index: 100; }
 .btn { border: none; padding: 14px; border-radius: 12px; font-weight: 700; font-size: 15px; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer; color: white; transition: 0.2s; }
 .btn-p { background: var(--primary); } .btn-s { background: var(--surface-light); } .btn-d { background: var(--danger); }
@@ -106,24 +99,26 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
 .qty-select, .qty-input { padding: 12px; width: 100%; background: var(--bg); color: white; border: 1px solid var(--border); border-radius: 10px; font-size: 16px; text-align: center; font-weight: bold; }
 
-.suggestions-box { position: absolute; top: 70px; left: 24px; right: 24px; background: var(--surface-light); z-index: 960; max-height: 150px; overflow-y: auto; display: none; border-radius: 0 0 12px 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
-.suggestions-box.active { display: block; }
-.s-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
-
 .import-box { border: 2px dashed var(--border); border-radius: 12px; padding: 20px; text-align: center; margin-bottom: 20px; background: rgba(0,0,0,0.2); }
 .loader { border: 3px solid #f3f3f3; border-top: 3px solid var(--primary); border-radius: 50%; width: 20px; height: 20px; animation: spin 1s linear infinite; margin: 10px auto; display: none; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-/* PRINT */
+.suggestions-box { position: absolute; top: 70px; left: 24px; right: 24px; background: var(--surface-light); z-index: 960; max-height: 150px; overflow-y: auto; display: none; border-radius: 0 0 12px 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+.suggestions-box.active { display: block; }
+.s-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
+
+/* PRINTING - FIXED VISIBILITY */
 #print-area { display: none; }
 @media print {
-    body { background-color: #fff !important; color: #000 !important; }
-    body * { visibility: hidden; }
-    #print-area, #print-area * { visibility: visible; }
-    #print-area { display: block; position: absolute; left: 0; top: 0; width: 100%; color: #000; background: #fff; padding: 0; }
+    body { background-color: #fff !important; color: #000 !important; overflow: visible !important; height: auto !important; }
+    /* Hide everything by default */
+    body > *:not(#print-area) { display: none !important; }
+    /* Show print area */
+    #print-area { display: block !important; position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 20px; z-index: 9999; }
+    
     table { width: 100%; border-collapse: collapse; margin-top: 10px; font-family: sans-serif; font-size: 12px; color: #000; }
-    th, td { border: 1px solid #000; padding: 6px; text-align: center; color: #000; }
-    th { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; }
+    th, td { border: 1px solid #000; padding: 6px; text-align: center; color: #000; page-break-inside: avoid; }
+    th { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; font-weight: bold; }
 }
 .empty-state { text-align: center; color: var(--text-muted); padding: 40px 20px; font-size: 14px; }
 </style>
@@ -193,7 +188,7 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
         <div class="report-grid">
             <input type="date" id="rep-start" class="report-inp">
             <input type="date" id="rep-end" class="report-inp">
-            <select id="rep-type" class="report-inp"><option value="ALL">All</option><option value="SELL">Sales</option><option value="ADD">Inward</option></select>
+            <select id="rep-type" class="report-inp"><option value="ALL">All Actions</option><option value="SELL">Sales</option><option value="ADD">Inward</option></select>
             <input type="text" id="rep-design" class="report-inp" placeholder="Design #">
         </div>
         <div style="display:flex; gap:10px">
@@ -205,7 +200,7 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
     <div id="report-results" class="list-container"></div>
 </div>
 
-<!-- MODALS -->
+<!-- IMPORT MODAL -->
 <div class="modal-overlay" id="importOverlay" onclick="closeImport()">
     <div class="bottom-sheet" onclick="event.stopPropagation()">
         <h2 style="margin:0 0 15px">Import Stock</h2>
@@ -218,6 +213,7 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
     </div>
 </div>
 
+<!-- ADD/SELL MODAL -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
     <div class="bottom-sheet" onclick="event.stopPropagation()">
         <h2 id="m-title" style="margin:0 0 15px">Update Stock</h2>
@@ -234,6 +230,7 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
     </div>
 </div>
 
+<!-- MANAGE MODAL -->
 <div class="modal-overlay" id="manageOverlay" onclick="closeManage()">
     <div class="bottom-sheet" onclick="event.stopPropagation()">
         <div style="display:flex;justify-content:space-between;margin-bottom:20px"><h2 id="man-title" style="margin:0">Manage Item</h2><button class="btn btn-s" style="padding:5px 10px;height:auto" onclick="closeManage()">✕</button></div>
@@ -341,11 +338,10 @@ function updateStatus() {
 
 async function processQueue() {
     if(!navigator.onLine || queue.length === 0) {
-        if(queue.length === 0) updateStatus(); // Ensure UI clears
+        if(queue.length === 0) updateStatus(); // Fix Stuck Sync
         return;
     }
     const op = queue[0];
-    // Force correct table based on current location
     const table = op.table_override || (op.table.includes('inventory') ? (currentLocation==='METIABRUZ'?'inventory_met':'inventory_uns') : (currentLocation==='METIABRUZ'?'transactions_met':'transactions_uns'));
     
     let error;
@@ -362,36 +358,33 @@ async function processQueue() {
     }
 }
 
-// --- IMPORT LOGIC (SMART PARSER) ---
+// --- SMART IMPORT (Fixes Wrong Reading) ---
 function handleFileUpload() {
     const input = document.getElementById('fileInput');
     if(!input.files || !input.files[0]) return;
-    const file = input.files[0];
     document.getElementById('importLoader').style.display = 'block';
-    if (file.name.endsWith('.pdf')) parsePDF(file); else parseExcel(file);
+    if (input.files[0].name.endsWith('.pdf')) parsePDF(input.files[0]); else parseExcel(input.files[0]);
 }
 
 function parseExcel(file) {
     const reader = new FileReader();
     reader.onload = function(e) {
-        const data = new Uint8Array(e.target.result);
-        const workbook = XLSX.read(data, {type: 'array'});
-        const sheet = workbook.Sheets[workbook.SheetNames[0]];
-        const json = XLSX.utils.sheet_to_json(sheet);
-        // Normalize keys
-        const rows = json.map(r => {
+        const wb = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
+        const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
+        // Fuzzy Match Keys
+        const cleanRows = rows.map(r => {
             let nR = {};
             Object.keys(r).forEach(k => {
-                let lower = k.toLowerCase().replace(/[^a-z0-9]/g, '');
-                if(lower.includes('design') || lower.includes('particular')) nR['Design'] = r[k];
-                else if(lower.includes('22')) nR['22x32'] = r[k];
-                else if(lower.includes('34')) nR['34x36'] = r[k];
-                else if(lower.includes('16')) nR['16x18'] = r[k];
-                else if(lower.includes('26')) nR['26x30'] = r[k];
+                let s = k.toLowerCase().replace(/[^a-z0-9]/g, '');
+                if(s.includes('design') || s.includes('particular')) nR['Design'] = r[k];
+                else if(s.includes('22')) nR['22x32'] = r[k];
+                else if(s.includes('34')) nR['34x36'] = r[k];
+                else if(s.includes('16')) nR['16x18'] = r[k];
+                else if(s.includes('26')) nR['26x30'] = r[k];
             });
             return nR;
         });
-        importRows(rows);
+        importRows(cleanRows);
     };
     reader.readAsArrayBuffer(file);
 }
@@ -407,14 +400,14 @@ function parsePDF(file) {
                 const content = await page.getTextContent();
                 let rowMap = {};
                 content.items.forEach(item => {
-                    const y = Math.round(item.transform[5] / 10) * 10; // Looser Y grouping
+                    const y = Math.round(item.transform[5] / 10) * 10;
                     if(!rowMap[y]) rowMap[y] = [];
                     rowMap[y].push({ str: item.str, x: item.transform[4] });
                 });
                 Object.values(rowMap).forEach(rowItems => {
                     rowItems.sort((a,b) => a.x - b.x);
                     const strs = rowItems.map(it => it.str.trim()).filter(s => s);
-                    // Match line with [DesignName, num, num, num, num]
+                    // Improved PDF Logic: Find lines ending with 4 numbers
                     if(strs.length >= 5) {
                         const l = strs.length;
                         if(!isNaN(strs[l-1]) && !isNaN(strs[l-2]) && !isNaN(strs[l-3]) && !isNaN(strs[l-4])) {
@@ -424,7 +417,7 @@ function parsePDF(file) {
                 });
             }
             importRows(allRows);
-        } catch (e) { document.getElementById('importLoader').style.display='none'; showToast("PDF Parse Error","error"); }
+        } catch (e) { document.getElementById('importLoader').style.display='none'; showToast("PDF Error","error"); }
     };
     reader.readAsArrayBuffer(file);
 }
@@ -436,8 +429,9 @@ function importRows(rows) {
 
     rows.forEach(r => {
         const dNo = r['Design'] ? r['Design'].toString().toUpperCase().trim() : null;
-        if(dNo) {
+        if(dNo && dNo !== "DESIGN") {
             const qtys = [ parseInt(r['22x32']||0), parseInt(r['34x36']||0), parseInt(r['16x18']||0), parseInt(r['26x30']||0) ];
+            // Check existence in current location
             if(!inventory.find(i => i.design === dNo && !i.deleted_at)) {
                 const newItem = { id: crypto.randomUUID(), design: dNo, stock: qtys, sold:[0,0,0,0], created_at: new Date().toISOString() };
                 inventory.unshift(newItem);
