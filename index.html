@@ -20,25 +20,30 @@
     --bg: #0f172a; --surface: #1e293b; --surface-light: #334155;
     --text: #f8fafc; --text-muted: #94a3b8; --border: rgba(255,255,255,0.08);
     --success: #10b981; --danger: #ef4444; --warning: #f59e0b;
-    --met-color: #6366f1; --uns-color: #06b6d4;
+    --met-color: #6366f1; /* Indigo */
+    --uns-color: #06b6d4; /* Teal */
     --safe-bottom: env(safe-area-inset-bottom);
 }
+
+/* THEMES */
 body.theme-met { --primary: var(--met-color); } 
 body.theme-uns { --primary: var(--uns-color); } 
 
 * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; font-family: 'Inter', sans-serif; }
 body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; overflow: hidden; display: flex; flex-direction: column; transition: --primary 0.3s; }
 
-/* LAYOUT */
-.app-header { background: rgba(15, 23, 42, 0.95); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 50; flex-shrink: 0; }
+/* HEADER */
+.app-header { background: rgba(15, 23, 42, 0.95); padding: 15px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; z-index: 50; flex-shrink: 0; backdrop-filter: blur(10px); }
+.menu-btn { font-size: 24px; cursor: pointer; margin-right: 15px; }
 .brand { display: flex; flex-direction: column; font-weight: 800; font-size: 18px; line-height: 1.1; }
 .brand span { font-size: 10px; color: var(--primary); letter-spacing: 1px; font-weight: 600; text-transform: uppercase; }
 .status-badge { font-size: 10px; font-weight: 700; background: var(--surface); padding: 6px 12px; border-radius: 20px; display: flex; align-items: center; gap: 6px; border: 1px solid var(--border); }
 .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--text-muted); transition: 0.3s; box-shadow: 0 0 5px currentColor; }
 
+/* SIDEBAR */
 .sidebar-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 900; opacity: 0; pointer-events: none; transition: 0.3s; backdrop-filter: blur(4px); }
 .sidebar-overlay.open { opacity: 1; pointer-events: auto; }
-.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: var(--surface); z-index: 901; transform: translateX(-100%); transition: transform 0.3s; border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
+.sidebar { position: fixed; top: 0; left: 0; bottom: 0; width: 280px; background: var(--surface); z-index: 901; transform: translateX(-100%); transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1); border-right: 1px solid var(--border); padding: 20px; display: flex; flex-direction: column; }
 .sidebar-overlay.open .sidebar { transform: translateX(0); }
 .nav-item { padding: 15px; border-radius: 10px; margin-bottom: 8px; font-weight: 600; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; gap: 12px; transition: 0.2s; }
 .nav-item.active { background: var(--primary); color: white; }
@@ -48,6 +53,7 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .loc-btn { width: 100%; padding: 12px; border-radius: 8px; border: 1px solid transparent; background: transparent; color: var(--text-muted); font-weight: 700; text-align: left; cursor: pointer; display: flex; align-items: center; gap: 10px; margin-bottom: 5px; }
 .loc-btn.active { background: rgba(255,255,255,0.05); color: white; border-color: var(--primary); }
 
+/* VIEWS & CARDS */
 .view-section { display: none; flex-direction: column; height: 100%; overflow: hidden; }
 .view-section.active { display: flex; }
 .sub-header { padding: 15px 20px 0; display: grid; gap: 15px; flex-shrink: 0; }
@@ -57,9 +63,11 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .filter-row { padding: 15px 20px; display: flex; gap: 10px; flex-shrink: 0; }
 .search-container { flex: 1; position: relative; }
 .search-inp { width: 100%; background: var(--surface); border: 1px solid var(--border); padding: 12px 12px 12px 40px; border-radius: 12px; color: white; outline: none; font-size: 14px; }
+.search-inp:focus { border-color: var(--primary); }
 .print-btn { width: 44px; background: var(--surface); border: 1px solid var(--border); border-radius: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 20px; }
 .list-container { flex: 1; overflow-y: auto; padding: 0 20px 120px; scroll-behavior: smooth; }
 
+/* INVENTORY CARD */
 .inventory-card { background: var(--surface); border-radius: 16px; padding: 16px; margin-bottom: 12px; border: 1px solid var(--border); user-select: none; }
 .card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
 .size-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
@@ -78,6 +86,7 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 /* REPORT FILTERS */
 .report-filters { padding: 15px 20px; background: var(--surface); border-bottom: 1px solid var(--border); }
 .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 10px; }
+.report-inp { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 10px; border-radius: 8px; font-size: 13px; outline: none; }
 .history-card { background: var(--surface); border-radius: 12px; padding: 15px; margin-bottom: 10px; border-left: 4px solid var(--text-muted); display: flex; justify-content: space-between; align-items: center; position: relative; }
 .history-card.sell { border-left-color: var(--success); }
 .history-card.add { border-left-color: var(--primary); }
@@ -95,7 +104,7 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .bottom-sheet { position: fixed; left: 0; right: 0; bottom: 0; background: #1e293b; border-radius: 24px 24px 0 0; padding: 24px; transform: translateY(100%); transition: transform 0.3s; z-index: 951; padding-bottom: calc(30px + var(--safe-bottom)); max-height: 90vh; overflow-y: auto; }
 .modal-overlay.open .bottom-sheet { transform: translateY(0); }
 
-.inp-large, .report-inp { width: 100%; background: var(--bg); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 10px; font-size: 16px; outline: none; margin-bottom: 12px; }
+.inp-large { width: 100%; background: var(--bg); border: 1px solid var(--border); color: white; padding: 12px; border-radius: 10px; font-size: 16px; outline: none; margin-bottom: 12px; }
 .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 15px; }
 .qty-select, .qty-input { padding: 12px; width: 100%; background: var(--bg); color: white; border: 1px solid var(--border); border-radius: 10px; font-size: 16px; text-align: center; font-weight: bold; }
 
@@ -107,19 +116,64 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
 .suggestions-box.active { display: block; }
 .s-item { padding: 12px; border-bottom: 1px solid rgba(255,255,255,0.05); cursor: pointer; }
 
-/* PRINTING - FIXED VISIBILITY */
+/* --- ROBUST PRINT CSS --- */
 #print-area { display: none; }
+
 @media print {
-    body { background-color: #fff !important; color: #000 !important; overflow: visible !important; height: auto !important; }
-    /* Hide everything by default */
-    body > *:not(#print-area) { display: none !important; }
-    /* Show print area */
-    #print-area { display: block !important; position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 20px; z-index: 9999; }
+    /* Hide ALL app UI elements explicitly */
+    .app-header, .sidebar-overlay, .view-section, .dock, .modal-overlay, #liquid-wave {
+        display: none !important;
+    }
     
-    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-family: sans-serif; font-size: 12px; color: #000; }
-    th, td { border: 1px solid #000; padding: 6px; text-align: center; color: #000; page-break-inside: avoid; }
-    th { background-color: #f0f0f0 !important; -webkit-print-color-adjust: exact; font-weight: bold; }
+    /* Ensure Body is clean white */
+    body, html {
+        background-color: #fff !important;
+        background: #fff !important;
+        color: #000 !important;
+        margin: 0;
+        padding: 0;
+        height: auto !important;
+        overflow: visible !important;
+    }
+
+    /* Force Print Area to show */
+    #print-area {
+        display: block !important;
+        position: relative !important; /* Static flow */
+        width: 100% !important;
+        height: auto !important;
+        padding: 20px;
+        background: white !important;
+        color: black !important;
+        z-index: 99999;
+    }
+
+    /* Table Styling for Paper */
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        font-family: 'Inter', sans-serif;
+        font-size: 12px;
+        color: #000;
+    }
+    th, td {
+        border: 1px solid #000;
+        padding: 8px;
+        text-align: center;
+        color: #000;
+    }
+    th {
+        background-color: #eee !important;
+        font-weight: bold;
+        -webkit-print-color-adjust: exact;
+    }
 }
+
+/* Helper Class for JS-Triggered Print State */
+body.is-printing > *:not(#print-area) { display: none !important; }
+body.is-printing #print-area { display: block !important; }
+body.is-printing { background: white !important; }
+
 .empty-state { text-align: center; color: var(--text-muted); padding: 40px 20px; font-size: 14px; }
 </style>
 </head>
@@ -200,7 +254,7 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
     <div id="report-results" class="list-container"></div>
 </div>
 
-<!-- IMPORT MODAL -->
+<!-- MODALS -->
 <div class="modal-overlay" id="importOverlay" onclick="closeImport()">
     <div class="bottom-sheet" onclick="event.stopPropagation()">
         <h2 style="margin:0 0 15px">Import Stock</h2>
@@ -213,7 +267,6 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
     </div>
 </div>
 
-<!-- ADD/SELL MODAL -->
 <div class="modal-overlay" id="modalOverlay" onclick="closeModal()">
     <div class="bottom-sheet" onclick="event.stopPropagation()">
         <h2 id="m-title" style="margin:0 0 15px">Update Stock</h2>
@@ -230,7 +283,6 @@ body { margin: 0; background: var(--bg); color: var(--text); height: 100vh; over
     </div>
 </div>
 
-<!-- MANAGE MODAL -->
 <div class="modal-overlay" id="manageOverlay" onclick="closeManage()">
     <div class="bottom-sheet" onclick="event.stopPropagation()">
         <div style="display:flex;justify-content:space-between;margin-bottom:20px"><h2 id="man-title" style="margin:0">Manage Item</h2><button class="btn btn-s" style="padding:5px 10px;height:auto" onclick="closeManage()">✕</button></div>
@@ -338,7 +390,7 @@ function updateStatus() {
 
 async function processQueue() {
     if(!navigator.onLine || queue.length === 0) {
-        if(queue.length === 0) updateStatus(); // Fix Stuck Sync
+        if(queue.length === 0) updateStatus();
         return;
     }
     const op = queue[0];
@@ -358,12 +410,13 @@ async function processQueue() {
     }
 }
 
-// --- SMART IMPORT (Fixes Wrong Reading) ---
+// --- SMART IMPORT LOGIC ---
 function handleFileUpload() {
     const input = document.getElementById('fileInput');
     if(!input.files || !input.files[0]) return;
+    const file = input.files[0];
     document.getElementById('importLoader').style.display = 'block';
-    if (input.files[0].name.endsWith('.pdf')) parsePDF(input.files[0]); else parseExcel(input.files[0]);
+    if (file.name.endsWith('.pdf')) parsePDF(file); else parseExcel(file);
 }
 
 function parseExcel(file) {
@@ -371,7 +424,6 @@ function parseExcel(file) {
     reader.onload = function(e) {
         const wb = XLSX.read(new Uint8Array(e.target.result), {type: 'array'});
         const rows = XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]]);
-        // Fuzzy Match Keys
         const cleanRows = rows.map(r => {
             let nR = {};
             Object.keys(r).forEach(k => {
@@ -407,7 +459,6 @@ function parsePDF(file) {
                 Object.values(rowMap).forEach(rowItems => {
                     rowItems.sort((a,b) => a.x - b.x);
                     const strs = rowItems.map(it => it.str.trim()).filter(s => s);
-                    // Improved PDF Logic: Find lines ending with 4 numbers
                     if(strs.length >= 5) {
                         const l = strs.length;
                         if(!isNaN(strs[l-1]) && !isNaN(strs[l-2]) && !isNaN(strs[l-3]) && !isNaN(strs[l-4])) {
@@ -424,6 +475,7 @@ function parsePDF(file) {
 
 function importRows(rows) {
     let count = 0;
+    // Explicit targeting based on current location
     const tInv = currentLocation === 'METIABRUZ' ? 'inventory_met' : 'inventory_uns';
     const tTx = currentLocation === 'METIABRUZ' ? 'transactions_met' : 'transactions_uns';
 
@@ -431,7 +483,7 @@ function importRows(rows) {
         const dNo = r['Design'] ? r['Design'].toString().toUpperCase().trim() : null;
         if(dNo && dNo !== "DESIGN") {
             const qtys = [ parseInt(r['22x32']||0), parseInt(r['34x36']||0), parseInt(r['16x18']||0), parseInt(r['26x30']||0) ];
-            // Check existence in current location
+            // Check current local inventory to avoid immediate dupe
             if(!inventory.find(i => i.design === dNo && !i.deleted_at)) {
                 const newItem = { id: crypto.randomUUID(), design: dNo, stock: qtys, sold:[0,0,0,0], created_at: new Date().toISOString() };
                 inventory.unshift(newItem);
@@ -628,8 +680,33 @@ function deleteItem() {
 
 function printStock(type) {
     const printArea = document.getElementById('print-area');
+    document.body.classList.add('is-printing');
+    
+    // Safety check
     let items = type === 'global' ? globalStockData : inventory.filter(i => !i.deleted_at);
-    let html = `<h2 style="text-align:center">${type==='global'?'Global':currentLocation} Stock</h2><table style="width:100%;border-collapse:collapse;font-family:sans-serif;font-size:12px;color:#000"><thead><tr><th style="border:1px solid #000;padding:5px">Design</th><th style="border:1px solid #000;padding:5px">Details</th><th style="border:1px solid #000;padding:5px">Total</th></tr></thead><tbody>`;
+    if(!items || items.length === 0) {
+        document.body.classList.remove('is-printing');
+        return showToast("Nothing to print", "error");
+    }
+
+    let title = type === 'global' ? 'Global Stock Report' : `${currentLocation} Stock`;
+    
+    let html = `
+        <div style="text-align:center; margin-bottom:20px;">
+            <h2>${title}</h2>
+            <p>Generated: ${new Date().toLocaleString()}</p>
+        </div>
+        <table>
+            <thead>
+                <tr>
+                    <th style="width:20%">Design</th>
+                    <th style="width:60%">Details</th>
+                    <th style="width:20%">Total</th>
+                </tr>
+            </thead>
+            <tbody>
+    `;
+    
     items.forEach(i => {
         let det = '', tot = 0;
         if(type==='global') {
@@ -639,18 +716,48 @@ function printStock(type) {
             const stk = i.stock.map((s,x)=>s-(i.sold[x]||0));
             det = stk.join(' / '); tot = stk.reduce((a,b)=>a+b,0);
         }
-        html += `<tr><td style="border:1px solid #000;padding:5px;text-align:center">${i.design}</td><td style="border:1px solid #000;padding:5px;text-align:center">${det}</td><td style="border:1px solid #000;padding:5px;text-align:center;font-weight:bold">${tot}</td></tr>`;
+        html += `<tr><td>${i.design}</td><td>${det}</td><td><b>${tot}</b></td></tr>`;
     });
-    html += '</tbody></table>'; printArea.innerHTML = html; window.print();
+    
+    html += '</tbody></table>';
+    printArea.innerHTML = html;
+
+    // Small delay to ensure DOM update
+    setTimeout(() => {
+        window.print();
+        document.body.classList.remove('is-printing');
+    }, 100);
 }
 
 function printReport() {
+    if(!filteredTransactions || filteredTransactions.length === 0) return showToast("No records", "error");
+    
+    document.body.classList.add('is-printing');
     const printArea = document.getElementById('print-area');
-    let html = `<h2 style="text-align:center">${currentLocation} Report</h2><table style="width:100%;border-collapse:collapse;font-family:sans-serif;font-size:12px;color:#000"><thead><tr><th>Date</th><th>Type</th><th>Design</th><th>Total</th></tr></thead><tbody>`;
+    
+    let html = `
+        <div style="text-align:center; margin-bottom:20px;">
+            <h2>${currentLocation} Report</h2>
+            <p>${new Date().toLocaleString()}</p>
+        </div>
+        <table>
+            <thead>
+                <tr><th>Date</th><th>Type</th><th>Design</th><th>Total</th></tr>
+            </thead>
+            <tbody>
+    `;
+    
     filteredTransactions.forEach(t => {
-        html += `<tr><td style="border:1px solid #000;padding:5px">${new Date(t.created_at).toLocaleDateString()}</td><td style="border:1px solid #000;padding:5px">${t.type}</td><td style="border:1px solid #000;padding:5px">${t.design}</td><td style="border:1px solid #000;padding:5px">${t.total_qty}</td></tr>`;
+        html += `<tr><td>${new Date(t.created_at).toLocaleDateString()}</td><td>${t.type}</td><td>${t.design}</td><td>${t.total_qty}</td></tr>`;
     });
-    html += '</tbody></table>'; printArea.innerHTML = html; window.print();
+    
+    html += '</tbody></table>';
+    printArea.innerHTML = html;
+    
+    setTimeout(() => {
+        window.print();
+        document.body.classList.remove('is-printing');
+    }, 100);
 }
 
 function toggleSidebar() { document.getElementById('sidebarOverlay').classList.toggle('open'); }
